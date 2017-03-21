@@ -1,0 +1,9 @@
+<?php
+
+namespace Findologic\Plentymarkets;
+
+class Config {
+    const USERNAME = 'Username';
+    const PASSWORD = 'Password';
+    const ENDPOINT = 'https://yourshop.com/rest/';
+}
