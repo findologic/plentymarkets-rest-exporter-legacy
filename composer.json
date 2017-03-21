@@ -8,9 +8,9 @@
   ],
   "repositories": [
     {
-      "packagist": false,
       "type": "vcs",
-      "url": "git@github.com:findologic/plentymarkets-rest-export.git"
+      "url": "git@github.com:findologic/plentymarkets-rest-export.git",
+      "no-api": true
     }
   ],
   "minimal-stability": "dev",
