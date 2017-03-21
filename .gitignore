@@ -1,0 +1,8 @@
+Config.php
+vendor/
+composer.lock
+composer.phar
+/vendor/
+/build/
+.idea/
+.idea_modules/
