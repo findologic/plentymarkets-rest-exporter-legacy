@@ -205,6 +205,7 @@ class Client
      */
     protected function getEndpoint($method, $params = null)
     {
+        
         $query = '';
 
         if ($params) {
@@ -298,7 +299,7 @@ class Client
     }
 
     /**
-     * Merge default request params with request specific params
+     * Set default request params for request
      *
      * @param \HTTP_Request2 $request
      * @return $this

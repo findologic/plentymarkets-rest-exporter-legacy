@@ -75,7 +75,10 @@ class Product
             $this->fields['attributes'] = array();
         }
 
-        //TODO: check for same values ?
+        if (isset($this->fields['attributes'][$name]) && in_array($value, $this->fields['attributes'][$name])) {
+            return $this;
+        }
+
         $this->fields['attributes'][$name][] = $value;
 
         return $this;
@@ -92,7 +95,9 @@ class Product
         $this->itemId = $this->getFromArray($data, 'id');
 
         $this->setField('id', $this->getItemId())
-            ->setField('date_added', $this->getFromArray($data, 'createdAt'));
+            ->setField('date_added', $this->getFromArray($data, 'createdAt'))
+            ->setField('position', $this->getFromArray($data, 'position'));
+
         $this->processTexts($data);
 
         return $this;
@@ -105,7 +110,6 @@ class Product
         }
 
         foreach ($data['entries'] as $variation) {
-            $this->setField('position', $this->getFromArray($variation, 'position'));
             $this->processVariationIdentifiers($variation)
                 ->processVariationPrices($this->getFromArray($variation, 'variationSalesPrices'))
                 ->processVariationAttributes($this->getFromArray($variation, 'variationAttributeValues'));
