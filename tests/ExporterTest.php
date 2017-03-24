@@ -148,7 +148,20 @@ class ExporterTest extends PHPUnit_Framework_TestCase
 
     public function testProcessProductData()
     {
-        $exporterMock = $this->getExporterMockBuilder();
+        $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getProductImages', 'getVariationProperties', 'getProductVariations'))
+            ->getMock();
+
+        $clientMock->expects($this->any())
+            ->method('getProductVariations')
+            ->will(
+                $this->returnValue(
+                    array('entries' => array(array('id' => 'Test')))
+                )
+            );
+
+        $exporterMock = $this->getExporterMockBuilder(array('client' => $clientMock));
         $exporterMock->setMethods(array('createProductItem'));
         $exporterMock = $exporterMock->getMock();
 

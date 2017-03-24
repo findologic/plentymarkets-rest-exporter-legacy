@@ -49,6 +49,10 @@ class Product
         $this->registry = $registry;
     }
 
+    /**
+     * @param mixed $key
+     * @return mixed|null
+     */
     public function getField($key)
     {
         if (isset($this->fields[$key])) {
@@ -58,6 +62,12 @@ class Product
         return null;
     }
 
+    /**
+     * @param string $key
+     * @param mixed $value
+     * @param bool $array
+     * @return $this
+     */
     public function setField($key, $value, $array = false)
     {
         if ($array) {
@@ -69,6 +79,11 @@ class Product
         return $this;
     }
 
+    /**
+     * @param string $name
+     * @param string $value
+     * @return $this
+     */
     public function setAttributeField($name, $value)
     {
         if (!$this->fields['attributes']) {
@@ -89,9 +104,15 @@ class Product
         return $this->itemId;
     }
 
+    /**
+     * Process initial data from /items response
+     *
+     * @param array $data
+     * @return $this
+     */
     public function processInitialData($data)
     {
-        //TODO: check if id is empty and throw exception
+        //TODO: check if id is empty and maybe throw exception
         $this->itemId = $this->getFromArray($data, 'id');
 
         $this->setField('id', $this->getItemId())
@@ -103,6 +124,10 @@ class Product
         return $this;
     }
 
+    /**
+     * @param array $data
+     * @return $this
+     */
     public function processVariations($data)
     {
         if (!isset($data['entries'])) {
@@ -124,16 +149,46 @@ class Product
             return $this;
         }
 
+        foreach ($data as $property) {
+            $propertyName = $property['property']['backendName'];
+            $value = '';
+
+            //TODO: maybe try to get property value by property type instead checking arrays
+            if (isset($property['names']) && count($property['names'])) {
+                //text type properties have 'names' array key for holding actual values
+                foreach ($property['names'] as $name) {
+                    //TODO: filter by language
+                    $value = $name['value'];
+                }
+            } else {
+                //select type properties have 'propertySelection' array key for holding actual values
+                foreach ($property['propertySelection'] as $selection) {
+                    //TODO: filter by language
+                    $value = $selection['name'];
+                }
+            }
+
+            $this->setAttributeField($propertyName, $value);
+        }
+
         return $this;
     }
 
+    /**
+     * Get the image for item
+     *
+     * @param $data
+     * @return $this
+     */
     public function processImages($data)
     {
         if (!is_array($data) || empty($data)) {
             return $this;
         }
 
+        //data for images could be returned as array of images if there is multiple images assigned
         if (!isset($data['itemId'])) {
+            //TODO: check which image to use if there is multiple (last image was mentioned in the call)
             $data = $data[0];
         }
 
@@ -158,6 +213,11 @@ class Product
         return null;
     }
 
+    /**
+     * Get rrp prices ids array
+     *
+     * @return array
+     */
     protected function getRRP()
     {
         $prices = $this->registry->get('SalesPrices');
@@ -246,6 +306,12 @@ class Product
         return $this;
     }
 
+    /**
+     * Iterate over variation attributes and map attributes value ids to actual values
+     *
+     * @param array $attributesData
+     * @return $this
+     */
     protected function processVariationAttributes($attributesData)
     {
         if (!count($attributesData)) {

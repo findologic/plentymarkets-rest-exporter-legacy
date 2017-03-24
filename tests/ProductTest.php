@@ -304,6 +304,33 @@ class ProductTest extends PHPUnit_Framework_TestCase
             array(
                 array(),
                 null
+            ),
+            array(
+                array(
+                    array(
+                        'property' => array(
+                            'backendName' => 'Test Property',
+                        ),
+                        'names' => array(
+                            array('value' => 'Test Value')
+                        )
+                    )
+                ),
+                array('Test Property' => array('Test Value'))
+            ),
+            array(
+                array(
+                    array(
+                        'property' => array(
+                            'backendName' => 'Test Property Select',
+                        ),
+                        'names' => array(),
+                        'propertySelection' => array(
+                            array('name' => 'Select Value')
+                        )
+                    )
+                ),
+                array('Test Property Select' => array('Select Value'))
             )
         );
     }
