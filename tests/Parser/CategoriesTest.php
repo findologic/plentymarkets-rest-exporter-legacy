@@ -66,6 +66,6 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
     public function testParse($data, $expectedResult)
     {
         $this->parser->parse($data);
-        $this->assertSame($this->parser->getResults(), $expectedResult);
+        $this->assertSame($expectedResult, $this->parser->getResults());
     }
 }

@@ -118,6 +118,15 @@ class Product
         return $this;
     }
 
+    public function processVariationsProperties($data)
+    {
+        if (!is_array($data) || empty($data)) {
+            return $this;
+        }
+
+        return $this;
+    }
+
     public function processImages($data)
     {
         if (!is_array($data) || empty($data)) {

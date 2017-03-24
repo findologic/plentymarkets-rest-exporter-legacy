@@ -62,7 +62,7 @@ class AttributesTest extends PHPUnit_Framework_TestCase
      */
     public function testParse($data, $expectedResult)
     {
-        $this->assertSame($this->parser->parse($data), $expectedResult);
+        $this->assertSame($expectedResult, $this->parser->parse($data));
     }
 
     /**
@@ -102,7 +102,7 @@ class AttributesTest extends PHPUnit_Framework_TestCase
      */
     public function testParseAttributeName($data, $expectedResult)
     {
-        $this->assertSame($this->parser->parseAttributeName($data), $expectedResult);
+        $this->assertSame($expectedResult, $this->parser->parseAttributeName($data));
     }
 
     /**
@@ -154,7 +154,7 @@ class AttributesTest extends PHPUnit_Framework_TestCase
     public function testParseValues($data, $expectedResult)
     {
         $this->parser->parseValues($data);
-        $this->assertSame($this->parser->getResults(), $expectedResult);
+        $this->assertSame($expectedResult, $this->parser->getResults());
     }
 
     /**
@@ -203,7 +203,7 @@ class AttributesTest extends PHPUnit_Framework_TestCase
     public function testParseValueNames($attributeId, $data, $expectedResult)
     {
         $this->parser->parseValueNames($attributeId, $data);
-        $this->assertSame($this->parser->getResults(), $expectedResult);
+        $this->assertSame($expectedResult, $this->parser->getResults());
     }
 
     public function attributeValueExistsProvider()
@@ -226,7 +226,7 @@ class AttributesTest extends PHPUnit_Framework_TestCase
     public function testAttributeValueExists($attributeId, $valueId, $attributes, $expectedResult)
     {
         $this->parser->setResults($attributes);
-        $this->assertEquals($this->parser->attributeValueExists($attributeId, $valueId), $expectedResult);
+        $this->assertEquals($expectedResult, $this->parser->attributeValueExists($attributeId, $valueId));
     }
 
     public function getAttributeNameProvider()
@@ -247,7 +247,7 @@ class AttributesTest extends PHPUnit_Framework_TestCase
     public function testGetAttributeName($attributeId, $attributes, $expectedResult)
     {
         $this->parser->setResults($attributes);
-        $this->assertSame($this->parser->getAttributeName($attributeId), $expectedResult);
+        $this->assertSame($expectedResult, $this->parser->getAttributeName($attributeId));
     }
 
     public function getAttributeValueNameProvider()
@@ -281,7 +281,7 @@ class AttributesTest extends PHPUnit_Framework_TestCase
     public function testGetAttributeValueName($attributeId, $valueId, $attributes, $expectedResult)
     {
         $this->parser->setResults($attributes);
-        $this->assertSame($this->parser->getAttributeValueName($attributeId, $valueId), $expectedResult);
+        $this->assertSame($expectedResult, $this->parser->getAttributeValueName($attributeId, $valueId));
     }
 
     /* ------ helper functions ------ */

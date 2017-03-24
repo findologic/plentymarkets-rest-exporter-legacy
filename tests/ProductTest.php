@@ -39,7 +39,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
     {
         $this->product->setField($setKey, $value, $arrayFlag);
 
-        $this->assertSame($this->product->getField($getKey), $expectedResult);
+        $this->assertSame($expectedResult, $this->product->getField($getKey));
     }
 
     public function setFieldWithArrayProvider()
@@ -59,7 +59,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
             $this->product->setField($key, $value, $arrayFlag);
         }
 
-        $this->assertSame($this->product->getField($key), $expectedResult);
+        $this->assertSame($expectedResult, $this->product->getField($key));
     }
 
     public function setAttributeFieldProvider()
@@ -75,7 +75,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
     public function testSetAttributeField($attribute, $value, $expectedResult)
     {
         $this->product->setAttributeField($attribute, $value);
-        $this->assertSame($this->product->getField('attributes'), $expectedResult);
+        $this->assertSame($expectedResult, $this->product->getField('attributes'));
     }
 
     public function processInitialDataProvider()
@@ -121,10 +121,10 @@ class ProductTest extends PHPUnit_Framework_TestCase
     public function testProcessInitialData($itemId, $data, $texts)
     {
         $this->product->processInitialData($data);
-        $this->assertSame($this->product->getItemId(), $itemId);
-        $this->assertSame($this->product->getField('id'), $itemId);
+        $this->assertSame($itemId, $this->product->getItemId());
+        $this->assertSame($itemId, $this->product->getField('id'));
         foreach ($texts as $field => $value) {
-            $this->assertSame($this->product->getField($field), $value);
+            $this->assertSame($value, $this->product->getField($field));
         }
     }
 
@@ -254,11 +254,68 @@ class ProductTest extends PHPUnit_Framework_TestCase
             ->getMock();
 
         $productMock->processVariations($data);
-        $this->assertSame($productMock->getField('attributes'), $expectedAttributes);
-        $this->assertSame($productMock->getField('ordernumber'), $expectedIdentifiers);
+        $this->assertSame($expectedAttributes, $productMock->getField('attributes'));
+        $this->assertSame($expectedIdentifiers, $productMock->getField('ordernumber'));
         foreach ($expectedPrices as $field => $price) {
-            $this->assertSame($productMock->getField($field), $price);
+            $this->assertSame($price, $productMock->getField($field));
         }
+    }
+
+    /**
+     *  Method $data property example:
+     *  array (
+     *      0 => array (
+     *          'id' => 3,
+     *          'itemId' => 102,
+     *          'propertyId' => 2,
+     *          'variationId' => 1076,
+     *          ...
+     *          'property' => array (
+     *              'id' => 2,
+     *              'position' => 2,
+     *              'unit' => 'LTR',
+     *              'backendName' => 'Test Property 2',
+     *              'valueType' => 'text',
+     *              'isSearchable' => true,
+     *              ...
+     *          ),
+     *          'names' => array (
+     *              0 => array (
+     *                  'propertyValueId' => 3,
+     *                  'lang' => 'en',
+     *                  'value' => 'Some Text',
+     *              ),
+     *          ),
+     *          'propertySelection' => array (
+     *              0 => array (
+     *                  'id' => 1,
+     *                  'propertyId' => 3,
+     *                  'lang' => 'en',
+     *                  'name' => 'Select 1',
+     *                  'description' => 'Select 1',
+     *              ),
+     *          ),
+     *      ),
+     *  )
+     */
+    public function processVariationPropertiesProvider()
+    {
+        return array(
+            array(
+                array(),
+                null
+            )
+        );
+    }
+
+    /**
+     * @dataProvider processVariationPropertiesProvider
+     */
+    public function testProcessVariationsProperties($data, $expectedResult)
+    {
+        $this->product->processVariationsProperties($data);
+
+        $this->assertSame($expectedResult, $this->product->getField('attributes'));
     }
 
     public function processImagesProvider()
@@ -290,6 +347,6 @@ class ProductTest extends PHPUnit_Framework_TestCase
     public function testProcessImages($data, $expectedResult)
     {
         $this->product->processImages($data);
-        $this->assertSame($this->product->getField('image'), $expectedResult);
+        $this->assertSame($expectedResult, $this->product->getField('image'));
     }
 }

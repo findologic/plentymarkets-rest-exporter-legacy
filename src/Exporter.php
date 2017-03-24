@@ -117,7 +117,17 @@ class Exporter
     public function processProductData($productData)
     {
         $product = $this->createProductItem($productData);
-        $product->processVariations($this->getClient()->getProductVariations($product->getitemId()));
+        $variations = $this->getClient()->getProductVariations($product->getitemId());
+        $product->processVariations($variations);
+
+        if (isset($variations['entries'])) {
+            foreach ($variations['entries'] as $variation) {
+                $product->processVariationsProperties(
+                    $this->getClient()->getVariationProperties($product->getitemId(), $variation['id'])
+                );
+            }
+        }
+
         $product->processImages($this->getClient()->getProductImages($product->getitemId()));
         //TODO: maybe after all processing validation is needed to ensure all neccesary fields for product is set?
         $this->getWrapper()->wrapProduct($product);

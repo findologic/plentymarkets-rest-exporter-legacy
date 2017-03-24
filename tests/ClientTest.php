@@ -19,7 +19,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $clientMock->expects($this->once())->method('call')->will($this->returnValue($responseMock));
         $clientMock->login();
 
-        $this->assertEquals($clientMock->getToken(), 'TEST_TOKEN');
+        $this->assertEquals('TEST_TOKEN', $clientMock->getToken());
     }
 
     /**
@@ -67,7 +67,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
 
         $clientMock->expects($this->once())->method('call')->will($this->returnValue($responseMock));
 
-        $this->assertSame($clientMock->getProducts(), array('Test' => 'Test'));
+        $this->assertSame(array('Test' => 'Test'), $clientMock->getProducts());
     }
 
     /**
@@ -94,7 +94,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $clientMock = $this->getClientMock(array('createRequest'));
         $clientMock->expects($this->once())->method('createRequest')->will($this->returnValue($requestMock));
 
-        $this->assertSame($clientMock->getCategories(), array('Test' => 'Test'));
+        $this->assertSame(array('Test' => 'Test'), $clientMock->getCategories());
     }
 
     /**

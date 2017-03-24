@@ -41,7 +41,7 @@ class SalesPricesTest extends PHPUnit_Framework_TestCase
     public function testParse($data, $expectedResult)
     {
         $this->parser->parse($data);
-        $this->assertSame($this->parser->getResults(), $expectedResult);
+        $this->assertSame($expectedResult, $this->parser->getResults());
     }
 
     public function getRRPProvider()
@@ -57,6 +57,6 @@ class SalesPricesTest extends PHPUnit_Framework_TestCase
     public function testGetRRPProvider($salesPrices, $expectedResult)
     {
         $this->parser->setResults($salesPrices);
-        $this->assertSame($this->parser->getRRP(), $expectedResult);
+        $this->assertSame($expectedResult, $this->parser->getRRP());
     }
 }

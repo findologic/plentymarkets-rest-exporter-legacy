@@ -173,6 +173,16 @@ class Client
         return $this->returnResult($response);
     }
 
+    public function getVariationProperties($itemId, $variationId)
+    {
+        $response = $this->call(
+            'GET',
+            $this->getEndpoint('items/' . $itemId . '/variations/' . $variationId . '/variation_properties')
+        );
+
+        return $this->returnResult($response);
+    }
+
     /**
      * @param string $productId
      * @return array

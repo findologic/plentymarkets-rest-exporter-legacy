@@ -99,7 +99,7 @@ class Attributes implements ParserInterface
             return $this->results;
         }
 
-        //TODO: maybe check if attribute exists ?
+        //TODO: maybe check if attribute value exists ?
         foreach ($data as $value) {
             $this->results[$attributeId]['values'][$value['valueId']] = $value['name'];
         }
