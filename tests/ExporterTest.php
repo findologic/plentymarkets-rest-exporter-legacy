@@ -136,6 +136,34 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test parsing units data from api
+     */
+    public function testGetUnits()
+    {
+        $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getUnits'))
+            ->getMock();
+
+        $clientMock->expects($this->any())
+            ->method('getUnits')
+            ->will(
+                $this->returnValue(
+                    array('entries' => array(
+                        array('id' => 1, 'unitOfMeasurement' => 'C62'),
+                        array('id' => 2, 'unitOfMeasurement' => 'KGM'),
+                    ))
+                )
+            );
+
+        $exporterMock = $this->getExporterMockBuilder(array('client' => $clientMock));
+        $exporterMock->setMethods(array('handleException'));
+        $exporterMock = $exporterMock->getMock();
+
+        $this->assertSame(array(1 => 'C62', 2 => 'KGM'), $exporterMock->getUnits());
+    }
+
+    /**
      * The tested method should return instance of \Findologic\Plentymarkets\Product
      */
     public function testCreateProductItem()

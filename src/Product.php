@@ -2,6 +2,7 @@
 
 namespace Findologic\Plentymarkets;
 
+use Findologic\Plentymarkets\Data\Units;
 use Findologic\Plentymarkets\Parser\Attributes;
 use Findologic\Plentymarkets\Registry;
 
@@ -135,6 +136,7 @@ class Product
         }
 
         foreach ($data['entries'] as $variation) {
+            $this->setField('base_unit', Units::getUnitName($variation['packingUnits']));
             $this->processVariationIdentifiers($variation)
                 ->processVariationPrices($this->getFromArray($variation, 'variationSalesPrices'))
                 ->processVariationAttributes($this->getFromArray($variation, 'variationAttributeValues'));
@@ -151,23 +153,7 @@ class Product
 
         foreach ($data as $property) {
             $propertyName = $property['property']['backendName'];
-            $value = '';
-
-            //TODO: maybe try to get property value by property type instead checking arrays
-            if (isset($property['names']) && count($property['names'])) {
-                //text type properties have 'names' array key for holding actual values
-                foreach ($property['names'] as $name) {
-                    //TODO: filter by language
-                    $value = $name['value'];
-                }
-            } else {
-                //select type properties have 'propertySelection' array key for holding actual values
-                foreach ($property['propertySelection'] as $selection) {
-                    //TODO: filter by language
-                    $value = $selection['name'];
-                }
-            }
-
+            $value = $this->getPropertyValue($property);
             $this->setAttributeField($propertyName, $value);
         }
 
@@ -226,6 +212,44 @@ class Product
         }
 
         return $prices->getRRP();
+    }
+
+    /**
+     * Get property value by its type
+     *
+     * @param $property
+     * @return string
+     */
+    protected function getPropertyValue($property)
+    {
+        $propertyType = $property['property']['valueType'];
+        $value = '';
+
+        switch ($propertyType) {
+            case 'text':
+                foreach ($property['names'] as $name) {
+                    //TODO: filter by language
+                    $value = $name['value'];
+                }
+                break;
+            case 'selection':
+                foreach ($property['propertySelection'] as $selection) {
+                    //TODO: filter by language
+                    $value = $selection['name'];
+                }
+                break;
+            case 'int':
+                $value = $property['valueInt'];
+                break;
+            case 'float':
+                $value = $property['valueFloat'];
+                break;
+            default:
+                $value = '';
+                break;
+        }
+
+        return $value;
     }
 
     /**
@@ -289,8 +313,10 @@ class Product
         foreach ($data as $price) {
             if (!$this->getField('price'))  {
                 $this->setField('price', $price['price']);
+                $this->setField('price_id', $price['salesPriceId']);
             } else if ($this->getField('price') > $price['price']) {
                 $this->setField('price', $price['price']);
+                $this->setField('price_id', $price['salesPriceId']);
             }
 
             if ($this->getField('maxprice') < $price['price']) {

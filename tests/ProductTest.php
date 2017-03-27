@@ -78,8 +78,37 @@ class ProductTest extends PHPUnit_Framework_TestCase
         $this->assertSame($expectedResult, $this->product->getField('attributes'));
     }
 
+    /**
+     *  array (
+     *      'id' => 102,
+     *      'position' => 0,
+     *      'manufacturerId' => 2,
+     *      'createdAt' => '2017-01-01T07:47:30+01:00',
+     *      'storeSpecial' => 0,
+     *      'isActive' => true,
+     *      'type' => 'default',
+     *      ...
+     *      'itemProperties' => array (
+     *          ...
+     *      ),
+     *      'texts' => array (
+     *          0 => array (
+     *              'lang' => 'en',
+     *              'name1' => 'Name',
+     *              'name2' => '',
+     *              'name3' => '',
+     *              'shortDescription' => 'Description.',
+     *              'metaDescription' => 'Meta description',
+     *              'description' => 'Long description',
+     *              'urlPath' => 'Path',
+     *              'keywords' => 'Keyword'
+     *          ),
+     *      ),
+     *  )
+     */
     public function processInitialDataProvider()
     {
+
         return array(
             array(
                 '1',
@@ -310,27 +339,43 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     array(
                         'property' => array(
                             'backendName' => 'Test Property',
+                            'valueType' => 'text'
                         ),
                         'names' => array(
                             array('value' => 'Test Value')
                         )
+                    ),
+                    array(
+                        'property' => array(
+                            'backendName' => 'Test Float',
+                            'valueType' => 'float'
+                        ),
+                        'valueFloat' => 3.25
                     )
                 ),
-                array('Test Property' => array('Test Value'))
+                array('Test Property' => array('Test Value'), 'Test Float' => array(3.25))
             ),
             array(
                 array(
                     array(
                         'property' => array(
                             'backendName' => 'Test Property Select',
+                            'valueType' => 'selection'
                         ),
                         'names' => array(),
                         'propertySelection' => array(
                             array('name' => 'Select Value')
                         )
+                    ),
+                    array(
+                        'property' => array(
+                            'backendName' => 'Test Int',
+                            'valueType' => 'int'
+                        ),
+                        'valueInt' => 3
                     )
                 ),
-                array('Test Property Select' => array('Select Value'))
+                array('Test Property Select' => array('Select Value'), 'Test Int' => array(3))
             )
         );
     }
@@ -345,6 +390,21 @@ class ProductTest extends PHPUnit_Framework_TestCase
         $this->assertSame($expectedResult, $this->product->getField('attributes'));
     }
 
+    /**
+     *  array (
+     *      0 => array (
+     *          'id' => 19,
+     *          'itemId' => 102,
+     *          'type' => 'internal',
+     *          'fileType' => 'jpg',
+     *          'url' => 'https://test.com/item/images/102/3000x3000/102-gruen.jpg',
+     *          'urlMiddle' => 'https://test.com/item/images/102/370x450/102-gruen.jpg',
+     *          'urlPreview' => 'https://test.com/item/images/102/150x150/102-gruen.jpg',
+     *          'urlSecondPreview' => 'https://test.com/item/images/102/0x0/102-gruen.jpg',
+     *          ...
+     *      ),
+     *   )
+     */
     public function processImagesProvider()
     {
         return array(

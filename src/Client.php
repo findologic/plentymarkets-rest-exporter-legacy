@@ -82,6 +82,10 @@ class Client
         return $this;
     }
 
+    /**
+     * @codeCoverageIgnore
+     * @return array
+     */
     public function getCategories()
     {
         $params = array('type' => 'item', 'with' => 'details');
@@ -90,6 +94,10 @@ class Client
         return $this->returnResult($response);
     }
 
+    /**
+     * @codeCoverageIgnore
+     * @return array
+     */
     public function getVat()
     {
         $response = $this->call('GET', $this->getEndpoint('vat/'));
@@ -97,6 +105,10 @@ class Client
         return $this->returnResult($response);
     }
 
+    /**
+     * @codeCoverageIgnore
+     * @return array
+     */
     public function getSalesPrices()
     {
         $response = $this->call('GET', $this->getEndpoint('items/sales_prices/'));
@@ -104,6 +116,10 @@ class Client
         return $this->returnResult($response);
     }
 
+    /**
+     * @codeCoverageIgnore
+     * @return array
+     */
     public function getAttributes()
     {
         $response = $this->call('GET', $this->getEndpoint('items/attributes'));
@@ -111,6 +127,11 @@ class Client
         return $this->returnResult($response);
     }
 
+    /**
+     * @codeCoverageIgnore
+     * @param int $attributeId
+     * @return array
+     */
     public function getAttributeName($attributeId)
     {
         $response = $this->call('GET', $this->getEndpoint('items/attributes/' . $attributeId . '/names/'));
@@ -118,6 +139,11 @@ class Client
         return $this->returnResult($response);
     }
 
+    /**
+     * @codeCoverageIgnore
+     * @param int $attributeId
+     * @return array
+     */
     public function getAttributeValues($attributeId)
     {
         $response = $this->call('GET', $this->getEndpoint('items/attributes/' . $attributeId . '/values/'));
@@ -125,6 +151,11 @@ class Client
         return $this->returnResult($response);
     }
 
+    /**
+     * @codeCoverageIgnore
+     * @param int $valueId
+     * @return array
+     */
     public function getAttributeValueName($valueId)
     {
         $response = $this->call('GET', $this->getEndpoint('items/attribute_values/' . $valueId . '/names/'));
@@ -133,12 +164,52 @@ class Client
     }
 
     /**
-     * @param string $id
+     * @codeCoverageIgnore
+     * @return array
+     */
+    public function getUnits()
+    {
+        $response = $this->call('GET', $this->getEndpoint('items/units'));
+
+        return $this->returnResult($response);
+    }
+
+    /**
+     * @codeCoverageIgnore
+     * @param int $id
      * @return array
      */
     public function getProduct($id)
     {
         $response = $this->call('GET', $this->getEndpoint('items/' . $id));
+
+        return $this->returnResult($response);
+    }
+
+    /**
+     * @codeCoverageIgnore
+     * @param int $itemId
+     * @param int $variationId
+     * @return array
+     */
+    public function getVariationProperties($itemId, $variationId)
+    {
+        $response = $this->call(
+            'GET',
+            $this->getEndpoint('items/' . $itemId . '/variations/' . $variationId . '/variation_properties')
+        );
+
+        return $this->returnResult($response);
+    }
+
+    /**
+     * @codeCoverageIgnore
+     * @param int $productId
+     * @return array
+     */
+    public function getProductImages($productId)
+    {
+        $response = $this->call('GET', $this->getEndpoint('items/' . $productId . '/images'));
 
         return $this->returnResult($response);
     }
@@ -159,7 +230,7 @@ class Client
     }
 
     /**
-     * @param string $productId
+     * @param int $productId
      * @return array
      */
     public function getProductVariations($productId)
@@ -169,27 +240,6 @@ class Client
         );
 
         $response = $this->call('GET', $this->getEndpoint('items/' . $productId . '/variations', $params));
-
-        return $this->returnResult($response);
-    }
-
-    public function getVariationProperties($itemId, $variationId)
-    {
-        $response = $this->call(
-            'GET',
-            $this->getEndpoint('items/' . $itemId . '/variations/' . $variationId . '/variation_properties')
-        );
-
-        return $this->returnResult($response);
-    }
-
-    /**
-     * @param string $productId
-     * @return array
-     */
-    public function getProductImages($productId)
-    {
-        $response = $this->call('GET', $this->getEndpoint('items/' . $productId . '/images'));
 
         return $this->returnResult($response);
     }
@@ -326,6 +376,7 @@ class Client
     }
 
     /**
+     * @codeCoverageIgnore
      * @param \Exception $e
      */
     protected function handleException($e)

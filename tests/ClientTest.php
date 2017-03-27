@@ -116,6 +116,28 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $clientMock->getProductVariations('1');
     }
 
+    public function testCreateRequest()
+    {
+        $clientMock = $this->getClientMock(array('handleException', 'getToken'));
+        $clientMock->expects($this->any())->method('getToken')->will($this->returnValue('TEST_TOKEN'));
+
+        $reflection = new \ReflectionClass(get_class($clientMock));
+        $method = $reflection->getMethod('createRequest');
+        $method->setAccessible(true);
+
+        $parameters = array(
+            'POST',
+            'http://test.com/rest/method',
+            array('name' => 'test')
+        );
+
+        $request =  $method->invokeArgs($clientMock, $parameters);
+
+        $this->assertInstanceOf('HTTP_Request2', $request);
+        // Validate if correct url is set
+        $this->assertSame('http://test.com/rest/method', $request->getUrl()->getURL());
+    }
+
     /* ------ helper functions ------ */
 
     protected function getClientMock($methods)

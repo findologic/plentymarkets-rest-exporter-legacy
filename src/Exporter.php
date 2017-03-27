@@ -102,6 +102,12 @@ class Exporter
         return $this->getWrapper()->getResults();
     }
 
+    /**
+     * Create new product item with initial request data
+     *
+     * @param array $productData
+     * @return Product
+     */
     public function createProductItem($productData)
     {
         $product = new Product($this->getRegistry());
@@ -111,6 +117,8 @@ class Exporter
     }
 
     /**
+     * Process product data
+     *
      * @param array $productData
      * @return $this
      */
@@ -118,9 +126,9 @@ class Exporter
     {
         $product = $this->createProductItem($productData);
         $variations = $this->getClient()->getProductVariations($product->getitemId());
-        $product->processVariations($variations);
 
         if (isset($variations['entries'])) {
+            $product->processVariations($variations);
             foreach ($variations['entries'] as $variation) {
                 $product->processVariationsProperties(
                     $this->getClient()->getVariationProperties($product->getitemId(), $variation['id'])
@@ -134,6 +142,24 @@ class Exporter
         unset($product);
 
         return $this;
+    }
+
+    /**
+     * Function for gettings the units id with actual values
+     *
+     * @return array
+     */
+    public function getUnits()
+    {
+        $results = $this->getClient()->getUnits();
+
+        $units = array();
+
+        foreach ($results['entries'] as $result) {
+            $units[$result['id']] = $result['unitOfMeasurement'];
+        }
+
+        return $units;
     }
 
     /**
@@ -179,6 +205,7 @@ class Exporter
     }
 
     /**
+     * @codeCoverageIgnore
      * @param \Exception $e
      */
     protected function handleException($e)
