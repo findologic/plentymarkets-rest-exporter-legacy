@@ -20,6 +20,9 @@ class SalesPricesTest extends PHPUnit_Framework_TestCase
     public function parseProvider()
     {
         return array(
+            // No data provided, results should be empty
+            array(array(), array()),
+            // Sales prices data exist, data should be parsed into results
             array(
                 array(
                     'entries' => array(
@@ -30,8 +33,7 @@ class SalesPricesTest extends PHPUnit_Framework_TestCase
                     )
                 ),
                 array('1' => 'default')
-            ),
-            array(array(), array())
+            )
         );
     }
 
@@ -47,6 +49,9 @@ class SalesPricesTest extends PHPUnit_Framework_TestCase
     public function getRRPProvider()
     {
         return array(
+            // No prices with RRP type, results should be empty
+            array(array('1' => 'default'), array()),
+            // Two price has RRP type, results should contain ids of those prices
             array(array('1' => 'default', '2' => SalesPrices::RRP_TYPE, '3' => SalesPrices::RRP_TYPE), array(2, 3))
         );
     }

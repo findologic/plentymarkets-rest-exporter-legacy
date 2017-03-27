@@ -34,12 +34,12 @@ class AttributesTest extends PHPUnit_Framework_TestCase
     public function parseProvider()
     {
         return array(
-            /** There was no data provided so results should be empty */
+            // There was no data provided so results should be empty
             array(
                 array(),
                 array()
             ),
-            /** Parsing was successful */
+            // Parsing was successful
             array(
                 array(
                     'entries' => array(
@@ -78,11 +78,11 @@ class AttributesTest extends PHPUnit_Framework_TestCase
     public function parseAttributeNameProvider()
     {
         return array(
-            /** No data provider, results should be empty */
+            // No data provider, results should be empty
             array(false,array()),
-            /** Attribute has some data but the name value is null so it should be skipped and results should be empty */
+            // Attribute has some data but the name value is null so it should be skipped and results should be empty
             array(array(array('name' => '')), array()),
-            /** Correct data provided */
+            // Correct data provided
             array(
                 array(
                     array(
@@ -123,12 +123,12 @@ class AttributesTest extends PHPUnit_Framework_TestCase
     public function parseValuesProvider()
     {
         return array(
-            /** No data for attribute value provided, results should be empty */
+            // No data for attribute value provided, results should be empty
             array(
                 array(),
                 array()
             ),
-            /** Attribute has some values */
+            // Attribute has some values
             array(
                 array(
                     'entries' => array(
@@ -171,13 +171,13 @@ class AttributesTest extends PHPUnit_Framework_TestCase
     public function parseValueNamesProvider()
     {
         return array(
-            /** No data about value provided, results should be empty */
+            // No data about value provided, results should be empty
             array(
                 '1',
                 array(),
                 array()
             ),
-            /** Parsing values successful */
+            // Parsing values successful
             array(
                 '1',
                 array(
@@ -209,13 +209,13 @@ class AttributesTest extends PHPUnit_Framework_TestCase
     public function attributeValueExistsProvider()
     {
         return array(
-            /** Some attributes exist but given id not exist, values ignored */
+            // Some attributes exist but given id not exist, values ignored
             array('1', false, array('2' => array()), false),
-            /** Some attributes exist and given id also exist, values ignored */
+            // Some attributes exist and given id also exist, values ignored
             array('2', false, array('2' => array()), true),
-            /** Attribute exist but do not have such value */
+            // Attribute exist but do not have such value
             array('1', '2', array('1' => array('values' => array('1' => array()))), false),
-            /** Attribute exist and value also exists */
+            // Attribute exist and value also exists
             array('1', '1', array('1' => array('values' => array('1' => array()))), true),
         );
     }
@@ -232,11 +232,11 @@ class AttributesTest extends PHPUnit_Framework_TestCase
     public function getAttributeNameProvider()
     {
         return array(
-            /** No attributes is parsed, result should be empty */
+            // No attributes is parsed, result should be empty
             array('1', array(), ''),
-            /** There is some attributes parsed, but given id do not exist */
+            // There is some attributes parsed, but given id do not exist
             array('1', array('2' => array('name' => 'Test')), ''),
-            /** Given id exist and attribute name is returned */
+            // Given id exist and attribute name is returned
             array('1', array('1' => array('name' => 'Test')), 'Test')
         );
     }
@@ -253,14 +253,14 @@ class AttributesTest extends PHPUnit_Framework_TestCase
     public function getAttributeValueNameProvider()
     {
         return array(
-            /** no attributes and values is set, result is empty */
+            // no attributes and values is set, result is empty
             array(
                 '1',
                 '1',
                 array(),
                 ''
             ),
-            /** value and attribute set */
+            // value and attribute set
             array(
                 '1',
                 '1',

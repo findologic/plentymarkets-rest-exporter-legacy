@@ -83,7 +83,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore
+     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
      * @return array
      */
     public function getCategories()
@@ -95,7 +95,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore
+     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
      * @return array
      */
     public function getVat()
@@ -106,7 +106,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore
+     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
      * @return array
      */
     public function getSalesPrices()
@@ -117,7 +117,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore
+     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
      * @return array
      */
     public function getAttributes()
@@ -128,7 +128,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore
+     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
      * @param int $attributeId
      * @return array
      */
@@ -140,7 +140,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore
+     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
      * @param int $attributeId
      * @return array
      */
@@ -152,7 +152,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore
+     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
      * @param int $valueId
      * @return array
      */
@@ -164,7 +164,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore
+     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
      * @return array
      */
     public function getUnits()
@@ -175,7 +175,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore
+     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
      * @param int $id
      * @return array
      */
@@ -187,7 +187,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore
+     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
      * @param int $itemId
      * @param int $variationId
      * @return array
@@ -203,7 +203,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore
+     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
      * @param int $productId
      * @return array
      */

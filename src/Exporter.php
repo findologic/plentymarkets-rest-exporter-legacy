@@ -125,6 +125,12 @@ class Exporter
     public function processProductData($productData)
     {
         $product = $this->createProductItem($productData);
+
+        // Ignore product if there is no id
+        if (!$product->getItemId()) {
+            return $this;
+        }
+
         $variations = $this->getClient()->getProductVariations($product->getitemId());
 
         if (isset($variations['entries'])) {

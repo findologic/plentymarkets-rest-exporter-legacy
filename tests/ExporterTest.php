@@ -195,11 +195,12 @@ class ExporterTest extends PHPUnit_Framework_TestCase
 
         $productMock = $this->getMockBuilder('\Findologic\Plentymarkets\Product')
             ->disableOriginalConstructor()
-            ->setMethods(array('processVariations', 'processImages'))
+            ->setMethods(array('processVariations', 'processImages', 'getItemId'))
             ->getMock();
 
         $productMock->expects($this->once())->method('processVariations');
         $productMock->expects($this->once())->method('processImages');
+        $productMock->expects($this->atLeast(4))->method('getItemId')->will($this->returnValue(1));
         $exporterMock->expects($this->once())->method('createProductItem')->will($this->returnValue($productMock));
 
         $exporterMock->processProductData(array());

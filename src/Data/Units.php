@@ -9,7 +9,7 @@ class Units {
      *
      * @var array
      */
-    protected $units = array (
+    protected static $units = array (
         1 => 'C62',
         2 => 'KGM',
         3 => 'GRM',
@@ -63,15 +63,15 @@ class Units {
     );
 
     /**
-     *
+     * Map unit id to actual value
      *
      * @param int $id
      * @return mixed|bool
      */
-    public static function getUnitName($id)
+    public static function getUnitValue($id)
     {
-        if (isset(self::$units[$id])) {
-            return self::$units[$id];
+        if (isset(static::$units[$id])) {
+            return static::$units[$id];
         }
 
         return '';

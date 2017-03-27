@@ -64,6 +64,9 @@ class Product
     }
 
     /**
+     * Setter methods for easier setting 'fields' property
+     * Allows to use $array flag if values of the field should be store as array of values
+     *
      * @param string $key
      * @param mixed $value
      * @param bool $array
@@ -81,6 +84,9 @@ class Product
     }
 
     /**
+     * Set $attribute values
+     * If such $value for attribute already exist it will be ignored to avoid multiple same values
+     *
      * @param string $name
      * @param string $value
      * @return $this
@@ -136,7 +142,7 @@ class Product
         }
 
         foreach ($data['entries'] as $variation) {
-            $this->setField('base_unit', Units::getUnitName($variation['packingUnits']));
+            $this->setField('base_unit', Units::getUnitValue($this->getFromArray($variation, 'packingUnits')));
             $this->processVariationIdentifiers($variation)
                 ->processVariationPrices($this->getFromArray($variation, 'variationSalesPrices'))
                 ->processVariationAttributes($this->getFromArray($variation, 'variationAttributeValues'));
@@ -145,6 +151,10 @@ class Product
         return $this;
     }
 
+    /**
+     * @param array $data
+     * @return $this
+     */
     public function processVariationsProperties($data)
     {
         if (!is_array($data) || empty($data)) {
@@ -215,9 +225,9 @@ class Product
     }
 
     /**
-     * Get property value by its type
+     * Get property value by its type from property array
      *
-     * @param $property
+     * @param array $property
      * @return string
      */
     protected function getPropertyValue($property)
@@ -253,6 +263,8 @@ class Product
     }
 
     /**
+     * Get all the fields used for 'ordernumber'
+     *
      * @param array $variation
      * @return $this
      */

@@ -42,9 +42,9 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
     public function parseProvider()
     {
         return array(
-            /** No categories given, results should be empty */
+            // No categories given, results should be empty
             array(array(), array()),
-            /** Categories data given, results should contain array with category id => name */
+            // Categories data given, results should contain array with category id => name
             array(
                 array(
                     'entries' => array(

@@ -26,9 +26,10 @@ class ProductTest extends PHPUnit_Framework_TestCase
     public function setFieldProvider()
     {
         return array(
-            array('testKey', 'testKey', 'testValue', 'testValue', false),
+            // Some value is set but getter is called for value which is not set, results should be null
             array('testKey', 'getKey', 'testValue', null, false),
-            array('testKey', 'testKey', 'testValue', array('testValue'), true),
+            // Value set and getter returns correct results
+            array('testKey', 'testKey', 'testValue', 'testValue', false),
         );
     }
 
@@ -45,8 +46,10 @@ class ProductTest extends PHPUnit_Framework_TestCase
     public function setFieldWithArrayProvider()
     {
         return array(
+            // Set attribute without $array flag, result should be plain value
+            array('testKey', 'test', 'test', false, 2),
+            // Set attribute wit $array flag, result should contain array with values
             array('testKey', 'test', array('test', 'test'), true, 2),
-            array('testKey', 'test', 'test', false, 2)
         );
     }
 
@@ -65,16 +68,36 @@ class ProductTest extends PHPUnit_Framework_TestCase
     public function setAttributeFieldProvider()
     {
         return array(
-            array('Test Attribute', 'Test Value', array('Test Attribute' => array('Test Value')))
+            // Set attribute with one value
+            array(
+                'Test Attribute',
+                array('Test Value'),
+                array('Test Attribute' => array('Test Value'))
+            ),
+            // Set attribute with multiple value
+            array(
+                'Test Attribute',
+                array('Test Value', 'Test Value 2'),
+                array('Test Attribute' => array('Test Value', 'Test Value 2'))
+            ),
+            // Set attribute with multiple values which have duplicates
+            array(
+                'Test Attribute',
+                array('Test Value', 'Test Value 2', 'Test Value 2'),
+                array('Test Attribute' => array('Test Value', 'Test Value 2'))
+            ),
         );
     }
 
     /**
      * @dataProvider setAttributeFieldProvider
      */
-    public function testSetAttributeField($attribute, $value, $expectedResult)
+    public function testSetAttributeField($attribute, $values, $expectedResult)
     {
-        $this->product->setAttributeField($attribute, $value);
+        foreach ($values as $value) {
+            $this->product->setAttributeField($attribute, $value);
+        }
+
         $this->assertSame($expectedResult, $this->product->getField('attributes'));
     }
 
@@ -108,8 +131,19 @@ class ProductTest extends PHPUnit_Framework_TestCase
      */
     public function processInitialDataProvider()
     {
-
         return array(
+            // No data given, item object should not have any information
+            array(null, array(), array()),
+            // Product initial data provided but the texts array is empty
+            array(
+                '1',
+                array(
+                    'id' => '1',
+                    'createdAt' => '2001-12-12 14:12:45'
+                ),
+                array()
+            ),
+            // Product initial data provided, item should have an id and appropriate texts fields (description, meta description, etc.)
             array(
                 '1',
                 array(
@@ -133,14 +167,6 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     'keywords' => 'Keyword'
                 )
             ),
-            array(
-                '1',
-                array(
-                    'id' => '1',
-                    'createdAt' => '2001-12-12 14:12:45'
-                ),
-                array()
-            )
         );
     }
 
@@ -160,12 +186,14 @@ class ProductTest extends PHPUnit_Framework_TestCase
     public function processVariationsProvider()
     {
         return array(
+            // No variation data provided, item fields should be empty
             array(
                 array(),
                 null,
                 null,
                 array('price' => null, 'maxprice' => null, 'instead' => null)
             ),
+            // Variation attributes, units and identifiers (barcodes not included) data provided but the prices is missing
             array(
                 array(
                     'entries' => array(
@@ -175,6 +203,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'model' => 'Test Model',
                             'id' => 'Test Id',
                             'variationSalesPrices' => array(),
+                            'packingUnits' => 1,
                             'variationAttributeValues' => array(
                                 array(
                                     'attributeId' => '1',
@@ -187,8 +216,10 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 ),
                 array('Test' => array('Test')),
                 array('Test Number', 'Test Model', 'Test Id'),
-                array('price' => null, 'maxprice' => null, 'instead' => null)
+                array('price' => null, 'maxprice' => null, 'instead' => null, 'base_unit' => 'C62')
             ),
+            // Variation prices provided with multiple prices set so the lowest should be used for 'price' field
+            // Variation has duplicate identifier id => 'Test Id' so it should be ignored when adding to 'ordernumber' field
             array(
                 array(
                     'entries' => array(
@@ -330,10 +361,12 @@ class ProductTest extends PHPUnit_Framework_TestCase
     public function processVariationPropertiesProvider()
     {
         return array(
+            // No data provided, results should be empty
             array(
                 array(),
                 null
             ),
+            // Variation has 'text' and 'float' type properties
             array(
                 array(
                     array(
@@ -355,6 +388,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 ),
                 array('Test Property' => array('Test Value'), 'Test Float' => array(3.25))
             ),
+            // Variation has 'selection' and 'int' type properties
             array(
                 array(
                     array(
@@ -391,6 +425,10 @@ class ProductTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     *  Result for this method could vary depending if product has one or multiple images
+     *  If product has multiple images then $data will hold an array with images data arrays
+     *  If product has one image the $data will hold that image data array
+     *
      *  array (
      *      0 => array (
      *          'id' => 19,
@@ -408,23 +446,30 @@ class ProductTest extends PHPUnit_Framework_TestCase
     public function processImagesProvider()
     {
         return array(
+            // No data provided, 'image' field should be empty
             array(
-                array(
-                    array('urlMiddle' => 'path')
-                ),
-                'path'
+                false,
+                null
             ),
+            // Image has only one image, 'image' field
             array(
+                // Image
                 array(
                     'itemId' => '1',
                     'urlMiddle' => 'path'
                 ),
                 'path'
             ),
+            // Image has multiple images so $data has array for images
             array(
-                false,
-                null
-            )
+                array(
+                    // First image
+                    array('urlMiddle' => 'path'),
+                    // Second image
+                    array('urlMiddle' => 'path')
+                ),
+                'path'
+            ),
         );
     }
 

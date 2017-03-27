@@ -23,9 +23,11 @@ class Vat implements ParserInterface
             return $this->results;
         }
 
-        foreach ($data['entries'] as $vat) {
-            //TODO: vat by country ???
-            //$this->results[$vat['id']] = $vat['type'];
+        foreach ($data['entries'] as $vatCountries) {
+            $countryId = $vatCountries['countryId'];
+            foreach ($vatCountries['vatRates'] as $vatRate) {
+                $this->results[$countryId][$vatRate['id']] = $vatRate['vatRate'];
+            }
         }
 
         return $this->results;
