@@ -236,7 +236,7 @@ class Client
     public function getProductVariations($productId)
     {
         $params = array(
-            'with' => array('variationSalesPrices', 'variationBarcodes', 'variationCategories', 'variationAttributeValues')
+            'with' => array('variationSalesPrices', 'variationBarcodes', 'variationCategories', 'variationAttributeValues', 'unit')
         );
 
         $response = $this->call('GET', $this->getEndpoint('items/' . $productId . '/variations', $params));
@@ -320,7 +320,7 @@ class Client
 
                 $continue = false;
             } catch (\Exception $e) {
-                // If call to api was not successful check if retry limit was reached to stop retry cicle
+                // If call to api was not successful check if retry limit was reached to stop retry cycle
                 if ($count >= self::RETRY_COUNT) {
                     $continue = false;
                     $this->handleException($e);

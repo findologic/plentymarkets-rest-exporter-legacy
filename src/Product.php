@@ -98,6 +98,7 @@ class Product
         }
 
         if (isset($this->fields['attributes'][$name]) && in_array($value, $this->fields['attributes'][$name])) {
+            // Value already exists so skip this value
             return $this;
         }
 
@@ -138,14 +139,19 @@ class Product
     public function processVariations($data)
     {
         if (!isset($data['entries'])) {
-            return $this;
+            return $this->handleEmptyData();
         }
 
         foreach ($data['entries'] as $variation) {
-            $this->setField('base_unit', Units::getUnitValue($this->getFromArray($variation, 'packingUnits')));
+            $this->setField(
+                'taxrate',
+                $this->registry->get('vat')->getVatRateByVatId($this->getFromArray($variation, 'vatId'))
+            );
+
             $this->processVariationIdentifiers($variation)
                 ->processVariationPrices($this->getFromArray($variation, 'variationSalesPrices'))
-                ->processVariationAttributes($this->getFromArray($variation, 'variationAttributeValues'));
+                ->processVariationAttributes($this->getFromArray($variation, 'variationAttributeValues'))
+                ->processUnits($this->getFromArray($variation, 'unit'));
         }
 
         return $this;
@@ -158,7 +164,7 @@ class Product
     public function processVariationsProperties($data)
     {
         if (!is_array($data) || empty($data)) {
-            return $this;
+            return $this->handleEmptyData();
         }
 
         foreach ($data as $property) {
@@ -179,7 +185,7 @@ class Product
     public function processImages($data)
     {
         if (!is_array($data) || empty($data)) {
-            return $this;
+            return $this->handleEmptyData();
         }
 
         //data for images could be returned as array of images if there is multiple images assigned
@@ -262,6 +268,12 @@ class Product
         return $value;
     }
 
+    protected function handleEmptyData()
+    {
+        // TODO: maybe log the caller method name wheres the data is missing
+        return $this;
+    }
+
     /**
      * Get all the fields used for 'ordernumber'
      *
@@ -319,7 +331,7 @@ class Product
     protected function processVariationPrices($data)
     {
         if (!$data) {
-            return $this;
+            return $this->handleEmptyData();
         }
 
         foreach ($data as $price) {
@@ -353,7 +365,7 @@ class Product
     protected function processVariationAttributes($attributesData)
     {
         if (!count($attributesData)) {
-            return $this;
+            return $this->handleEmptyData();
         }
 
         /**
@@ -375,13 +387,33 @@ class Product
     }
 
     /**
+     * Variation units processing
+     *
+     * @param $data
+     * @return $this|Product
+     */
+    protected function processUnits($data)
+    {
+        if (empty($data)) {
+            return $this->handleEmptyData();
+        }
+
+        //TODO: it seems variations could have different unit values per variation ???
+        $unitId = $this->getFromArray($data, 'unitId');
+        $this->setField('base_unit', Units::getUnitValue($unitId));
+        $this->setField('package_size', $this->getFromArray($data, 'content'));
+
+        return $this;
+    }
+
+    /**
      * @param array $data
      * @return $this
      */
     protected function processTexts($data)
     {
         if (!isset($data['texts']) || !count($data['texts'])) {
-            return $this;
+            return $this->handleEmptyData();
         }
 
         //TODO: filters texts data by language

@@ -6,4 +6,5 @@ class Config {
     const USERNAME = 'Username';
     const PASSWORD = 'Password';
     const ENDPOINT = 'https://yourshop.com/rest/';
+    const TAXRATE_COUNTRY_CODE = 'GB';
 }

@@ -203,20 +203,24 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'model' => 'Test Model',
                             'id' => 'Test Id',
                             'variationSalesPrices' => array(),
-                            'packingUnits' => 1,
+                            'vatId' => 2,
                             'variationAttributeValues' => array(
                                 array(
                                     'attributeId' => '1',
                                     'valueId' => '2'
                                 ),
                             ),
-                            'variationBarcodes' => array()
+                            'variationBarcodes' => array(),
+                            'unit' => array(
+                                "unitId"=> 1,
+                                "content" => 2
+                            )
                         )
                     )
                 ),
                 array('Test' => array('Test')),
                 array('Test Number', 'Test Model', 'Test Id'),
-                array('price' => null, 'maxprice' => null, 'instead' => null, 'base_unit' => 'C62')
+                array('price' => null, 'maxprice' => null, 'instead' => null, 'base_unit' => 'C62', 'taxrate' => '19.00')
             ),
             // Variation prices provided with multiple prices set so the lowest should be used for 'price' field
             // Variation has duplicate identifier id => 'Test Id' so it should be ignored when adding to 'ordernumber' field
@@ -228,6 +232,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'number' => 'Test Number',
                             'model' => 'Test Model',
                             'id' => 'Test Id',
+                            'vatId' => 2,
                             'variationSalesPrices' => array(
                                 array(
                                     'price' => 15,
@@ -288,7 +293,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider processVariationsProvider
      */
-    public function testProcessVariations($data, $expectedAttributes, $expectedIdentifiers, $expectedPrices)
+    public function testProcessVariations($data, $expectedAttributes, $expectedIdentifiers, $expectedFields)
     {
         $attributesMock = $this->getMockBuilder('Findologic\Plentymarkets\Parser\Attributes')
             ->setMethods(array('attributeValueExists', 'getAttributeName', 'getAttributeValueName'))
@@ -304,9 +309,16 @@ class ProductTest extends PHPUnit_Framework_TestCase
 
         $salesPricesMock->expects($this->any())->method('getRRP')->willReturn(array('2'));
 
+        $vatMock = $this->getMockBuilder('Findologic\Plentymarkets\Parser\Vat')
+            ->setMethods(array('getVatRateByVatId'))
+            ->getMock();
+
+        $vatMock->expects($this->any())->method('getVatRateByVatId')->willReturn('19.00');
+
         $registry = new Registry();
         $registry->set('Attributes', $attributesMock);
-        $registry->set('salesPrices', $salesPricesMock);
+        $registry->set('SalesPrices', $salesPricesMock);
+        $registry->set('Vat', $vatMock);
 
         $productMock = $this->getMockBuilder('Findologic\Plentymarkets\Product')
             ->setMethods(array('getItemId'))
@@ -316,8 +328,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
         $productMock->processVariations($data);
         $this->assertSame($expectedAttributes, $productMock->getField('attributes'));
         $this->assertSame($expectedIdentifiers, $productMock->getField('ordernumber'));
-        foreach ($expectedPrices as $field => $price) {
-            $this->assertSame($price, $productMock->getField($field));
+        foreach ($expectedFields as $field => $expectedValue) {
+            $this->assertSame($expectedValue, $productMock->getField($field));
         }
     }
 
