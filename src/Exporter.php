@@ -95,6 +95,9 @@ class Exporter
             foreach ($results['entries'] as $product) {
                 $this->processProductData($product);
             }
+
+            $this->getWrapper()->allItemsHasBeenProcessed();
+
         } catch (\Exception $e) {
             $this->handleException($e);
         }
@@ -131,20 +134,19 @@ class Exporter
             return $this;
         }
 
-        $variations = $this->getClient()->getProductVariations($product->getitemId());
+        $variations = $this->getClient()->getProductVariations($product->getItemId());
 
         if (isset($variations['entries'])) {
             $product->processVariations($variations);
             foreach ($variations['entries'] as $variation) {
                 $product->processVariationsProperties(
-                    $this->getClient()->getVariationProperties($product->getitemId(), $variation['id'])
+                    $this->getClient()->getVariationProperties($product->getItemId(), $variation['id'])
                 );
             }
         }
 
-        $product->processImages($this->getClient()->getProductImages($product->getitemId()));
-        //TODO: maybe after all processing validation is needed to ensure all neccesary fields for product is set?
-        $this->getWrapper()->wrapProduct($product);
+        $product->processImages($this->getClient()->getProductImages($product->getItemId()));
+        $this->getWrapper()->wrapItem($product->getResults());
         unset($product);
 
         return $this;

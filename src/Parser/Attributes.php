@@ -22,6 +22,8 @@ class Attributes implements ParserInterface
     }
 
     /**
+     * Parse the attributes ids from $data
+     *
      * @inheritdoc
      */
     public function parse($data)
@@ -52,7 +54,6 @@ class Attributes implements ParserInterface
 
         foreach ($data as $name) {
             //TODO; Language check
-            //if ($name['lang] == INSERT LANGUAGE CODE)
             if (empty($name['name'])) {
                 continue;
             }

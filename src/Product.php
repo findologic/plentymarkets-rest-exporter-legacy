@@ -112,6 +112,11 @@ class Product
         return $this->itemId;
     }
 
+    public function getResults()
+    {
+        return $this->fields;
+    }
+
     /**
      * Process initial data from /items response
      *

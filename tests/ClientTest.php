@@ -7,7 +7,7 @@ use PHPUnit_Framework_TestCase;
 class ClientTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * Test when login request was successful
+     * Test when login request was successful and api returns the token
      */
     public function testLogin()
     {
@@ -116,11 +116,15 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $clientMock->getProductVariations('1');
     }
 
+    /**
+     * Test if correct request object was created by provided data
+     */
     public function testCreateRequest()
     {
         $clientMock = $this->getClientMock(array('handleException', 'getToken'));
         $clientMock->expects($this->any())->method('getToken')->will($this->returnValue('TEST_TOKEN'));
 
+        // To test protected method create reflection class
         $reflection = new \ReflectionClass(get_class($clientMock));
         $method = $reflection->getMethod('createRequest');
         $method->setAccessible(true);
