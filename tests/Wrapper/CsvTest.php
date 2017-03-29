@@ -46,13 +46,13 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $url = $this->getMockedFileSystemPath('Export.csv');
         $wrapperMock = $this->getWrapperMock($url, array('getResults'));
         //TODO: mocking to throw exception
-        //$this->fileMock->chmod(0);
-        //$this->setExpectedException('\Findologic\Plentymarkets\Exception\CriticalException');
-        //$wrapperMock->wrapItem($this->getItemDataMock());
+        $this->fileMock->chmod(0);
+        $this->setExpectedException('\Findologic\Plentymarkets\Exception\CriticalException');
+        $wrapperMock->wrapItem($this->getItemDataMock());
     }
 
     /**
-     * Check
+     * Check if data is converted
      */
     public function testConvertData()
     {

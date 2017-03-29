@@ -19,20 +19,31 @@ class Client
      * @var Logger
      */
     protected $logger;
-    protected $loginFlag = false;
 
     /**
-     * @param string $username
-     * @param string $password
-     * @param string $endpoint
-     * @param HTTP_Request2 $client
+     * Flag fol login call to api to avoid setting the headers for this call
+     *
+     * @var bool
      */
-    public function __construct($username, $password, $endpoint, Logger $logger)
+    protected $loginFlag = false;
+
+    protected $debug = false;
+
+    /**
+     * Client constructor.
+     * @param $username
+     * @param $password
+     * @param $endpoint
+     * @param Logger $logger
+     * @param bool $debug
+     */
+    public function __construct($username, $password, $endpoint, Logger $logger, $debug = false)
     {
         $this->username = $username;
         $this->password = $password;
         $this->endpoint = $endpoint;
         $this->logger = $logger;
+        $this->debug = $debug;
     }
 
     /**

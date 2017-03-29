@@ -174,6 +174,10 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $this->assertInstanceOf('\Findologic\Plentymarkets\Product', $product);
     }
 
+
+    /**
+     * Test if all methods are called to process the product
+     */
     public function testProcessProductData()
     {
         $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
@@ -201,6 +205,25 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $productMock->expects($this->once())->method('processVariations');
         $productMock->expects($this->once())->method('processImages');
         $productMock->expects($this->atLeast(4))->method('getItemId')->will($this->returnValue(1));
+        $exporterMock->expects($this->once())->method('createProductItem')->will($this->returnValue($productMock));
+
+        $exporterMock->processProductData(array());
+    }
+
+    public function testProcessProductDataNoItem()
+    {
+        $exporterMock = $this->getExporterMockBuilder();
+        $exporterMock->setMethods(array('createProductItem'));
+        $exporterMock = $exporterMock->getMock();
+        $productMock = $this->getMockBuilder('\Findologic\Plentymarkets\Product')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getItemId', 'processVariations', 'processImages'))
+            ->getMock();
+
+        $productMock->expects($this->once())->method('getItemId')->will($this->returnValue(false));
+        $productMock->expects($this->never())->method('processVariations');
+        $productMock->expects($this->never())->method('processImages');
+
         $exporterMock->expects($this->once())->method('createProductItem')->will($this->returnValue($productMock));
 
         $exporterMock->processProductData(array());

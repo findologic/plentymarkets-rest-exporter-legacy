@@ -191,7 +191,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 array(),
                 null,
                 null,
-                array('price' => null, 'maxprice' => null, 'instead' => null)
+                array()
             ),
             // Variation attributes, units and identifiers (barcodes not included) data provided but the prices is missing
             array(
@@ -220,7 +220,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 ),
                 array('Test' => array('Test')),
                 array('Test Number', 'Test Model', 'Test Id'),
-                array('price' => null, 'maxprice' => null, 'instead' => null, 'base_unit' => 'C62', 'taxrate' => '19.00')
+                array('price' => 0.00, 'maxprice' => 0.00, 'instead' => 0.00, 'base_unit' => 'C62', 'taxrate' => '19.00')
             ),
             // Variation prices provided with multiple prices set so the lowest should be used for 'price' field
             // Variation has duplicate identifier id => 'Test Id' so it should be ignored when adding to 'ordernumber' field
@@ -419,9 +419,15 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'valueType' => 'int'
                         ),
                         'valueInt' => 3
+                    ),
+                    array(
+                        'property' => array(
+                            'backendName' => 'Test Default',
+                            'valueType' => 'Test'
+                        )
                     )
                 ),
-                array('Test Property Select' => array('Select Value'), 'Test Int' => array(3))
+                array('Test Property Select' => array('Select Value'), 'Test Int' => array(3), 'Test Default' => array(''))
             )
         );
     }

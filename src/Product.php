@@ -27,9 +27,9 @@ class Product
         'name' => null,
         'summary' => null,
         'description' => null,
-        'price' => null,
-        'instead' => null,
-        'maxprice' => null,
+        'price' => 0.00,
+        'instead' => 0.00,
+        'maxprice' => 0.00,
         'taxrate' => null,
         'url' => null,
         'image' => null,
@@ -129,7 +129,7 @@ class Product
         $this->itemId = $this->getFromArray($data, 'id');
 
         $this->setField('id', $this->getItemId())
-            ->setField('date_added', $this->getFromArray($data, 'createdAt'))
+            ->setField('date_added', strtotime($this->getFromArray($data, 'createdAt')))
             ->setField('position', $this->getFromArray($data, 'position'));
 
         $this->processTexts($data);
