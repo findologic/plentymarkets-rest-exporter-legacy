@@ -3,6 +3,7 @@
 namespace Findologic\Plentymarkets;
 
 use Findologic\Plentymarkets\Exception\CriticalException;
+use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Parser\ParserFactory;
 use Findologic\Plentymarkets\Parser\Attributes;
 use Findologic\Plentymarkets\Wrapper\WrapperInterface;
@@ -89,7 +90,7 @@ class Exporter
             $results = $this->getClient()->getProducts($offset, $limit);
 
             if (!$results || !isset($results['entries'])) {
-                throw new Exception\CustomerException('Could not find any results!');
+                throw new CustomerException('Could not find any results!');
             }
 
             foreach ($results['entries'] as $product) {
@@ -171,7 +172,7 @@ class Exporter
     }
 
     /**
-     * Handle the initiation all of data parsers and call method to parse the result from api
+     * Handle the initiation of all data parsers and call method to parse the result from api
      */
     protected function initAdditionalData()
     {
@@ -199,13 +200,13 @@ class Exporter
         $attributes = $this->getRegistry()->get('attributes');
 
         if (!$attributes || !$attributes instanceof Attributes) {
-            throw new Exception\CustomerException('Could not get the attributes from api!');
+            throw new CustomerException('Could not get the attributes from api!');
         }
 
         foreach ($attributes->getResults() as $id => $attribute) {
             $attributes->parseAttributeName($this->getClient()->getAttributeName($id));
             $values = $attributes->parseValues($this->getClient()->getAttributeValues($id));
-            // Get values frontend names
+            // Get values for frontend names
             foreach ($values as $valueId => $value) {
                 $attributes->parseValueNames($id, $this->getClient()->getAttributeValueName($valueId));
             }

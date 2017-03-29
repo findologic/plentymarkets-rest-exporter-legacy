@@ -118,7 +118,7 @@ class Product
     }
 
     /**
-     * Process initial data from /items response
+     * Process initial data from '/items' call response
      *
      * @param array $data
      * @return $this
@@ -193,7 +193,7 @@ class Product
             return $this->handleEmptyData();
         }
 
-        //data for images could be returned as array of images if there is multiple images assigned
+        // Data for images could be returned as array of images if there is multiple images assigned
         if (!isset($data['itemId'])) {
             //TODO: check which image to use if there is multiple (last image was mentioned in the call)
             $data = $data[0];
@@ -280,7 +280,7 @@ class Product
     }
 
     /**
-     * Get all the fields used for 'ordernumber'
+     * Get all the fields used for 'ordernumber' field
      *
      * @param array $variation
      * @return $this
@@ -305,6 +305,8 @@ class Product
     }
 
     /**
+     * Each variation can have multiple barcodes
+     *
      * @param array $barcodes
      * @return $this
      */
@@ -318,6 +320,8 @@ class Product
     }
 
     /**
+     * Add all identifiers to 'ordernumber' field as array set
+     *
      * @param string $value
      * @return $this
      */
@@ -330,6 +334,10 @@ class Product
     }
 
     /**
+     * Get the price values
+     * Prices has types ('salesPriceId' value)
+     * 'instead' field should hold retail recommended price (Filter prices by 'salesPriceId' to find which is RRP)
+     *
      * @param array $data
      * @return $this
      */
@@ -380,6 +388,7 @@ class Product
 
 
         foreach ($attributesData as $attribute) {
+            // Check if attribute exist in attributes data parsed on export initialization
             if ($attributesValues->attributeValueExists($attribute['attributeId'], $attribute['valueId'])) {
                 $this->setAttributeField(
                     $attributesValues->getAttributeName($attribute['attributeId']),
@@ -393,6 +402,7 @@ class Product
 
     /**
      * Variation units processing
+     * Map variation 'unitId' with ISO value
      *
      * @param $data
      * @return $this|Product

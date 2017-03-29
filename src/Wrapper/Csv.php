@@ -77,7 +77,7 @@ class Csv implements WrapperInterface
      * Flag for knowing if file header line was set already
      * @var bool
      */
-    protected $headersSet = false;
+    protected $headersSetFlag = false;
 
     /**
      * File where the results should be exported
@@ -130,12 +130,15 @@ class Csv implements WrapperInterface
     }
 
     /**
+     * Write item data to file
+     *
      * @param array
      * @return $this
      */
      public function wrapItem($data)
      {
-         if (!$this->headersSet) {
+         // Check if headers already set
+         if (!$this->headersSetFlag) {
              $this->setHeaders($data);
          }
 
@@ -192,7 +195,7 @@ class Csv implements WrapperInterface
     {
         $headers = array_keys($headersData);
         fputcsv($this->getStream(), $headers, self::CSV_DELIMITER, self::CSV_ENCLOSURE);
-        $this->headersSet = true;
+        $this->headersSetFlag = true;
     }
 
     /**

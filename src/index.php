@@ -9,10 +9,16 @@ use Findologic\Plentymarkets\Registry;
 use Findologic\Plentymarkets\Config;
 
 $logger = new Logger('customer');
-$client = new Findologic\Plentymarkets\Client(Config::USERNAME, Config::PASSWORD, Config::ENDPOINT, $logger);
-$wrapper = new Findologic\Plentymarkets\Wrapper\Csv();
-$registry = new Registry();
-$exporter = new Exporter($client, $wrapper, $logger, $registry);
+$debug = false;
+
+if (Config::DEBUG) {
+    $debug = new \Findologic\Plentymarkets\Debugger();
+}
+
+$client = new \Findologic\Plentymarkets\Client(Config::USERNAME, Config::PASSWORD, Config::ENDPOINT, $logger);
+$wrapper = new \Findologic\Plentymarkets\Wrapper\Csv();
+$registry = new \Findologic\Plentymarkets\Registry();
+$exporter = new \Findologic\Plentymarkets\Exporter($client, $wrapper, $logger, $registry);
 $exporter->init();
 
 $result = $exporter->getProducts();

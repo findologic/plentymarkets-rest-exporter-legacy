@@ -5,6 +5,7 @@ namespace Findologic\Plentymarkets;
 use HTTP_Request2;
 use Logger;
 use Findologic\Plentymarkets\Exception\CriticalException;
+use Findologic\Plentymarkets\Exception\CustomerException;
 
 class Client
 {
@@ -27,10 +28,12 @@ class Client
      */
     protected $loginFlag = false;
 
+    /**
+     * @var bool|\Findologic\Plentymarkets\Debugger
+     */
     protected $debug = false;
 
     /**
-     * Client constructor.
      * @param $username
      * @param $password
      * @param $endpoint
@@ -47,6 +50,8 @@ class Client
     }
 
     /**
+     * Get the token for api call authorization
+     *
      * @return null|string
      */
     public function getToken()
@@ -76,13 +81,13 @@ class Client
         );
 
         if (!$response || $response->getStatus() != 200) {
-            throw new Exception\CriticalException('Could not connect to api!');
+            throw new CriticalException('Could not connect to api!');
         }
 
         $data = json_decode($response->getBody());
 
         if (!property_exists($data, 'accessToken')) {
-            throw new Exception\CriticalException("Incorrect login to api, response do not have access token!");
+            throw new CriticalException("Incorrect login to api, response do not have access token!");
         }
 
         $this->token = $data->accessToken;
@@ -282,6 +287,7 @@ class Client
         if ($params) {
             $query = '?';
             $count = 0;
+            $totalParams = count($params);
             foreach ($params as $key => $value) {
                 $count++;
                 if (is_array($value)) {
@@ -291,7 +297,7 @@ class Client
                     $query .= $key . '=' . $value;
                 }
 
-                if ($count < count($params)) {
+                if ($count < $totalParams) {
                     $query .= '&';
                 }
             }
@@ -319,14 +325,19 @@ class Client
          */
         $request = $this->createRequest($method, $uri, $params);
 
+        // Use while cycle for retrying the call if previous call failed until limit is reached
         while ($continue) {
             try {
                 $count++;
 
                 $response = $request->send();
 
+                if ($this->debug) {
+                    $this->debug->debugCall($request, $response);
+                }
+
                 if ($response->getStatus() != 200) {
-                    throw new Exception\CustomerException('Could not call api method for ' . $uri);
+                    throw new CustomerException('Could not call api method for ' . $uri);
                 }
 
                 $continue = false;

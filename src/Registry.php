@@ -4,6 +4,9 @@ namespace Findologic\Plentymarkets;
 
 class Registry
 {
+    /**
+     * @var array
+     */
     protected $registry = array();
 
     public function set($key, $object)
