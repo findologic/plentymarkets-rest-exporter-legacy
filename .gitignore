@@ -6,4 +6,5 @@ composer.phar
 /vendor/
 /build/
 .idea/
-.idea_modules/
+.idea_modules
+/tmp/
