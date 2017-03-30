@@ -175,7 +175,9 @@ class Product
         foreach ($data as $property) {
             $propertyName = $property['property']['backendName'];
             $value = $this->getPropertyValue($property);
-            $this->setAttributeField($propertyName, $value);
+            if ($value != null) {
+                $this->setAttributeField($propertyName, $value);
+            }
         }
 
         return $this;
@@ -249,13 +251,19 @@ class Product
         switch ($propertyType) {
             case 'text':
                 foreach ($property['names'] as $name) {
-                    //TODO: filter by language
+                    if (strtoupper($name['lang']) != Config::TEXT_LANGUAGE) {
+                        continue;
+                    }
+
                     $value = $name['value'];
                 }
                 break;
             case 'selection':
                 foreach ($property['propertySelection'] as $selection) {
-                    //TODO: filter by language
+                    if (strtoupper($selection['lang']) != Config::TEXT_LANGUAGE) {
+                        continue;
+                    }
+
                     $value = $selection['name'];
                 }
                 break;
@@ -431,14 +439,17 @@ class Product
             return $this->handleEmptyData();
         }
 
-        //TODO: filters texts data by language
-        $texts = $data['texts']['0'];
+        foreach ($data['texts'] as $texts) {
+            if (strtoupper($texts['lang']) != Config::TEXT_LANGUAGE) {
+                continue;
+            }
 
-        $this->setField('name', $this->getFromArray($texts, 'name1'));
-        $this->setField('summary', $this->getFromArray($texts, 'shortDescription'));
-        $this->setField('description', $this->getFromArray($texts, 'description'));
-        $this->setField('url', $this->getFromArray($texts, 'urlPath'));
-        $this->setField('keywords', $this->getFromArray($texts, 'keywords'));
+            $this->setField('name', $this->getFromArray($texts, 'name1'));
+            $this->setField('summary', $this->getFromArray($texts, 'shortDescription'));
+            $this->setField('description', $this->getFromArray($texts, 'description'));
+            $this->setField('url', $this->getFromArray($texts, 'urlPath'));
+            $this->setField('keywords', $this->getFromArray($texts, 'keywords'));
+        }
 
         return $this;
     }

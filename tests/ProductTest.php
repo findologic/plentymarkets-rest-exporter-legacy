@@ -143,6 +143,32 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 ),
                 array()
             ),
+            // Product initial data provided but the texts data is not in language configured in export config,
+            // texts should be null
+            array(
+                '1',
+                array(
+                    'id' => '1',
+                    'createdAt' => '2001-12-12 14:12:45',
+                    'texts' => array(
+                        array(
+                            'lang' => 'lt',
+                            'name1' => 'Test',
+                            'shortDescription' => 'Short Description',
+                            'description' => 'Description',
+                            'urlPath' => 'Url',
+                            'keywords' => 'Keyword'
+                        )
+                    )
+                ),
+                array(
+                    'name' => null,
+                    'summary' => null,
+                    'description' => null,
+                    'url' => null,
+                    'keywords' => null
+                )
+            ),
             // Product initial data provided, item should have an id and appropriate texts fields (description, meta description, etc.)
             array(
                 '1',
@@ -151,6 +177,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     'createdAt' => '2001-12-12 14:12:45',
                     'texts' => array(
                         array(
+                            'lang' => 'en',
                             'name1' => 'Test',
                             'shortDescription' => 'Short Description',
                             'description' => 'Description',
@@ -378,6 +405,32 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 array(),
                 null
             ),
+            // Variation has 'text' and 'selection' type properties but the language of those properties is not the same
+            // as in export config, results should be empty
+            array(
+                array(
+                    array(
+                        'property' => array(
+                            'backendName' => 'Test Property',
+                            'valueType' => 'text'
+                        ),
+                        'names' => array(
+                            array('value' => 'Test Value', 'lang' => 'lt')
+                        )
+                    ),
+                    array(
+                        'property' => array(
+                            'backendName' => 'Test Property Select',
+                            'valueType' => 'selection'
+                        ),
+                        'names' => array(),
+                        'propertySelection' => array(
+                            array('name' => 'Select Value', 'lang' => 'lt')
+                        )
+                    ),
+                ),
+                null
+            ),
             // Variation has 'text' and 'float' type properties
             array(
                 array(
@@ -387,7 +440,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'valueType' => 'text'
                         ),
                         'names' => array(
-                            array('value' => 'Test Value')
+                            array('value' => 'Test Value', 'lang' => 'en')
                         )
                     ),
                     array(
@@ -410,7 +463,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         ),
                         'names' => array(),
                         'propertySelection' => array(
-                            array('name' => 'Select Value')
+                            array('name' => 'Select Value', 'lang' => 'en')
                         )
                     ),
                     array(
@@ -427,7 +480,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         )
                     )
                 ),
-                array('Test Property Select' => array('Select Value'), 'Test Int' => array(3), 'Test Default' => array(''))
+                array('Test Property Select' => array('Select Value'), 'Test Int' => array(3))
             )
         );
     }

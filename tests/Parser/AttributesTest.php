@@ -80,14 +80,16 @@ class AttributesTest extends PHPUnit_Framework_TestCase
         return array(
             // No data provider, results should be empty
             array(false,array()),
-            // Attribute has some data but the name value is null so it should be skipped and results should be empty
-            array(array(array('name' => '')), array()),
+            // Attribute has some data but the language is not the same as in export configuration
+            // so it should be skipped and results should be empty
+            array(array(array('name' => 'Test', 'lang' => 'lt', 'attributeId' => '1')), array()),
             // Correct data provided
             array(
                 array(
                     array(
                         'name' => 'Test 1',
-                        'attributeId' => '1'
+                        'attributeId' => '1',
+                        'lang' => 'en'
                     )
                 ),
                 array(

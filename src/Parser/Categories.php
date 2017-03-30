@@ -2,6 +2,8 @@
 
 namespace Findologic\Plentymarkets\Parser;
 
+use Findologic\Plentymarkets\Config;
+
 class Categories implements ParserInterface
 {
     protected $results = array();
@@ -24,9 +26,13 @@ class Categories implements ParserInterface
         }
 
         foreach ($data['entries'] as $category) {
-            //TODO: select details by language
-            $categoryDetails = $category['details'][0];
-            $this->results[$categoryDetails['categoryId']] = $categoryDetails['name'];
+            foreach ($category['details'] as $details) {
+                if (strtoupper($details['lang']) != Config::TEXT_LANGUAGE) {
+                    continue;
+                }
+
+                $this->results[$details['categoryId']] = $details['name'];
+            }
         }
 
         return $this->results;

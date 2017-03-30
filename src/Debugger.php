@@ -69,7 +69,7 @@ class Debugger
      */
     protected function debugRequest($request)
     {
-
+        //JSON_PRETTY_PRINT
     }
 
     /**

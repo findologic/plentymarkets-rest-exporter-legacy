@@ -25,14 +25,14 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Check if debugger will be called for enabled path
+     * Check if debugger skip debug if path is not enabled
      */
     public function testDebugCallPathsConfiguration()
     {
         $requestMock = $this->getRequestMock('/rest/items');
 
         $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
-            ->setConstructorArgs(array(false, array('login', 'some/path')))
+            ->setConstructorArgs(array('/tmp/', array('login', 'some/path')))
             ->setMethods(array('debugRequest', 'debugResponse'))
             ->getMock();
 

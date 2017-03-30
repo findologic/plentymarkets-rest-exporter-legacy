@@ -2,6 +2,8 @@
 
 namespace Findologic\Plentymarkets\Parser;
 
+use Findologic\Plentymarkets\Config;
+
 class Attributes implements ParserInterface
 {
     protected $results = array();
@@ -53,8 +55,7 @@ class Attributes implements ParserInterface
         }
 
         foreach ($data as $name) {
-            //TODO; Language check
-            if (empty($name['name'])) {
+            if (strtoupper($name['lang']) != Config::TEXT_LANGUAGE) {
                 continue;
             }
 

@@ -44,13 +44,26 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
         return array(
             // No categories given, results should be empty
             array(array(), array()),
+            // Categories data given but there is no results for configured language
+            array(
+                array(
+                    'entries' => array(
+                        array(
+                            'details' => array(
+                                array('categoryId' => '1', 'name' => 'Test', 'lang' => 'lt')
+                            )
+                        )
+                    )
+                ),
+                array()
+            ),
             // Categories data given, results should contain array with category id => name
             array(
                 array(
                     'entries' => array(
                         array(
                             'details' => array(
-                                array('categoryId' => '1', 'name' => 'Test')
+                                array('categoryId' => '1', 'name' => 'Test', 'lang' => 'en')
                             )
                         )
                     )
