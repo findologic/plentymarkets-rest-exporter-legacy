@@ -204,7 +204,6 @@ class Product
 
         // Data for images could be returned as array of images if there is multiple images assigned
         if (!isset($data['itemId'])) {
-            //TODO: check which image to use if there is multiple (last image was mentioned in the call)
             $data = $data[0];
         }
 

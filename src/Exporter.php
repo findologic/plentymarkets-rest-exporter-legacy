@@ -54,6 +54,7 @@ class Exporter
     public function init()
     {
         try {
+            $this->getClient()->login();
             $this->initAdditionalData();
             $this->initAttributeValues();
         } catch (\Exception $e) {

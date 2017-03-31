@@ -19,7 +19,6 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
         $this->fileSystemMock = vfsStream::setup('/tmp');
     }
 
-    /*
     /**
      * Check if debugger will be called for enabled path
      */
@@ -41,7 +40,7 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Check if debugger skip debug if path is not enabled
+     * Check if debugger skips debug if path is not enabled
      */
     public function testDebugCallPathsConfiguration()
     {
@@ -58,6 +57,9 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
         $debuggerMock->debugCall($requestMock, false);
     }
 
+    /**
+     * Check if file was created for saving the debug info
+     */
     public function testDebugCallFileCreation()
     {
         $requestMock = $this->getRequestMock('/rest/items');
@@ -72,6 +74,8 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
 
         $this->assertTrue($this->fileSystemMock->getChild('items')->hasChild($dateFolder));
     }
+
+    /* ------ helper functions ------ */
 
     /**
      * @param string $path

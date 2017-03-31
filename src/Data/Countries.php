@@ -249,6 +249,7 @@ class Countries {
     /**
      * Map country id to iso code
      *
+     * @codeCoverageIgnore
      * @param string $code
      * @return mixed|bool
      */

@@ -65,6 +65,7 @@ class Units {
     /**
      * Map unit id to actual value
      *
+     * @codeCoverageIgnore
      * @param int $id
      * @return mixed|bool
      */

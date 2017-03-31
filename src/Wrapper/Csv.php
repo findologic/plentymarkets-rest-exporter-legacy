@@ -122,11 +122,13 @@ class Csv implements WrapperInterface
 
 
     /**
+     * Becouse result for this wrapper is written to file return only a message
+     *
      * @inheritdoc
      */
     public function getResults()
     {
-        // TODO: Implement getResults() method.
+        return 'Results wrapping was successful';
     }
 
     /**

@@ -64,7 +64,7 @@ class Vat implements ParserInterface
     public function getVatRateByVatId($vatRate)
     {
         if (!isset($this->results[$this->countryId][$vatRate])) {
-            return null;
+            return '';
         }
 
         return $this->results[$this->countryId][$vatRate];

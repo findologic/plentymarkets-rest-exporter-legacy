@@ -33,7 +33,7 @@ class Client
      */
     protected $debug = false;
 
-    protected $protocol = 'http://';
+    protected $protocol = 'https://';
 
     /**
      * @param $username
@@ -82,7 +82,7 @@ class Client
         // If using incorrect protocol the api returns 301 so it could be used to check if correct protocal is used
         // and make appropriate changes
         if ($response && $response->getStatus() == 301) {
-            $this->protocol = 'https://';
+            $this->protocol = 'http://';
             $response = $this->call('POST', $this->getEndpoint('login'), array(
                     'username' => $this->username,
                     'password' => $this->password
