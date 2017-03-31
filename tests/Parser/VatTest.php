@@ -8,16 +8,6 @@ use PHPUnit_Framework_TestCase;
 class VatTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var \Findologic\Plentymarkets\Parser\SalesPrices
-     */
-    protected $parser;
-
-    public function setUp()
-    {
-        $this->parser = new Vat();
-    }
-
-    /**
      *  array (
      *      'entries' => array (
      *          0 =>  array (
@@ -69,7 +59,14 @@ class VatTest extends PHPUnit_Framework_TestCase
      */
     public function testParse($data, $expectedResult)
     {
-        $this->parser->parse($data);
-        $this->assertSame($expectedResult, $this->parser->getResults());
+        $vatMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Vat')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getConfigLanguageCode'))
+            ->getMock();
+
+        $vatMock->expects($this->any())->method('getConfigLanguageCode')->willReturn('GB');
+
+        $vatMock->parse($data);
+        $this->assertSame($expectedResult, $vatMock->getResults());
     }
 }

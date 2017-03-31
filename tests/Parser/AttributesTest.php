@@ -8,16 +8,6 @@ use PHPUnit_Framework_TestCase;
 class AttributesTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var \Findologic\Plentymarkets\Parser\Attributes
-     */
-    protected $parser;
-
-    public function setUp()
-    {
-        $this->parser = new Attributes();
-    }
-
-    /**
      *  Method $data property example:
      *  array (
      *      ...
@@ -62,7 +52,8 @@ class AttributesTest extends PHPUnit_Framework_TestCase
      */
     public function testParse($data, $expectedResult)
     {
-        $this->assertSame($expectedResult, $this->parser->parse($data));
+        $attributesMock = $this->getAttributesMock();
+        $this->assertSame($expectedResult, $attributesMock->parse($data));
     }
 
     /**
@@ -104,7 +95,8 @@ class AttributesTest extends PHPUnit_Framework_TestCase
      */
     public function testParseAttributeName($data, $expectedResult)
     {
-        $this->assertSame($expectedResult, $this->parser->parseAttributeName($data));
+        $attributesMock = $this->getAttributesMock();
+        $this->assertSame($expectedResult, $attributesMock->parseAttributeName($data));
     }
 
     /**
@@ -155,8 +147,9 @@ class AttributesTest extends PHPUnit_Framework_TestCase
      */
     public function testParseValues($data, $expectedResult)
     {
-        $this->parser->parseValues($data);
-        $this->assertSame($expectedResult, $this->parser->getResults());
+        $attributesMock = $this->getAttributesMock();
+        $attributesMock->parseValues($data);
+        $this->assertSame($expectedResult, $attributesMock->getResults());
     }
 
     /**
@@ -204,8 +197,9 @@ class AttributesTest extends PHPUnit_Framework_TestCase
      */
     public function testParseValueNames($attributeId, $data, $expectedResult)
     {
-        $this->parser->parseValueNames($attributeId, $data);
-        $this->assertSame($expectedResult, $this->parser->getResults());
+        $attributesMock = $this->getAttributesMock();
+        $attributesMock->parseValueNames($attributeId, $data);
+        $this->assertSame($expectedResult, $attributesMock->getResults());
     }
 
     public function attributeValueExistsProvider()
@@ -227,8 +221,9 @@ class AttributesTest extends PHPUnit_Framework_TestCase
      */
     public function testAttributeValueExists($attributeId, $valueId, $attributes, $expectedResult)
     {
-        $this->parser->setResults($attributes);
-        $this->assertEquals($expectedResult, $this->parser->attributeValueExists($attributeId, $valueId));
+        $attributesMock = $this->getAttributesMock();
+        $attributesMock->setResults($attributes);
+        $this->assertEquals($expectedResult, $attributesMock->attributeValueExists($attributeId, $valueId));
     }
 
     public function getAttributeNameProvider()
@@ -248,8 +243,9 @@ class AttributesTest extends PHPUnit_Framework_TestCase
      */
     public function testGetAttributeName($attributeId, $attributes, $expectedResult)
     {
-        $this->parser->setResults($attributes);
-        $this->assertSame($expectedResult, $this->parser->getAttributeName($attributeId));
+        $attributesMock = $this->getAttributesMock();
+        $attributesMock->setResults($attributes);
+        $this->assertSame($expectedResult, $attributesMock->getAttributeName($attributeId));
     }
 
     public function getAttributeValueNameProvider()
@@ -282,8 +278,9 @@ class AttributesTest extends PHPUnit_Framework_TestCase
      */
     public function testGetAttributeValueName($attributeId, $valueId, $attributes, $expectedResult)
     {
-        $this->parser->setResults($attributes);
-        $this->assertSame($expectedResult, $this->parser->getAttributeValueName($attributeId, $valueId));
+        $attributesMock = $this->getAttributesMock();
+        $attributesMock->setResults($attributes);
+        $this->assertSame($expectedResult, $attributesMock->getAttributeValueName($attributeId, $valueId));
     }
 
     /* ------ helper functions ------ */
@@ -338,5 +335,28 @@ class AttributesTest extends PHPUnit_Framework_TestCase
             'attributeId' => $attributeId,
             'backendName' => $backendName
         );
+    }
+
+    /**
+     * Helper function to construct attributes mock
+     *
+     * @param array $methods
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getAttributesMock($methods = array())
+    {
+        // Add getters of config values to mock
+        if (!in_array('getConfigLanguageCode', $methods)) {
+            $methods[] = 'getConfigLanguageCode';
+        }
+
+        $attributesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Attributes')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getConfigLanguageCode'))
+            ->getMock();
+
+        $attributesMock->expects($this->any())->method('getConfigLanguageCode')->willReturn('EN');
+
+        return $attributesMock;
     }
 }

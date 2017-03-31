@@ -8,16 +8,6 @@ use PHPUnit_Framework_TestCase;
 class CategoriesTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * @var \Findologic\Plentymarkets\Parser\Categories
-     */
-    protected $parser;
-
-    public function setUp()
-    {
-        $this->parser = new Categories();
-    }
-
-    /**
      *  Method $data property example:
      *  array (
      *      ...
@@ -78,7 +68,14 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
      */
     public function testParse($data, $expectedResult)
     {
-        $this->parser->parse($data);
-        $this->assertSame($expectedResult, $this->parser->getResults());
+        $categoriesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Categories')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getConfigLanguageCode'))
+            ->getMock();
+
+        $categoriesMock->expects($this->any())->method('getConfigLanguageCode')->willReturn('EN');
+
+        $categoriesMock->parse($data);
+        $this->assertSame($expectedResult, $categoriesMock->getResults());
     }
 }

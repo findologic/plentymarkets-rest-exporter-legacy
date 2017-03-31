@@ -202,11 +202,14 @@ class ProductTest extends PHPUnit_Framework_TestCase
      */
     public function testProcessInitialData($itemId, $data, $texts)
     {
-        $this->product->processInitialData($data);
-        $this->assertSame($itemId, $this->product->getItemId());
-        $this->assertSame($itemId, $this->product->getField('id'));
+        $productMock = $this->getProductMock();
+
+        $productMock->processInitialData($data);
+
+        $this->assertSame($itemId, $productMock->getItemId());
+        $this->assertSame($itemId, $productMock->getField('id'));
         foreach ($texts as $field => $value) {
-            $this->assertSame($value, $this->product->getField($field));
+            $this->assertSame($value, $productMock->getField($field));
         }
     }
 
@@ -347,12 +350,10 @@ class ProductTest extends PHPUnit_Framework_TestCase
         $registry->set('SalesPrices', $salesPricesMock);
         $registry->set('Vat', $vatMock);
 
-        $productMock = $this->getMockBuilder('Findologic\Plentymarkets\Product')
-            ->setMethods(array('getItemId'))
-            ->setConstructorArgs(array($registry))
-            ->getMock();
+        $productMock = $this->getProductMock(array('getItemId', 'getConfigLanguageCode'), array($registry));
 
         $productMock->processVariations($data);
+
         $this->assertSame($expectedAttributes, $productMock->getField('attributes'));
         $this->assertSame($expectedIdentifiers, $productMock->getField('ordernumber'));
         foreach ($expectedFields as $field => $expectedValue) {
@@ -490,9 +491,10 @@ class ProductTest extends PHPUnit_Framework_TestCase
      */
     public function testProcessVariationsProperties($data, $expectedResult)
     {
-        $this->product->processVariationsProperties($data);
+        $productMock = $this->getProductMock();
+        $productMock->processVariationsProperties($data);
 
-        $this->assertSame($expectedResult, $this->product->getField('attributes'));
+        $this->assertSame($expectedResult, $productMock->getField('attributes'));
     }
 
     /**
@@ -549,7 +551,36 @@ class ProductTest extends PHPUnit_Framework_TestCase
      */
     public function testProcessImages($data, $expectedResult)
     {
-        $this->product->processImages($data);
-        $this->assertSame($expectedResult, $this->product->getField('image'));
+        $productMock = $this->getProductMock();
+
+        $productMock->processImages($data);
+        $this->assertSame($expectedResult, $productMock->getField('image'));
+    }
+
+    /**
+     * @param array $methods
+     * @param array|bool $constructorArgs
+     * @return \PHPUnit_Framework_MockObject_MockBuilder
+     */
+    protected function getProductMock($methods = array(), $constructorArgs = false)
+    {
+        // Add getters of config values to mock
+        if (!in_array('getConfigLanguageCode', $methods)) {
+            $methods[] = 'getConfigLanguageCode';
+        }
+
+        $productMock = $this->getMockBuilder('\Findologic\Plentymarkets\Product');
+
+        if (is_array($constructorArgs)) {
+            $productMock->setConstructorArgs($constructorArgs);
+        } else {
+            $productMock->disableOriginalConstructor();
+        }
+
+        $productMock = $productMock->setMethods($methods)->getMock();
+
+        $productMock->expects($this->any())->method('getConfigLanguageCode')->willReturn('EN');
+
+        return $productMock;
     }
 }

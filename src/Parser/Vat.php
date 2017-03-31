@@ -19,11 +19,19 @@ class Vat implements ParserInterface
 
     public function __construct()
     {
-        $countryId = Countries::getCountryByIsoCode(strtoupper(Config::TAXRATE_COUNTRY_CODE));
+        $countryId = Countries::getCountryByIsoCode(strtoupper($this->getConfigTaxRateCountryCode()));
 
         if ($countryId) {
             $this->countryId = $countryId;
         }
+    }
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as it used for better mocking
+     */
+    public function getConfigTaxRateCountryCode()
+    {
+        return Config::TAXRATE_COUNTRY_CODE;
     }
 
     /**

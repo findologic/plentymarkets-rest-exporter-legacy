@@ -51,6 +51,14 @@ class Product
     }
 
     /**
+     * @codeCoverageIgnore - Ignore this method as it used for better mocking
+     */
+    public function getConfigLanguageCode()
+    {
+        return Config::TEXT_LANGUAGE_CODE;
+    }
+
+    /**
      * @param mixed $key
      * @return mixed|null
      */
@@ -250,7 +258,7 @@ class Product
         switch ($propertyType) {
             case 'text':
                 foreach ($property['names'] as $name) {
-                    if (strtoupper($name['lang']) != Config::TEXT_LANGUAGE) {
+                    if (strtoupper($name['lang']) != $this->getConfigLanguageCode()) {
                         continue;
                     }
 
@@ -259,7 +267,7 @@ class Product
                 break;
             case 'selection':
                 foreach ($property['propertySelection'] as $selection) {
-                    if (strtoupper($selection['lang']) != Config::TEXT_LANGUAGE) {
+                    if (strtoupper($selection['lang']) != $this->getConfigLanguageCode()) {
                         continue;
                     }
 
@@ -439,7 +447,7 @@ class Product
         }
 
         foreach ($data['texts'] as $texts) {
-            if (strtoupper($texts['lang']) != Config::TEXT_LANGUAGE) {
+            if (strtoupper($texts['lang']) != $this->getConfigLanguageCode()) {
                 continue;
             }
 

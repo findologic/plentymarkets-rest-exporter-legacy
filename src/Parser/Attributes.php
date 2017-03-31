@@ -9,6 +9,14 @@ class Attributes implements ParserInterface
     protected $results = array();
 
     /**
+     * @codeCoverageIgnore - Ignore this method as it used for better mocking
+     */
+    public function getConfigLanguageCode()
+    {
+        return Config::TEXT_LANGUAGE_CODE;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getResults()
@@ -55,7 +63,7 @@ class Attributes implements ParserInterface
         }
 
         foreach ($data as $name) {
-            if (strtoupper($name['lang']) != Config::TEXT_LANGUAGE) {
+            if (strtoupper($name['lang']) != $this->getConfigLanguageCode()) {
                 continue;
             }
 

@@ -9,6 +9,14 @@ class Categories implements ParserInterface
     protected $results = array();
 
     /**
+     * @codeCoverageIgnore - Ignore this method as it used for better mocking
+     */
+    public function getConfigLanguageCode()
+    {
+        return Config::TEXT_LANGUAGE_CODE;
+    }
+
+    /**
      * @inheritdoc
      */
     public function getResults()
@@ -27,7 +35,7 @@ class Categories implements ParserInterface
 
         foreach ($data['entries'] as $category) {
             foreach ($category['details'] as $details) {
-                if (strtoupper($details['lang']) != Config::TEXT_LANGUAGE) {
+                if (strtoupper($details['lang']) != $this->getConfigLanguageCode()) {
                     continue;
                 }
 
