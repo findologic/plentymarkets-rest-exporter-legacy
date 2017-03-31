@@ -22,27 +22,27 @@ class Product
      * @var array
      */
     protected $fields = array(
-        'id' => null,
-        'ordernumber' => null,
-        'name' => null,
-        'summary' => null,
-        'description' => null,
+        'id' => '',
+        'ordernumber' => '',
+        'name' => '',
+        'summary' => '',
+        'description' => '',
         'price' => 0.00,
         'instead' => 0.00,
         'maxprice' => 0.00,
-        'taxrate' => null,
-        'url' => null,
-        'image' => null,
-        'base_unit' => null,
-        'package_size' => null,
-        'price_id' => null,
-        'attributes' => null,
-        'keywords' => null,
-        'groups' => null,
-        'bonus' => null,
-        'sales_frequency' => null,
-        'date_added' => null,
-        'sort' => null,
+        'taxrate' => '',
+        'url' => '',
+        'image' => '',
+        'base_unit' => '',
+        'package_size' => '',
+        'price_id' => '',
+        'attributes' => '',
+        'keywords' => '',
+        'groups' => '',
+        'bonus' => '',
+        'sales_frequency' => '',
+        'date_added' => '',
+        'sort' => '',
     );
 
     public function __construct(Registry $registry)
@@ -60,7 +60,7 @@ class Product
             return $this->fields[$key];
         }
 
-        return null;
+        return '';
     }
 
     /**
@@ -125,12 +125,11 @@ class Product
      */
     public function processInitialData($data)
     {
-        //TODO: check if id is empty and maybe throw exception
         $this->itemId = $this->getFromArray($data, 'id');
 
         $this->setField('id', $this->getItemId())
             ->setField('date_added', strtotime($this->getFromArray($data, 'createdAt')))
-            ->setField('position', $this->getFromArray($data, 'position'));
+            ->setField('sort', $this->getFromArray($data, 'position'));
 
         $this->processTexts($data);
 
@@ -219,7 +218,7 @@ class Product
             return $array[$key];
         }
 
-        return null;
+        return '';
     }
 
     /**
@@ -295,7 +294,7 @@ class Product
      */
     protected function processVariationIdentifiers($variation)
     {
-        $identificators = array('number', 'model', 'id');
+        $identificators = array('number', 'model', 'id', 'itemId');
 
         if (!$this->getField('ordernumber')) {
             $this->setField('ordernumber', array());

@@ -27,7 +27,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
     {
         return array(
             // Some value is set but getter is called for value which is not set, results should be null
-            array('testKey', 'getKey', 'testValue', null, false),
+            array('testKey', 'getKey', 'testValue', '', false),
             // Value set and getter returns correct results
             array('testKey', 'testKey', 'testValue', 'testValue', false),
         );
@@ -133,7 +133,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
     {
         return array(
             // No data given, item object should not have any information
-            array(null, array(), array()),
+            array('', array(), array()),
             // Product initial data provided but the texts array is empty
             array(
                 '1',
@@ -162,11 +162,11 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     )
                 ),
                 array(
-                    'name' => null,
-                    'summary' => null,
-                    'description' => null,
-                    'url' => null,
-                    'keywords' => null
+                    'name' => '',
+                    'summary' => '',
+                    'description' => '',
+                    'url' => '',
+                    'keywords' => ''
                 )
             ),
             // Product initial data provided, item should have an id and appropriate texts fields (description, meta description, etc.)
@@ -216,8 +216,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
             // No variation data provided, item fields should be empty
             array(
                 array(),
-                null,
-                null,
+                '',
+                '',
                 array()
             ),
             // Variation attributes, units and identifiers (barcodes not included) data provided but the prices is missing
@@ -309,7 +309,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         )
                     )
                 ),
-                null,
+                '',
                 array('Test Number', 'Test Model', 'Test Id', 'Test Number 2', 'Test Model 2', 'Barcode'),
                 array('price' => 14, 'maxprice' => 18, 'instead' => 17)
 
@@ -403,7 +403,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
             // No data provided, results should be empty
             array(
                 array(),
-                null
+                ''
             ),
             // Variation has 'text' and 'selection' type properties but the language of those properties is not the same
             // as in export config, results should be empty
@@ -429,7 +429,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         )
                     ),
                 ),
-                null
+                ''
             ),
             // Variation has 'text' and 'float' type properties
             array(
@@ -520,7 +520,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
             // No data provided, 'image' field should be empty
             array(
                 false,
-                null
+                ''
             ),
             // Image has only one image, 'image' field
             array(

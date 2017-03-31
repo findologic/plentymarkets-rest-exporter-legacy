@@ -13,7 +13,7 @@ class Client
 
     protected $username;
     protected $password;
-    protected $endpoint;
+    protected $url;
     protected $token;
     protected $refreshToken;
     /**
@@ -33,6 +33,8 @@ class Client
      */
     protected $debug = false;
 
+    protected $protocol = 'http://';
+
     /**
      * @param $username
      * @param $password
@@ -40,11 +42,11 @@ class Client
      * @param Logger $logger
      * @param bool $debug
      */
-    public function __construct($username, $password, $endpoint, Logger $logger, $debug = false)
+    public function __construct($username, $password, $url, Logger $logger, $debug = false)
     {
         $this->username = $username;
         $this->password = $password;
-        $this->endpoint = $endpoint;
+        $this->url = $url;
         $this->logger = $logger;
         $this->debug = $debug;
     }
@@ -71,14 +73,22 @@ class Client
     {
         $this->loginFlag = true;
 
-        $response = $this->call(
-            'POST',
-            $this->getEndpoint('login'),
-            array(
+        $response = $this->call('POST', $this->getEndpoint('login'), array(
                 'username' => $this->username,
                 'password' => $this->password
             )
         );
+
+        // If using incorrect protocol the api returns 301 so it could be used to check if correct protocal is used
+        // and make appropriate changes
+        if ($response && $response->getStatus() == 301) {
+            $this->protocol = 'https://';
+            $response = $this->call('POST', $this->getEndpoint('login'), array(
+                    'username' => $this->username,
+                    'password' => $this->password
+                )
+            );
+        }
 
         if (!$response || $response->getStatus() != 200) {
             throw new CriticalException('Could not connect to api!');
@@ -91,8 +101,6 @@ class Client
         }
 
         $this->token = $data->accessToken;
-        //TODO: check refresh token functionality and how it should be reused
-        $this->refreshToken = $data->refreshToken;
         $this->loginFlag = false;
 
         return $this;
@@ -281,7 +289,6 @@ class Client
      */
     protected function getEndpoint($method, $params = null)
     {
-        
         $query = '';
 
         if ($params) {
@@ -303,15 +310,15 @@ class Client
             }
         }
 
-        return $this->endpoint . $method . $query;
+        return $this->protocol . $this->url . $method . $query;
     }
 
     /**
      * Call the rest client to get response
      *
-     * @param $method
-     * @param $uri
-     * @param $params
+     * @param string $method
+     * @param string $uri
+     * @param array $params
      * @return bool|mixed
      */
     protected function call($method, $uri, $params = null)
@@ -365,6 +372,7 @@ class Client
     protected function createRequest($method, $uri, $params = null)
     {
         $request = new HTTP_Request2($uri, $method);
+        //$request->setAdapter('curl');
 
         // ignore setting default params for login method as it not required
         if (!$this->loginFlag) {

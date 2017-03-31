@@ -23,6 +23,23 @@ class ClientTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test when login request was successful and api returns the token
+     */
+    public function testLoginProtocol()
+    {
+        $clientMock = $this->getClientMock(array('call'));
+
+        $inccorectResponseMock = $this->getResponseMock('{"Moved permanently !"}', 301);
+        $body = '{"accessToken":"TEST_TOKEN","tokenType":"Bearer","expiresIn":86400,"refreshToken":"REFERSH_TOKEN"}';
+        $responseMock = $this->getResponseMock($body, 200);
+
+        $clientMock->expects($this->exactly(2))->method('call')->will($this->onConsecutiveCalls($inccorectResponseMock, $responseMock));
+        $clientMock->login();
+
+        $this->assertEquals('TEST_TOKEN', $clientMock->getToken());
+    }
+
+    /**
      * Exception should be thrown when response status is incorrect
      */
     public function testLoginResponseStatusException()
