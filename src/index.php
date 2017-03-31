@@ -21,4 +21,4 @@ $registry = new \Findologic\Plentymarkets\Registry();
 $exporter = new \Findologic\Plentymarkets\Exporter($client, $wrapper, $logger, $registry);
 $exporter->init();
 
-echo $exporter->getProducts();
+echo $exporter->getProducts(Config::NUMBER_OR_ITEMS_PER_PAGE);

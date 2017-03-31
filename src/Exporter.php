@@ -81,21 +81,39 @@ class Exporter
 
 
     /**
-     * @param null $offset
-     * @param null $limit
+     * @param int $numberOfItemsPerPage
+     * @param int $page
      * @return mixed
      */
-    public function getProducts($offset = null, $limit = null)
+    public function getProducts($numberOfItemsPerPage = null, $page = 1)
     {
         try {
-            $results = $this->getClient()->getProducts($offset, $limit);
+            $continue = true;
 
-            if (!$results || !isset($results['entries'])) {
-                throw new CustomerException('Could not find any results!');
-            }
+            // Cycle the call for products to api until all we have all products
+            while ($continue) {
+                $results = $this->getClient()->getProducts($numberOfItemsPerPage, $page);
 
-            foreach ($results['entries'] as $product) {
-                $this->processProductData($product);
+                // Just in case to avoid infinite loops
+                if ($page > 99999) {
+                    // TODO: check if this needed
+                    $continue = false;
+                }
+
+                // Check if there is any results. Products is contained is 'entries' value of response array
+                if (!$results || !isset($results['entries'])) {
+                    throw new CustomerException('Could not find any results!');
+                }
+
+                foreach ($results['entries'] as $product) {
+                    $this->processProductData($product);
+                }
+
+                if ($results['isLastPage'] == true) {
+                    $continue = false;
+                }
+
+                $page++;
             }
 
             $this->getWrapper()->allItemsHasBeenProcessed();

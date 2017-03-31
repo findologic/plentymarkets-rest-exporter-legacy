@@ -41,11 +41,13 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $this->assertTrue(file_exists($url));
     }
 
+    /**
+     * Method should throw exception if file was not created successfully
+     */
     public function testCreateFileException()
     {
         $url = $this->getMockedFileSystemPath('Export.csv');
         $wrapperMock = $this->getWrapperMock($url, array('getResults'));
-        //TODO: mocking to throw exception
         $this->fileMock->chmod(0);
         $this->setExpectedException('\Findologic\Plentymarkets\Exception\CriticalException');
         $wrapperMock->wrapItem($this->getItemDataMock());

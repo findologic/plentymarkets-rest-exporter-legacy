@@ -200,18 +200,6 @@ class Client
 
     /**
      * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
-     * @param int $id
-     * @return array
-     */
-    public function getProduct($id)
-    {
-        $response = $this->call('GET', $this->getEndpoint('items/' . $id));
-
-        return $this->returnResult($response);
-    }
-
-    /**
-     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
      * @param int $itemId
      * @param int $variationId
      * @return array
@@ -238,16 +226,35 @@ class Client
         return $this->returnResult($response);
     }
 
-
     /**
-     * @param int $offset
-     * @param int $limit
+     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
+     * @param int $id
      * @return array
      */
-    public function getProducts($offset = null, $limit = null)
+    public function getProduct($id)
     {
-        //TODO: offset and limit implementation
+        $response = $this->call('GET', $this->getEndpoint('items/' . $id));
+
+        return $this->returnResult($response);
+    }
+
+    /**
+     * @param int $numberOfItemsPerPage
+     * @param int $page
+     * @return array
+     */
+    public function getProducts($numberOfItemsPerPage = null, $page = null)
+    {
         $params = array('with' => 'itemProperties');
+
+        if ($numberOfItemsPerPage) {
+            $params['itemsPerPage'] = $numberOfItemsPerPage;
+        }
+
+        if ($page) {
+            $params['page'] = $page;
+        }
+
         $response = $this->call('GET', $this->getEndpoint('items/', $params));
 
         return $this->returnResult($response);
@@ -353,8 +360,9 @@ class Client
                 if ($count >= self::RETRY_COUNT) {
                     $continue = false;
                     $this->handleException($e);
+                } else {
+                    usleep(250000);
                 }
-                //TODO: maybe log unsuccessful calls even before they reach the retry limit ?
             }
         }
 
@@ -372,7 +380,7 @@ class Client
     protected function createRequest($method, $uri, $params = null)
     {
         $request = new HTTP_Request2($uri, $method);
-        //$request->setAdapter('curl');
+        $request->setAdapter('curl');
 
         // ignore setting default params for login method as it not required
         if (!$this->loginFlag) {

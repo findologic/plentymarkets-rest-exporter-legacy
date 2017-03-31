@@ -55,7 +55,7 @@ class Product
      */
     public function getConfigLanguageCode()
     {
-        return Config::TEXT_LANGUAGE_CODE;
+        return strtoupper(Config::TEXT_LANGUAGE_CODE);
     }
 
     /**
@@ -362,6 +362,10 @@ class Product
         }
 
         foreach ($data as $price) {
+            if ($price['price'] == 0) {
+                continue;
+            }
+
             if (!$this->getField('price'))  {
                 $this->setField('price', $price['price']);
                 $this->setField('price_id', $price['salesPriceId']);

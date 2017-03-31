@@ -13,7 +13,7 @@ class Categories implements ParserInterface
      */
     public function getConfigLanguageCode()
     {
-        return Config::TEXT_LANGUAGE_CODE;
+        return strtoupper(Config::TEXT_LANGUAGE_CODE);
     }
 
     /**

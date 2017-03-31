@@ -91,6 +91,8 @@ class Csv implements WrapperInterface
      */
     protected $stream = false;
 
+    protected $offset = 0;
+
     /**
      * Change file name if given.
      * @param string $filename
