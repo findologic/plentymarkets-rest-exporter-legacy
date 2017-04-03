@@ -8,6 +8,10 @@ use Findologic\Plentymarkets\Registry;
 
 class Product
 {
+    const CATEGORY_ATTRIBUTE_FIELD = 'cat';
+    const CATEGORY_URLS_ATTRIBUTE_FIELD = 'cat_url';
+    const MANUFACTURER_ATTRIBUTE_FIELD = 'vendor';
+
     /**
      * @var int
      */
@@ -48,6 +52,16 @@ class Product
     public function __construct(Registry $registry)
     {
         $this->registry = $registry;
+    }
+
+    /**
+     * Item id used for identification
+     *
+     * @return int
+     */
+    public function getItemId()
+    {
+        return $this->itemId;
     }
 
     /**
@@ -115,11 +129,26 @@ class Product
         return $this;
     }
 
-    public function getItemId()
+    /**
+     * Get rrp prices ids array
+     *
+     * @return array
+     */
+    protected function getRRP()
     {
-        return $this->itemId;
+        $prices = $this->registry->get('SalesPrices');
+        if (!$prices) {
+            return array();
+        }
+
+        return $prices->getRRP();
     }
 
+    /**
+     * Return fields array
+     *
+     * @return array
+     */
     public function getResults()
     {
         return $this->fields;
@@ -139,7 +168,26 @@ class Product
             ->setField('date_added', strtotime($this->getFromArray($data, 'createdAt')))
             ->setField('sort', $this->getFromArray($data, 'position'));
 
+        $this->processManufacturer($this->getFromArray($data, 'manufacturerId'));
         $this->processTexts($data);
+
+        return $this;
+    }
+
+    /**
+     * Get mapped manufacturer name from parser
+     *
+     * @param int $manufacturerId
+     * @return $this
+     */
+    public function processManufacturer($manufacturerId)
+    {
+        if ($manufacturerId) {
+            $this->setAttributeField(
+                self::MANUFACTURER_ATTRIBUTE_FIELD,
+                $this->registry->get('manufacturers')->getManufacturerName($manufacturerId)
+            );
+        }
 
         return $this;
     }
@@ -161,9 +209,33 @@ class Product
             );
 
             $this->processVariationIdentifiers($variation)
+                ->proccessVariationCategories($this->getFromArray($variation, 'variationCategories'))
                 ->processVariationPrices($this->getFromArray($variation, 'variationSalesPrices'))
                 ->processVariationAttributes($this->getFromArray($variation, 'variationAttributeValues'))
                 ->processUnits($this->getFromArray($variation, 'unit'));
+        }
+
+        return $this;
+    }
+
+    /**
+     * Process variation categories
+     *
+     * @param array $data
+     * @return $this
+     */
+    public function proccessVariationCategories($data)
+    {
+        if (!is_array($data)) {
+            return $this->handleEmptyData();
+        }
+
+        foreach ($data as $category) {
+            $categoryId =  $this->getFromArray($category, 'categoryId');
+            $this->setAttributeField(
+                self::CATEGORY_ATTRIBUTE_FIELD,
+                $this->registry->get('categories')->getCategoryName($categoryId)
+            );
         }
 
         return $this;
@@ -213,7 +285,7 @@ class Product
     }
 
     /**
-     * Wrap getting data from array to allow returning default data if key do not exist
+     * Wrap getting data from array to allow returning default empty field value if given key do not exist
      *
      * @param array $array
      * @param string $key
@@ -226,21 +298,6 @@ class Product
         }
 
         return '';
-    }
-
-    /**
-     * Get rrp prices ids array
-     *
-     * @return array
-     */
-    protected function getRRP()
-    {
-        $prices = $this->registry->get('SalesPrices');
-        if (!$prices) {
-            return array();
-        }
-
-        return $prices->getRRP();
     }
 
     /**
@@ -285,12 +342,6 @@ class Product
         }
 
         return $value;
-    }
-
-    protected function handleEmptyData()
-    {
-        // TODO: maybe log the caller method name wheres the data is missing
-        return $this;
     }
 
     /**
@@ -461,6 +512,17 @@ class Product
             $this->setField('keywords', $this->getFromArray($texts, 'keywords'));
         }
 
+        return $this;
+    }
+
+    /**
+     * Log information about missing data
+     *
+     * @return $this
+     */
+    protected function handleEmptyData()
+    {
+        // TODO: maybe log the caller method name wheres the data is missing
         return $this;
     }
 }

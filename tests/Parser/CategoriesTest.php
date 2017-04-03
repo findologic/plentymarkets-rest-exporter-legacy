@@ -39,7 +39,7 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
                     'entries' => array(
                         array(
                             'details' => array(
-                                array('categoryId' => '1', 'name' => 'Test', 'lang' => 'lt')
+                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'lt')
                             )
                         )
                     )
@@ -52,12 +52,12 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
                     'entries' => array(
                         array(
                             'details' => array(
-                                array('categoryId' => '1', 'name' => 'Test', 'lang' => 'en')
+                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'en')
                             )
                         )
                     )
                 ),
-                array('1' => 'Test')
+                array(1 => 'Test')
             )
         );
     }
@@ -76,5 +76,55 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
 
         $categoriesMock->parse($data);
         $this->assertSame($expectedResult, $categoriesMock->getResults());
+    }
+
+    public function getCategoryNameProvider()
+    {
+        return array(
+            // No categories was parsed, no data for id
+            array(array(), 1, ''),
+            // Categories data given but there is no results for configured language
+            array(
+                array(
+                    'entries' => array(
+                        array(
+                            'details' => array(
+                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'lt')
+                            )
+                        )
+                    )
+                ),
+                2,
+                ''
+            ),
+            // Categories data given, results should contain array with category id => name
+            array(
+                array(
+                    'entries' => array(
+                        array(
+                            'details' => array(
+                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'en')
+                            )
+                        )
+                    )
+                ),
+                1,
+                'Test'
+            )
+        );
+    }
+
+    /**
+     * @dataProvider getCategoryNameProvider
+     */
+    public function testGetCategoryName($data, $categoryId, $expectedResult)
+    {
+        $categoriesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Categories')
+            ->disableOriginalConstructor()
+            ->setMethods(null)
+            ->getMock();
+
+        $categoriesMock->parse($data);
+        $this->assertSame($expectedResult, $categoriesMock->getCategoryName($categoryId));
     }
 }

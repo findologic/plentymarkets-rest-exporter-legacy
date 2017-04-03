@@ -34,6 +34,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test setting the 'fields' array setter method
+     *
      * @dataProvider setFieldProvider
      */
     public function testSetField($setKey, $getKey, $value, $expectedResult, $arrayFlag)
@@ -54,6 +56,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Some fields can have multiple values so it can be saved as array of values
+     *
      * @dataProvider setFieldWithArrayProvider
      */
     public function testSetFieldWithArray($key, $value, $expectedResult, $arrayFlag, $times)
@@ -198,6 +202,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test initial data parsing
+     *
      * @dataProvider processInitialDataProvider
      */
     public function testProcessInitialData($itemId, $data, $texts)
@@ -211,6 +217,37 @@ class ProductTest extends PHPUnit_Framework_TestCase
         foreach ($texts as $field => $value) {
             $this->assertSame($value, $productMock->getField($field));
         }
+    }
+
+    public function getManufacturerProvider()
+    {
+        return array(
+            // Set attribute with one value
+            array(
+                1,
+                'Test',
+                array(Product::MANUFACTURER_ATTRIBUTE_FIELD => array('Test')),
+            ),
+        );
+    }
+
+    /**
+     * @dataProvider getManufacturerProvider
+     */
+    public function testProcessManufacturer($manufacturerId, $manufacturerName, $expectedResult)
+    {
+        $manufacturersMock = $this->getMockBuilder('Findologic\Plentymarkets\Parser\Manufacturers')
+            ->setMethods(array('getManufacturerName'))
+            ->getMock();
+
+        $manufacturersMock->expects($this->any())->method('getManufacturerName')->willReturn($manufacturerName);
+
+        $registry = new Registry();
+        $registry->set('manufacturers', $manufacturersMock);
+
+        $productMock = $this->getProductMock(array(), array($registry));
+        $productMock->processManufacturer($manufacturerId);
+        $this->assertSame($productMock->getField('attributes'), $expectedResult);
     }
 
     public function processVariationsProvider()
@@ -359,6 +396,50 @@ class ProductTest extends PHPUnit_Framework_TestCase
         foreach ($expectedFields as $field => $expectedValue) {
             $this->assertSame($expectedValue, $productMock->getField($field));
         }
+    }
+
+    public function proccessVariationCategoriesProvider()
+    {
+        return array(
+            // No data for categories provider, results should be empty
+            array(
+                array(),
+                false,
+                ''
+            ),
+            // Variations belongs to two categories, categories names is saved in attributes field
+            array(
+                array(array('categoryId' => 1), array('categoryId' => 2)),
+                array('Test', 'Category'),
+                array(Product::CATEGORY_ATTRIBUTE_FIELD => array('Test', 'Category'))
+            )
+        );
+    }
+
+    /**
+     * Test setting the categories attribute field
+     *
+     * @dataProvider proccessVariationCategoriesProvider
+     */
+    public function testProccessVariationCategories($data, $categories , $expectedResult)
+    {
+        $categoriesMock = $this->getMockBuilder('Findologic\Plentymarkets\Parser\Categories')
+            ->setMethods(array('getCategoryName'))
+            ->getMock();
+
+        if ($categories) {
+            // Mock return method for testing product with multiple categories
+            for ($i = 0; $i < count($categories); $i++) {
+                $categoriesMock->expects($this->at($i))->method('getCategoryName')->will($this->returnValue($categories[$i]));
+            }
+        }
+
+        $registry = new Registry();
+        $registry->set('categories', $categoriesMock);
+
+        $productMock = $this->getProductMock(array('handleEmptyData'), array($registry));
+        $productMock->proccessVariationCategories($data);
+        $this->assertSame($productMock->getField('attributes'), $expectedResult);
     }
 
     /**

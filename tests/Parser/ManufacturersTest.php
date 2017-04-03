@@ -31,10 +31,10 @@ class ManufacturersTest extends PHPUnit_Framework_TestCase
             array(
                 array(
                     'entries' => array(
-                        array('id' => '1', 'name' => 'Test')
+                        array('id' => 1, 'name' => 'Test')
                     )
                 ),
-                array('1' => 'Test')
+                array(1 => 'Test')
             )
         );
     }
@@ -46,10 +46,48 @@ class ManufacturersTest extends PHPUnit_Framework_TestCase
     {
         $manufacturersMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Manufacturers')
             ->disableOriginalConstructor()
-            ->setMethods(array('getResults'))
+            ->setMethods(null)
             ->getMock();
 
-        $results = $manufacturersMock->parse($data);
-        $this->assertSame($expectedResult, $results);
+        $manufacturersMock->parse($data);
+        $this->assertSame($expectedResult, $manufacturersMock->getResults());
+    }
+
+    public function getManufacturerNameProvider()
+    {
+        return array(
+            array(
+                array(
+                    'entries' => array(
+                        array('id' => 1, 'name' => 'Test')
+                    )
+                ),
+                2,
+                ''
+            ),
+            array(
+                array(
+                    'entries' => array(
+                        array('id' => 1, 'name' => 'Test')
+                    )
+                ),
+                1,
+                'Test'
+            ),
+        );
+    }
+
+    /**
+     * @dataProvider getManufacturerNameProvider
+     */
+    public function testGetManufacturerName($data, $manufacturerId, $expectedResult)
+    {
+        $manufacturersMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Manufacturers')
+            ->disableOriginalConstructor()
+            ->setMethods(null)
+            ->getMock();
+
+        $manufacturersMock->parse($data);
+        $this->assertSame($expectedResult, $manufacturersMock->getManufacturerName($manufacturerId));
     }
 }

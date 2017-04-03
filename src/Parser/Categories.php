@@ -45,4 +45,17 @@ class Categories implements ParserInterface
 
         return $this->results;
     }
+
+    /**
+     * @param int $id
+     * @return string
+     */
+    public function getCategoryName($id)
+    {
+        if (array_key_exists($id, $this->results)) {
+            return $this->results[$id];
+        }
+
+        return '';
+    }
 }
