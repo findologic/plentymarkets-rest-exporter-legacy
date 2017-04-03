@@ -32,7 +32,7 @@ class Exporter
     protected $registry;
 
 
-    protected $additionalData = array('Vat', 'Categories', 'SalesPrices', 'Attributes');
+    protected $additionalData = array('Vat', 'Categories', 'SalesPrices', 'Attributes', 'Manufacturers');
 
     /**
      * @param \Findologic\Plentymarkets\Client $client

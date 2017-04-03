@@ -144,6 +144,17 @@ class Client
      * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
      * @return array
      */
+    public function getManufacturers()
+    {
+        $response = $this->call('GET', $this->getEndpoint('items/manufacturers/'));
+
+        return $this->returnResult($response);
+    }
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
+     * @return array
+     */
     public function getAttributes()
     {
         $response = $this->call('GET', $this->getEndpoint('items/attributes'));
