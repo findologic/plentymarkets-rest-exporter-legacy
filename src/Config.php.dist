@@ -5,8 +5,10 @@ namespace Findologic\Plentymarkets;
 class Config {
     const USERNAME = 'Username';
     const PASSWORD = 'Password';
-    const ENDPOINT = 'https://yourshop.com/rest/';
+    // IMPORTANT! No protocol should be provided as client class will take care of this
+    const ENDPOINT = 'yourshop.com/';
     const TAXRATE_COUNTRY_CODE = 'GB';
     const TEXT_LANGUAGE = 'EN';
+    const NUMBER_OR_ITEMS_PER_PAGE = 100;
     const DEBUG = false;
 }

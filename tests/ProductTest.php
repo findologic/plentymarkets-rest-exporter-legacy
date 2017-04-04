@@ -106,6 +106,39 @@ class ProductTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test if passed path is not string
+     */
+    public function getProductFullUrlEmptyPath()
+    {
+        $productMock = $this->getProductMock(array('handleEmptyData'));
+        $productMock->expects($this->once())->method('handleEmptyData')->willReturn('');
+
+        $this->assertSame('', $productMock->getProductFullUrl(false));
+    }
+
+    public function getProductFullUrlProvider()
+    {
+        return array(
+            // Trim path
+            array('test.com', '/test/', 1 , 'http://test.com/test/a-1'),
+            // No trim
+            array('test.com', 'test', 1, 'http://test.com/test/a-1'),
+        );
+    }
+
+    /**
+     * @dataProvider getProductFullUrlProvider
+     */
+    public function testGetProductFullUrl($storeUrl, $path, $productId, $expectedResult)
+    {
+        $productMock = $this->getProductMock(array('getStoreUrl', 'getItemId'));
+        $productMock->expects($this->once())->method('getStoreUrl')->willReturn($storeUrl);
+        $productMock->expects($this->once())->method('getItemId')->willReturn($productId);
+
+        $this->assertSame($expectedResult, $productMock->getProductFullUrl($path));
+    }
+
+    /**
      *  array (
      *      'id' => 102,
      *      'position' => 0,
@@ -160,7 +193,6 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'name1' => 'Test',
                             'shortDescription' => 'Short Description',
                             'description' => 'Description',
-                            'urlPath' => 'Url',
                             'keywords' => 'Keyword'
                         )
                     )
@@ -169,7 +201,6 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     'name' => '',
                     'summary' => '',
                     'description' => '',
-                    'url' => '',
                     'keywords' => ''
                 )
             ),
@@ -185,7 +216,6 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'name1' => 'Test',
                             'shortDescription' => 'Short Description',
                             'description' => 'Description',
-                            'urlPath' => 'Url',
                             'keywords' => 'Keyword'
                         )
                     )
@@ -194,7 +224,6 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     'name' => 'Test',
                     'summary' => 'Short Description',
                     'description' => 'Description',
-                    'url' => 'Url',
                     'keywords' => 'Keyword'
                 )
             ),
@@ -209,7 +238,6 @@ class ProductTest extends PHPUnit_Framework_TestCase
     public function testProcessInitialData($itemId, $data, $texts)
     {
         $productMock = $this->getProductMock();
-
         $productMock->processInitialData($data);
 
         $this->assertSame($itemId, $productMock->getItemId());
@@ -222,7 +250,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
     public function getManufacturerProvider()
     {
         return array(
-            // Set attribute with one value
+            // Check if manufacturer is setted properly
             array(
                 1,
                 'Test',
@@ -641,7 +669,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
     /**
      * @param array $methods
      * @param array|bool $constructorArgs
-     * @return \PHPUnit_Framework_MockObject_MockBuilder
+     * @return \PHPUnit_Framework_MockObject_MockObject
      */
     protected function getProductMock($methods = array(), $constructorArgs = false)
     {

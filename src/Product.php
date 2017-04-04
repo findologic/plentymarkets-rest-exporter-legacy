@@ -49,6 +49,8 @@ class Product
         'sort' => '',
     );
 
+    protected $protocol = 'http://';
+
     public function __construct(Registry $registry)
     {
         $this->registry = $registry;
@@ -70,6 +72,25 @@ class Product
     public function getConfigLanguageCode()
     {
         return strtoupper(Config::TEXT_LANGUAGE_CODE);
+    }
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as it used for better mocking
+     */
+    public function getStoreUrl()
+    {
+        return rtrim(Config::URL, '/');
+    }
+
+    /**
+     * @param string $protocol
+     * @return $this
+     */
+    public function setProtocol($protocol)
+    {
+        $this->protocol = $protocol;
+
+        return $this;
     }
 
     /**
@@ -130,18 +151,20 @@ class Product
     }
 
     /**
-     * Get rrp prices ids array
-     *
-     * @return array
+     * @param string $path
+     * @return string
      */
-    protected function getRRP()
+    public function getProductFullUrl($path)
     {
-        $prices = $this->registry->get('SalesPrices');
-        if (!$prices) {
-            return array();
+        if (!is_string($path) || $path == '') {
+            return $this->handleEmptyData();
         }
 
-        return $prices->getRRP();
+        // Using trim just in case if path could be passed with and without forward slash
+        $path = '/' . ltrim($path, '/');
+        $path = rtrim($path, '/');
+
+        return $this->protocol . $this->getStoreUrl() . $path . '/' . 'a-' . $this->getItemId();
     }
 
     /**
@@ -282,6 +305,21 @@ class Product
         $this->setField('image', $this->getFromArray($data, 'urlMiddle'));
 
         return $this;
+    }
+
+    /**
+     * Get rrp prices ids array
+     *
+     * @return array
+     */
+    protected function getRRP()
+    {
+        $prices = $this->registry->get('SalesPrices');
+        if (!$prices) {
+            return array();
+        }
+
+        return $prices->getRRP();
     }
 
     /**
@@ -505,11 +543,11 @@ class Product
                 continue;
             }
 
-            $this->setField('name', $this->getFromArray($texts, 'name1'));
-            $this->setField('summary', $this->getFromArray($texts, 'shortDescription'));
-            $this->setField('description', $this->getFromArray($texts, 'description'));
-            $this->setField('url', $this->getFromArray($texts, 'urlPath'));
-            $this->setField('keywords', $this->getFromArray($texts, 'keywords'));
+            $this->setField('name', $this->getFromArray($texts, 'name1'))
+                ->setField('summary', $this->getFromArray($texts, 'shortDescription'))
+                ->setField('description', $this->getFromArray($texts, 'description'))
+                ->setField('url', $this->getProductFullUrl($this->getFromArray($texts, 'urlPath')))
+                ->setField('keywords', $this->getFromArray($texts, 'keywords'));
         }
 
         return $this;

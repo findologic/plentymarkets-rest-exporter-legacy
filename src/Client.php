@@ -36,9 +36,9 @@ class Client
     protected $protocol = 'https://';
 
     /**
-     * @param $username
-     * @param $password
-     * @param $endpoint
+     * @param string $username
+     * @param string $password
+     * @param string $url
      * @param Logger $logger
      * @param bool $debug
      */
@@ -46,6 +46,7 @@ class Client
     {
         $this->username = $username;
         $this->password = $password;
+        $url = rtrim($url, '/') . '/rest/';
         $this->url = $url;
         $this->logger = $logger;
         $this->debug = $debug;
@@ -59,6 +60,14 @@ class Client
     public function getToken()
     {
         return $this->token;
+    }
+
+    /**
+     * @return string
+     */
+    public function getProtocol()
+    {
+        return $this->protocol;
     }
 
     /* Api calls */

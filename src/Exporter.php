@@ -135,6 +135,7 @@ class Exporter
     {
         $product = new Product($this->getRegistry());
         $product->processInitialData($productData);
+        $product->setProtocol($this->getClient()->getProtocol());
 
         return $product;
     }
