@@ -39,7 +39,11 @@ class Categories implements ParserInterface
                     continue;
                 }
 
-                $this->results[$details['categoryId']] = $details['name'];
+                $this->results[$details['categoryId']] =
+                    array(
+                        'name' => $details['name'],
+                        'url' => $details['nameUrl']
+                    );
             }
         }
 
@@ -53,7 +57,7 @@ class Categories implements ParserInterface
     public function getCategoryName($id)
     {
         if (array_key_exists($id, $this->results)) {
-            return $this->results[$id];
+            return $this->results[$id]['name'];
         }
 
         return '';

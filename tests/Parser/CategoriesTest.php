@@ -20,6 +20,7 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
      *                  '0' => array(
      *                      'categoryId' => '16',
      *                      'name' => 'Test'
+     *                      'nameUrl' => 'test'
      *                      ...
      *                  )
      *              )
@@ -39,7 +40,7 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
                     'entries' => array(
                         array(
                             'details' => array(
-                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'lt')
+                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'lt', 'nameUrl' => 'test')
                             )
                         )
                     )
@@ -52,12 +53,12 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
                     'entries' => array(
                         array(
                             'details' => array(
-                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'en')
+                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'en', 'nameUrl' => 'test')
                             )
                         )
                     )
                 ),
-                array(1 => 'Test')
+                array(1 => array('name' => 'Test', 'url' => 'test'))
             )
         );
     }
@@ -89,7 +90,7 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
                     'entries' => array(
                         array(
                             'details' => array(
-                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'lt')
+                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'lt', 'nameUrl' => 'test')
                             )
                         )
                     )
@@ -103,7 +104,7 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
                     'entries' => array(
                         array(
                             'details' => array(
-                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'en')
+                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'en', 'nameUrl' => 'test')
                             )
                         )
                     )
