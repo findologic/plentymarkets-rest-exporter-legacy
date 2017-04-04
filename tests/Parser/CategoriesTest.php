@@ -79,6 +79,40 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
         $this->assertSame($expectedResult, $categoriesMock->getResults());
     }
 
+    public function parseCategoryFullUrlsProvider()
+    {
+        return array(
+            array(
+                array(
+                    'entries' => array(
+                        array("categoryId" => 1, "category1Id" => 2, "category2Id" => 3, "category3Id" => null)
+                    )
+                ),
+                array('category', 'category1', 'category2'),
+                array(3 => '/category/category1/category2/')
+            )
+        );
+    }
+
+    /**
+     * @dataProvider parseCategoryFullUrlsProvider
+     */
+    public function testParseCategoryFullUrls($data, $urls, $expectedResult)
+    {
+        $categoriesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Categories')
+            ->setMethods(array('getCategoryUrlKey'))
+            ->getMock();
+
+        $i = 0;
+        foreach ($urls as $url) {
+            $categoriesMock->expects($this->at($i))->method('getCategoryUrlKey')->willReturn($url);
+            $i++;
+        }
+
+        $this->assertSame($expectedResult, $categoriesMock->parseCategoryFullUrls($data));
+    }
+
+
     public function getCategoryNameProvider()
     {
         return array(

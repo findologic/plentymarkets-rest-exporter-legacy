@@ -56,6 +56,7 @@ class Exporter
         try {
             $this->getClient()->login();
             $this->initAdditionalData();
+            $this->initCategoriesFullUrls();
             $this->initAttributeValues();
         } catch (\Exception $e) {
             $this->handleException($e);
@@ -134,8 +135,8 @@ class Exporter
     public function createProductItem($productData)
     {
         $product = new Product($this->getRegistry());
-        $product->processInitialData($productData);
         $product->setProtocol($this->getClient()->getProtocol());
+        $product->processInitialData($productData);
 
         return $product;
     }
@@ -192,6 +193,16 @@ class Exporter
     }
 
     /**
+     * Call categories tree parser for handling data
+     */
+    protected function initCategoriesFullUrls()
+    {
+        $this->getRegistry()->get('categories')->parseCategoryFullUrls($this->getClient()->getCategoriesBranches());
+
+        return $this;
+    }
+
+    /**
      * Handle the initiation of all data parsers and call method to parse the result from api
      */
     protected function initAdditionalData()
@@ -208,6 +219,8 @@ class Exporter
                 $parser->parse($this->getClient()->$methodName());
             }
         }
+
+        return $this;
     }
 
     /**
@@ -231,6 +244,8 @@ class Exporter
                 $attributes->parseValueNames($id, $this->getClient()->getAttributeValueName($valueId));
             }
         }
+
+        return $this;
     }
 
     /**

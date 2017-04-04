@@ -157,7 +157,8 @@ class Product
     public function getProductFullUrl($path)
     {
         if (!is_string($path) || $path == '') {
-            return $this->handleEmptyData();
+            $this->handleEmptyData();
+            return '';
         }
 
         // Using trim just in case if path could be passed with and without forward slash
@@ -254,10 +255,14 @@ class Product
         }
 
         foreach ($data as $category) {
-            $categoryId =  $this->getFromArray($category, 'categoryId');
+            $categoryId = $this->getFromArray($category, 'categoryId');
             $this->setAttributeField(
                 self::CATEGORY_ATTRIBUTE_FIELD,
                 $this->registry->get('categories')->getCategoryName($categoryId)
+            );
+            $this->setAttributeField(
+                self::CATEGORY_URLS_ATTRIBUTE_FIELD,
+                $this->registry->get('categories')->getCategoryFullPath($categoryId)
             );
         }
 
@@ -433,6 +438,7 @@ class Product
         if ($value && !in_array($value, $this->getField('ordernumber'))) {
             $this->setField('ordernumber', $value, true);
         }
+
         return $this;
     }
 
@@ -455,12 +461,14 @@ class Product
                 continue;
             }
 
-            if (!$this->getField('price'))  {
+            if (!$this->getField('price')) {
                 $this->setField('price', $price['price']);
                 $this->setField('price_id', $price['salesPriceId']);
-            } else if ($this->getField('price') > $price['price']) {
-                $this->setField('price', $price['price']);
-                $this->setField('price_id', $price['salesPriceId']);
+            } else {
+                if ($this->getField('price') > $price['price']) {
+                    $this->setField('price', $price['price']);
+                    $this->setField('price_id', $price['salesPriceId']);
+                }
             }
 
             if ($this->getField('maxprice') < $price['price']) {

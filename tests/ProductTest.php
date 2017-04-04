@@ -438,8 +438,14 @@ class ProductTest extends PHPUnit_Framework_TestCase
             // Variations belongs to two categories, categories names is saved in attributes field
             array(
                 array(array('categoryId' => 1), array('categoryId' => 2)),
-                array('Test', 'Category'),
-                array(Product::CATEGORY_ATTRIBUTE_FIELD => array('Test', 'Category'))
+                array(
+                    array('name' => 'Test', 'url' => 'test'),
+                    array('name' => 'Category', 'url' => 'category')
+                ),
+                array(
+                    Product::CATEGORY_ATTRIBUTE_FIELD => array('Test', 'Category'),
+                    Product::CATEGORY_URLS_ATTRIBUTE_FIELD => array('test', 'category')
+                )
             )
         );
     }
@@ -452,13 +458,17 @@ class ProductTest extends PHPUnit_Framework_TestCase
     public function testProccessVariationCategories($data, $categories , $expectedResult)
     {
         $categoriesMock = $this->getMockBuilder('Findologic\Plentymarkets\Parser\Categories')
-            ->setMethods(array('getCategoryName'))
+            ->setMethods(array('getCategoryName', 'getCategoryFullPath'))
             ->getMock();
 
         if ($categories) {
             // Mock return method for testing product with multiple categories
-            for ($i = 0; $i < count($categories); $i++) {
-                $categoriesMock->expects($this->at($i))->method('getCategoryName')->will($this->returnValue($categories[$i]));
+            $i = 0;
+            foreach ($categories as $category) {
+                $categoriesMock->expects($this->at($i))->method('getCategoryName')->will($this->returnValue($category['name']));
+                $i++;
+                $categoriesMock->expects($this->at($i))->method('getCategoryFullPath')->will($this->returnValue($category['url']));
+                $i++;
             }
         }
 

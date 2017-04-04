@@ -8,6 +8,8 @@ class Categories implements ParserInterface
 {
     protected $results = array();
 
+    protected $fullUrls = array();
+
     /**
      * @codeCoverageIgnore - Ignore this method as it used for better mocking
      */
@@ -51,15 +53,72 @@ class Categories implements ParserInterface
     }
 
     /**
-     * @param int $id
+     * @param array $data
+     * @return array
+     */
+    public function parseCategoryFullUrls($data)
+    {
+        if (!is_array($data) || !isset($data['entries'])) {
+            return $this->fullUrls;
+        }
+
+        foreach ($data['entries'] as $branch) {
+            $fullPath = '/';
+            $lastCategoryId = false;
+            foreach ($branch as $level => $categoryId) {
+                if (!$categoryId) {
+                    if ($fullPath != '/') {
+                        $this->fullUrls[$lastCategoryId] = $fullPath;
+                    }
+                    break;
+                }
+
+                if ($categoryPath = $this->getCategoryUrlKey($categoryId)) {
+                    $fullPath .= $categoryPath . '/';
+                    $lastCategoryId = $categoryId;
+                }
+            }
+        }
+
+        return $this->fullUrls;
+    }
+
+    /**
+     * @param int $categoryId
      * @return string
      */
-    public function getCategoryName($id)
+    public function getCategoryName($categoryId)
     {
-        if (array_key_exists($id, $this->results)) {
-            return $this->results[$id]['name'];
+        if (array_key_exists($categoryId, $this->results)) {
+            return $this->results[$categoryId]['name'];
         }
 
         return '';
+    }
+
+    /**
+     * @param int $categoryId
+     * @return string
+     */
+    public function getCategoryFullPath($categoryId)
+    {
+        if (array_key_exists($categoryId, $this->fullUrls)) {
+            return $this->fullUrls[$categoryId];
+        }
+
+        return '';
+    }
+
+    /**
+     * @param $categoryId
+     * @return string
+     */
+    protected function getCategoryUrlKey($categoryId)
+    {
+        if (array_key_exists($categoryId, $this->results)) {
+            return $this->results[$categoryId]['url'];
+        }
+
+        return false;
     }
 }

@@ -31,13 +31,13 @@ class Manufacturers implements ParserInterface
     }
 
     /**
-     * @param int $id
+     * @param int $manufacturerId
      * @return string
      */
-    public function getManufacturerName($id)
+    public function getManufacturerName($manufacturerId)
     {
-        if (array_key_exists($id, $this->results)) {
-            return $this->results[$id];
+        if (array_key_exists($manufacturerId, $this->results)) {
+            return $this->results[$manufacturerId];
         }
 
         return '';

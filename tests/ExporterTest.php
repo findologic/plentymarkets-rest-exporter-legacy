@@ -13,13 +13,14 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     public function testInit()
     {
         $exporterMock = $this->getExporterMockBuilder();
-        $exporterMock->setMethods(array('initAdditionalData', 'initAttributeValues', 'handleException'));
+        $exporterMock->setMethods(array('initAdditionalData', 'initCategoriesFullUrls', 'initAttributeValues', 'handleException'));
         $exporterMock = $exporterMock->getMock();
 
         /**
          * @var $exporterMock \PHPUnit_Framework_MockObject_MockObject
          */
         $exporterMock->expects($this->once())->method('initAdditionalData');
+        $exporterMock->expects($this->once())->method('initCategoriesFullUrls');
         $exporterMock->expects($this->once())->method('initAttributeValues');
         $exporterMock->init();
 
@@ -90,7 +91,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
             ->will($this->returnValue($attributesMock));
 
         $exporterMock = $this->getExporterMockBuilder(array('registry' => $registryMock));
-        $exporterMock->setMethods(array('initAdditionalData', 'handleException'));
+        $exporterMock->setMethods(array('initAdditionalData', 'initCategoriesFullUrls', 'handleException'));
         $exporterMock = $exporterMock->getMock();
 
         $exporterMock->init();

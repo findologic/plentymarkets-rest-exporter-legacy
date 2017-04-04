@@ -131,6 +131,17 @@ class Client
      * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
      * @return array
      */
+    public function getCategoriesBranches()
+    {
+        $response = $this->call('GET', $this->getEndpoint('category_branches/'));
+
+        return $this->returnResult($response);
+    }
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
+     * @return array
+     */
     public function getVat()
     {
         $response = $this->call('GET', $this->getEndpoint('vat/'));
