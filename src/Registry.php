@@ -2,8 +2,19 @@
 
 namespace Findologic\Plentymarkets;
 
+use \Logger;
+
 class Registry
 {
+    /**
+     * Registry constructor.
+     * @param \Logger $logger
+     */
+    public function __construct($logger)
+    {
+        $this->set('logger', $logger);
+    }
+
     /**
      * @var array
      */

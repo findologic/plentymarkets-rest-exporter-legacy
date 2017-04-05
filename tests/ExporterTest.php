@@ -51,7 +51,9 @@ class ExporterTest extends PHPUnit_Framework_TestCase
      */
     public function testInitAdditionalData()
     {
-        $exporterMock = $this->getExporterMockBuilder(array('registry' => new \Findologic\Plentymarkets\Registry()));
+        $exporterMock = $this->getExporterMockBuilder(
+            array('registry' => $this->getRegistryMock())
+        );
         $exporterMock->setMethods(array('initAttributeValues', 'handleException'));
         $exporterMock = $exporterMock->getMock();
 
@@ -83,9 +85,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $attributesMock->expects($this->exactly(2))
             ->method('parseValueNames');
 
-        $registryMock = $this->getMockBuilder('\Findologic\Plentymarkets\Registry')
-            ->setMethods(array('get'))
-            ->getMock();
+        $registryMock = $this->getRegistryMock(array('get'));
         $registryMock->expects($this->any())
             ->method('get')
             ->will($this->returnValue($attributesMock));
@@ -244,7 +244,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
             'client' => $this->getMockBuilder('Findologic\Plentymarkets\Client')->disableOriginalConstructor()->getMock(),
             'wrapper' => $this->getMockBuilder('Findologic\Plentymarkets\Wrapper\Csv')->getMock(),
             'logger' => $this->getMockBuilder('Logger')->disableOriginalConstructor()->getMock(),
-            'registry' => $this->getMockBuilder('Findologic\Plentymarkets\Registry')->getMock()
+            'registry' => $this->getMockBuilder('Findologic\Plentymarkets\Registry')->disableOriginalConstructor()->getMock()
         );
 
         $finalMocks = array_merge($defaultMocks, $mocks);
@@ -258,13 +258,29 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     /**
      * Helper function to get exporter mock
      *
-     * @return \PHPUnit_Framework_MockObject_MockBuilder|\PHPUnit_Framework_MockObject_MockObject
+     * @return \PHPUnit_Framework_MockObject_MockObject
      */
     protected function getExporterMock()
     {
         $mock = $this->getExporterMockBuilder();
         $mock->setMethods(array('handleException'));
         $mock = $mock->getMock();
+
+        return $mock;
+    }
+
+    /**
+     * Helper function to get registry mock
+     *
+     * @param array|null $methods
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getRegistryMock($methods = null)
+    {
+        $mock = $this->getMockBuilder('\Findologic\Plentymarkets\Registry')
+            ->disableOriginalConstructor()
+            ->setMethods($methods)
+            ->getMock();
 
         return $mock;
     }

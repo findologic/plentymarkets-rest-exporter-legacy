@@ -19,7 +19,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
      */
     protected function setUp()
     {
-        $registry = new Registry();
+        $registry = $this->getRegistryMock();
         $this->product = new Product($registry);
     }
 
@@ -270,7 +270,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
 
         $manufacturersMock->expects($this->any())->method('getManufacturerName')->willReturn($manufacturerName);
 
-        $registry = new Registry();
+        $registry = $this->getRegistryMock();
         $registry->set('manufacturers', $manufacturersMock);
 
         $productMock = $this->getProductMock(array(), array($registry));
@@ -410,7 +410,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
 
         $vatMock->expects($this->any())->method('getVatRateByVatId')->willReturn('19.00');
 
-        $registry = new Registry();
+        $registry = $this->getRegistryMock();
         $registry->set('Attributes', $attributesMock);
         $registry->set('SalesPrices', $salesPricesMock);
         $registry->set('Vat', $vatMock);
@@ -472,7 +472,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
             }
         }
 
-        $registry = new Registry();
+        $registry = $this->getRegistryMock();
         $registry->set('categories', $categoriesMock);
 
         $productMock = $this->getProductMock(array('handleEmptyData'), array($registry));
@@ -701,5 +701,20 @@ class ProductTest extends PHPUnit_Framework_TestCase
         $productMock->expects($this->any())->method('getConfigLanguageCode')->willReturn('EN');
 
         return $productMock;
+    }
+
+    /**
+     * Helper function to get registry mock
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getRegistryMock()
+    {
+        $mock = $this->getMockBuilder('\Findologic\Plentymarkets\Registry')
+            ->disableOriginalConstructor()
+            ->setMethods(null)
+            ->getMock();
+
+        return $mock;
     }
 }

@@ -156,8 +156,10 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
     {
         $categoriesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Categories')
             ->disableOriginalConstructor()
-            ->setMethods(null)
+            ->setMethods(array('getConfigLanguageCode'))
             ->getMock();
+
+        $categoriesMock->expects($this->any())->method('getConfigLanguageCode')->willReturn('EN');
 
         $categoriesMock->parse($data);
         $this->assertSame($expectedResult, $categoriesMock->getCategoryName($categoryId));
