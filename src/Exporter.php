@@ -54,10 +54,12 @@ class Exporter
     public function init()
     {
         try {
+            $this->logger->info('Starting to initialise necessary data (categories, attributes, etc.)');
             $this->getClient()->login();
             $this->initAdditionalData();
             $this->initCategoriesFullUrls();
             $this->initAttributeValues();
+            $this->logger->info('Finished initialising necessary data');
         } catch (\Exception $e) {
             $this->handleException($e);
         }
@@ -217,6 +219,7 @@ class Exporter
                 $parser = ParserFactory::create($type);
                 $this->getRegistry()->set($type, $parser);
                 $parser->parse($this->getClient()->$methodName());
+                $this->logger->info('- ' . $type . ' data was parsed.');
             }
         }
 
@@ -256,8 +259,10 @@ class Exporter
     {
         //TODO: logging implementation
         if ($e instanceof CriticalException) {
-            $this->logger->error($e->getMessage());
+            $this->logger->fatal('Fatal error: ' . $e->getMessage());
             die();
         }
+
+        $this->logger->warn('An error occured while initializing necessary data: ' . $e->getMessage());
     }
 }

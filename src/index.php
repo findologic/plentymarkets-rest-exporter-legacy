@@ -1,12 +1,16 @@
 <?php
 
+ini_set('max_execution_time', 300);
+
 require_once '../vendor/autoload.php';
 
 use Findologic\Plentymarkets\Exporter;
 use Findologic\Plentymarkets\Registry;
 use Findologic\Plentymarkets\Config;
 
-$logger = new Logger('customer');
+Logger::configure('Logger/config.xml');
+$logger = Logger::getLogger('import.php');
+
 $debug = false;
 
 if (Config::DEBUG) {
