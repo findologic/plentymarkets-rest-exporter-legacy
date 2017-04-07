@@ -7,4 +7,4 @@ build/
 .idea/
 .idea_modules
 tmp/
-log/
+logs/

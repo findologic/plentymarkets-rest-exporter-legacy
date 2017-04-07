@@ -88,36 +88,39 @@ class Exporter
      * @param int $page
      * @return mixed
      */
-    public function getProducts($numberOfItemsPerPage = null, $page = 1)
+    public function getProducts($itemsPerPage = null, $page = 1)
     {
         try {
             $continue = true;
 
+            $this->logger->info('Starting product processing.)');
+
             // Cycle the call for products to api until all we have all products
             while ($continue) {
-                $results = $this->getClient()->getProducts($numberOfItemsPerPage, $page);
-
-                // Just in case to avoid infinite loops
-                if ($page > 99999) {
-                    // TODO: check if this needed
-                    $continue = false;
-                }
+                $this->getClient()->setItemsPerPage($itemsPerPage)->setPage($page);
+                $results = $this->getClient()->getProducts();
 
                 // Check if there is any results. Products is contained is 'entries' value of response array
                 if (!$results || !isset($results['entries'])) {
                     throw new CustomerException('Could not find any results!');
                 }
 
+                $limit = $page * $itemsPerPage;
+                $offset = $limit - $itemsPerPage;
+                $this->logger->info('Processing items from ' . $offset . ' to ' . $limit);
+
                 foreach ($results['entries'] as $product) {
                     $this->processProductData($product);
                 }
 
-                if ($results['isLastPage'] == true) {
+                if (!isset($results['isLastPage']) || $results['isLastPage'] == true) {
                     $continue = false;
                 }
 
                 $page++;
             }
+
+            $this->logger->info('All products has been processed.)');
 
             $this->getWrapper()->allItemsHasBeenProcessed();
 
@@ -218,7 +221,20 @@ class Exporter
             if (!$this->getRegistry()->get($type)) {
                 $parser = ParserFactory::create($type);
                 $this->getRegistry()->set($type, $parser);
-                $parser->parse($this->getClient()->$methodName());
+                $continue = true;
+                //TODO: replace with config value
+                $itemsPerPage = 50;
+                $page = 1;
+                while ($continue) {
+                    $this->getClient()->setItemsPerPage($itemsPerPage)->setPage($page);
+                    $results = $this->getClient()->$methodName();
+                    $parser->parse($results);
+                    $page++;
+                    if (!$results || $results['isLastPage']) {
+                        $continue = false;
+                    }
+                }
+
                 $this->logger->info('- ' . $type . ' data was parsed.');
             }
         }

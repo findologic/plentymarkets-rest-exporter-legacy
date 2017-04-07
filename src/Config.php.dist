@@ -9,6 +9,7 @@ class Config {
     const ENDPOINT = 'yourshop.com/';
     const TAXRATE_COUNTRY_CODE = 'GB';
     const TEXT_LANGUAGE = 'EN';
+    //Currently it seems the max value for api is 50
     const NUMBER_OR_ITEMS_PER_PAGE = 100;
     const DEBUG = false;
 }

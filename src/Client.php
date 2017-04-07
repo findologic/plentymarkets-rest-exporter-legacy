@@ -36,6 +36,22 @@ class Client
     protected $protocol = 'https://';
 
     /**
+     * Variable to allow setting items per page on request without adding this as an property
+     * to every class method responsible for calling the api
+     *
+     * @var bool|int
+     */
+    protected $itemsPerPage = false;
+
+    /**
+     * Variable to allow setting page number without adding this as an property
+     * to every class method responsible for calling the api
+     *
+     * @var bool|int
+     */
+    protected $page = false;
+
+    /**
      * @param string $username
      * @param string $password
      * @param string $url
@@ -70,6 +86,33 @@ class Client
         return $this->protocol;
     }
 
+    /**
+     * Set request items per page count
+     *
+     * @param int $itemsPerPage
+     * @return $this
+     */
+    public function setItemsPerPage($itemsPerPage)
+    {
+        $this->itemsPerPage = $itemsPerPage;
+
+        return $this;
+    }
+
+    /**
+     * Set request page
+     *
+     * @param int $page
+     * @return $this
+     */
+    public function setPage($page)
+    {
+        $this->page = $page;
+
+        return $this;
+    }
+
+
     /* Api calls */
 
     /**
@@ -80,6 +123,8 @@ class Client
      */
     public function login()
     {
+        // Set the login flag so the setDefaultParams() would not be called as this method tries to call login() method
+        // if token is empty
         $this->loginFlag = true;
 
         $response = $this->call('POST', $this->getEndpoint('login'), array(
@@ -270,22 +315,11 @@ class Client
     }
 
     /**
-     * @param int $numberOfItemsPerPage
-     * @param int $page
      * @return array
      */
-    public function getProducts($numberOfItemsPerPage = null, $page = null)
+    public function getProducts()
     {
         $params = array('with' => 'itemProperties');
-
-        if ($numberOfItemsPerPage) {
-            $params['itemsPerPage'] = $numberOfItemsPerPage;
-        }
-
-        if ($page) {
-            $params['page'] = $page;
-        }
-
         $response = $this->call('GET', $this->getEndpoint('items/', $params));
 
         return $this->returnResult($response);
@@ -309,7 +343,7 @@ class Client
     /* End of api calls */
 
     /**
-     * Parse the result from api
+     * Parse the results from api
      *
      * @param $response \HTTP_Request2_Response
      * @return array
@@ -329,6 +363,16 @@ class Client
     {
         $query = '';
 
+        //Set page and itemsPerPage params if they are provided by setters
+        if ($this->page) {
+            $params['page'] = $this->page;
+        }
+
+        if ($this->itemsPerPage) {
+            $params['itemsPerPage'] = $this->itemsPerPage;
+        }
+
+        //Process params to url
         if ($params) {
             $query = '?';
             $count = 0;
@@ -396,6 +440,11 @@ class Client
                 }
             }
         }
+
+        // The itemPerPage and page properties should be reseted after every call as the caller methods should
+        // take the actions for setting them again
+        $this->itemsPerPage = false;
+        $this->page = false;
 
         return $response;
     }
