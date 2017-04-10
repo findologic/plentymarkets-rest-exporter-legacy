@@ -93,7 +93,7 @@ class Categories implements ParserInterface
             return $this->results[$categoryId]['name'];
         }
 
-        return '';
+        return Config::DEFAULT_EMPTY_VALUE;
     }
 
     /**
@@ -106,7 +106,7 @@ class Categories implements ParserInterface
             return $this->fullUrls[$categoryId];
         }
 
-        return '';
+        return Config::DEFAULT_EMPTY_VALUE;
     }
 
     /**

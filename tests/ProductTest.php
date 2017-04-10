@@ -2,6 +2,7 @@
 
 namespace Findologic\PlentymarketsTest;
 
+use Findologic\Plentymarkets\Config;
 use Findologic\Plentymarkets\Product;
 use Findologic\Plentymarkets\Registry;
 use Findologic\Plentymarkets\Parser\SalesPrices;
@@ -13,6 +14,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
      * @var \Findologic\Plentymarkets\Product
      */
     protected $product;
+
+    protected $defaultEmptyValue = Config::DEFAULT_EMPTY_VALUE;
 
     /**
      * @inheritDoc
@@ -27,7 +30,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
     {
         return array(
             // Some value is set but getter is called for value which is not set, results should be null
-            array('testKey', 'getKey', 'testValue', '', false),
+            array('testKey', 'getKey', 'testValue', $this->defaultEmptyValue, false),
             // Value set and getter returns correct results
             array('testKey', 'testKey', 'testValue', 'testValue', false),
         );

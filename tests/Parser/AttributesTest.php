@@ -2,11 +2,13 @@
 
 namespace Findologic\PlentymarketsTest\Parser;
 
-use Findologic\Plentymarkets\Parser\Attributes;
+use Findologic\Plentymarkets\Config;
 use PHPUnit_Framework_TestCase;
 
 class AttributesTest extends PHPUnit_Framework_TestCase
 {
+    protected $defaultEmptyValue = Config::DEFAULT_EMPTY_VALUE;
+
     /**
      *  Method $data property example:
      *  array (
@@ -73,10 +75,10 @@ class AttributesTest extends PHPUnit_Framework_TestCase
     {
         return array(
             // No data provider, results should be empty
-            array(false,''),
+            array(false, $this->defaultEmptyValue),
             // Attribute has some data but the language is not the same as in export configuration
             // so it should be skipped and results should be empty
-            array(array(array('name' => 'Test', 'lang' => 'lt', 'attributeId' => '1')), ''),
+            array(array(array('name' => 'Test', 'lang' => 'lt', 'attributeId' => '1')), $this->defaultEmptyValue),
             // Correct data provided
             array(
                 array(
@@ -185,7 +187,7 @@ class AttributesTest extends PHPUnit_Framework_TestCase
             // No data about value provided, results should be empty
             array(
                 array(),
-                ''
+                $this->defaultEmptyValue
             ),
             // Parsing values successful
             array(
@@ -239,9 +241,9 @@ class AttributesTest extends PHPUnit_Framework_TestCase
     {
         return array(
             // No attributes is parsed, result should be empty
-            array('1', array(), ''),
+            array('1', array(), $this->defaultEmptyValue),
             // There is some attributes parsed, but given id do not exist
-            array('1', array('2' => array('name' => 'Test')), ''),
+            array('1', array('2' => array('name' => 'Test')), $this->defaultEmptyValue),
             // Given id exist and attribute name is returned
             array('1', array('1' => array('name' => 'Test')), 'Test')
         );

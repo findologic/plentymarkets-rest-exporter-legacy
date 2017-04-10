@@ -2,6 +2,8 @@
 
 namespace Findologic\Plentymarkets\Parser;
 
+use Findologic\Plentymarkets\Config;
+
 class Manufacturers implements ParserInterface
 {
     protected $results = array();
@@ -40,7 +42,7 @@ class Manufacturers implements ParserInterface
             return $this->results[$manufacturerId];
         }
 
-        return '';
+        return Config::DEFAULT_EMPTY_VALUE;
     }
 
 }

@@ -2,10 +2,13 @@
 
 namespace Findologic\PlentymarketsTest\Parser;
 
+use Findologic\Plentymarkets\Config;
 use PHPUnit_Framework_TestCase;
 
 class ManufacturersTest extends PHPUnit_Framework_TestCase
 {
+    protected $defaultEmptyValue = Config::DEFAULT_EMPTY_VALUE;
+
     /**
      *  Method $data property example:
      *  array (
@@ -63,7 +66,7 @@ class ManufacturersTest extends PHPUnit_Framework_TestCase
                     )
                 ),
                 2,
-                ''
+                $this->defaultEmptyValue
             ),
             array(
                 array(

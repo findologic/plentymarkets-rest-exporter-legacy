@@ -2,16 +2,16 @@
 
 namespace Findologic\Plentymarkets;
 
+use Findologic\Plentymarkets\Config;
+use Findologic\Plentymarkets\Registry;
 use Findologic\Plentymarkets\Data\Units;
 use Findologic\Plentymarkets\Parser\Attributes;
-use Findologic\Plentymarkets\Registry;
 
 class Product
 {
     const CATEGORY_ATTRIBUTE_FIELD = 'cat';
     const CATEGORY_URLS_ATTRIBUTE_FIELD = 'cat_url';
     const MANUFACTURER_ATTRIBUTE_FIELD = 'vendor';
-    const DEFAULT_EMPTY_VALUE = '';
 
     /**
      * @var int
@@ -104,7 +104,7 @@ class Product
             return $this->fields[$key];
         }
 
-        return self::DEFAULT_EMPTY_VALUE;
+        return Config::DEFAULT_EMPTY_VALUE;
     }
 
     /**
@@ -159,7 +159,7 @@ class Product
     {
         if (!is_string($path) || $path == '') {
             $this->handleEmptyData();
-            return self::DEFAULT_EMPTY_VALUE;
+            return Config::DEFAULT_EMPTY_VALUE;
         }
 
         // Using trim just in case if path could be passed with and without forward slash
@@ -345,7 +345,7 @@ class Product
             return $array[$key];
         }
 
-        return self::DEFAULT_EMPTY_VALUE;
+        return Config::DEFAULT_EMPTY_VALUE;
     }
 
     /**
@@ -357,7 +357,7 @@ class Product
     protected function getPropertyValue($property)
     {
         $propertyType = $property['property']['valueType'];
-        $value = self::DEFAULT_EMPTY_VALUE;
+        $value = Config::DEFAULT_EMPTY_VALUE;
 
         switch ($propertyType) {
             //TODO: handling 'empty' type properties
@@ -386,7 +386,7 @@ class Product
                 $value = $property['valueFloat'];
                 break;
             default:
-                $value = self::DEFAULT_EMPTY_VALUE;
+                $value = Config::DEFAULT_EMPTY_VALUE;
                 break;
         }
 

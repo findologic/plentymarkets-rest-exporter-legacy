@@ -2,10 +2,13 @@
 
 namespace Findologic\PlentymarketsTest\Parser;
 
+use Findologic\Plentymarkets\Config;
 use PHPUnit_Framework_TestCase;
 
 class CategoriesTest extends PHPUnit_Framework_TestCase
 {
+    protected $defaultEmptyValue = Config::DEFAULT_EMPTY_VALUE;
+
     /**
      *  Method $data property example:
      *  array (
@@ -117,7 +120,7 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
     {
         return array(
             // No categories was parsed, no data for id
-            array(array(), 1, ''),
+            array(array(), 1, $this->defaultEmptyValue),
             // Categories data given but there is no results for configured language
             array(
                 array(
@@ -130,7 +133,7 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
                     )
                 ),
                 2,
-                ''
+                $this->defaultEmptyValue
             ),
             // Categories data given, results should contain array with category id => name
             array(

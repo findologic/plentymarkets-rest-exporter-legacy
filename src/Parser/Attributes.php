@@ -62,7 +62,7 @@ class Attributes implements ParserInterface
      */
     public function parseAttributeName($data)
     {
-        $name = '';
+        $name = Config::DEFAULT_EMPTY_VALUE;
         if (!is_array($data) || empty($data)) {
             return $name;
         }
@@ -107,7 +107,7 @@ class Attributes implements ParserInterface
      */
     public function parseValueName($data)
     {
-        $name = '';
+        $name = Config::DEFAULT_EMPTY_VALUE;
         if (!is_array($data) || empty($data)) {
             return $name;
         }
@@ -145,7 +145,7 @@ class Attributes implements ParserInterface
      */
     public function getAttributeName($attributeId)
     {
-        $result = '';
+        $result = Config::DEFAULT_EMPTY_VALUE;
 
         if ($this->attributeValueExists($attributeId)) {
             $result = $this->results[$attributeId]['name'];

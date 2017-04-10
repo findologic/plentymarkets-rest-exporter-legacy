@@ -11,5 +11,6 @@ class Config {
     const TEXT_LANGUAGE = 'EN';
     //Currently it seems the max value for api is 50
     const NUMBER_OR_ITEMS_PER_PAGE = 100;
+    const DEFAULT_EMPTY_VALUE = '';
     const DEBUG = false;
 }
