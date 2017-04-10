@@ -2,6 +2,7 @@
 
 namespace Findologic\PlentymarketsTest;
 
+use Findologic\Plentymarkets\Exception\CriticalException;
 use Findologic\Plentymarkets\Exception\CustomerException;
 use PHPUnit_Framework_TestCase;
 
@@ -33,8 +34,14 @@ class ExporterTest extends PHPUnit_Framework_TestCase
      */
     public function testInitException()
     {
-        $exporterMock = $this->getExporterMockBuilder();
-        $exporterMock->setMethods(array('initAdditionalData', 'initAttributeValues', 'handleException'));
+        $logMock = $this->getMockBuilder('\Findologic\Plentymarkets\Log')
+            ->disableOriginalConstructor()
+            ->setMethods(array('handleException'))
+            ->getMock();
+        $logMock->expects($this->once())->method('handleException');
+
+        $exporterMock = $this->getExporterMockBuilder(array('log' => $logMock));
+        $exporterMock->setMethods(array('initAdditionalData', 'initAttributeValues'));
         $exporterMock = $exporterMock->getMock();
 
         /**
@@ -42,7 +49,6 @@ class ExporterTest extends PHPUnit_Framework_TestCase
          */
         $exporterMock->expects($this->once())->method('initAdditionalData')
             ->will($this->throwException(new \Findologic\Plentymarkets\Exception\CustomerException()));
-        $exporterMock->expects($this->once())->method('handleException');
         $exporterMock->init();
     }
 
@@ -121,14 +127,25 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * If api returns no result an exception should be thrown and handleException method should be called
+     * If api returns no result an exception should be thrown and log class handleException method should be called
      */
     public function testGetProductsException()
     {
-        $exporterMock = $this->getExporterMock();
+        $logMock = $this->getMockBuilder('\Findologic\Plentymarkets\Log')
+            ->disableOriginalConstructor()
+            ->setMethods(array('handleException'))
+            ->getMock();
+        $logMock->expects($this->once())->method('handleException');
 
-        $exporterMock->expects($this->once())->method('handleException');
+        $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getProducts'))
+            ->getMock();
+        $clientMock->expects($this->once())->method('getProducts')->willThrowException(new CriticalException());
 
+        $exporterMock = $this->getExporterMockBuilder(array('log' => $logMock, 'client' => $clientMock))
+            ->setMethods(array('init'))
+            ->getMock();
         $exporterMock->getProducts();
     }
 
@@ -207,6 +224,9 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $exporterMock->processProductData(array());
     }
 
+    /**
+     * If created product don't have an id then processing should be skipped
+     */
     public function testProcessProductDataNoItem()
     {
         $exporterMock = $this->getExporterMockBuilder();
@@ -242,7 +262,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $defaultMocks = array(
             'client' => $clientMock,
             'wrapper' => $this->getMockBuilder('Findologic\Plentymarkets\Wrapper\Csv')->getMock(),
-            'logger' => $this->getMockBuilder('Logger')->disableOriginalConstructor()->getMock(),
+            'log' => $this->getMockBuilder('Findologic\Plentymarkets\Log')->disableOriginalConstructor()->getMock(),
             'registry' => $this->getMockBuilder('Findologic\Plentymarkets\Registry')->disableOriginalConstructor()->getMock()
         );
 

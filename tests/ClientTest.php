@@ -127,9 +127,18 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $failedResponse = $this->getResponseMock('Failed', 404);
         $requestMock->expects($this->any())->method('send')->will($this->returnValue($failedResponse));
 
-        $clientMock = $this->getClientMock(array('createRequest', 'handleException'));
+        $logMock = $this->getMockBuilder('\Findologic\Plentymarkets\Log')
+            ->disableOriginalConstructor()
+            ->setMethods(array('handleException'))
+            ->getMock();
+        $logMock->expects($this->once())->method('handleException');
+
+        $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
+            ->setConstructorArgs(array('User', 'Pass', 'Url', $logMock))
+            ->setMethods(array('createRequest'))
+            ->getMock();
+
         $clientMock->expects($this->once())->method('createRequest')->will($this->returnValue($requestMock));
-        $clientMock->expects($this->once())->method('handleException');
         $clientMock->getProductVariations('1');
     }
 
@@ -138,8 +147,12 @@ class ClientTest extends PHPUnit_Framework_TestCase
      */
     public function testCreateRequest()
     {
-        $clientMock = $this->getClientMock(array('handleException', 'getToken'));
-        $clientMock->expects($this->any())->method('getToken')->will($this->returnValue('TEST_TOKEN'));
+        $clientMock = $this->getClientMock(array('handleException', 'getToken', 'login'));
+        // Set return value to false so method would call login() which sets the token
+        $clientMock->expects($this->at(0))->method('getToken')->will($this->returnValue(false));
+        $clientMock->expects($this->once())->method('login');
+        // Token was set by login() method
+        $clientMock->expects($this->at(1))->method('getToken')->will($this->returnValue('TEST_TOKEN'));
 
         // To test protected method create reflection class
         $reflection = new \ReflectionClass(get_class($clientMock));

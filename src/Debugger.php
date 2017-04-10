@@ -140,6 +140,7 @@ class Debugger
      * @param \HTTP_Request2 $request
      * @param string $path
      * @param string $filePrefix
+     * @return bool
      */
     protected function debugRequest($request, $path, $filePrefix)
     {
@@ -148,8 +149,6 @@ class Debugger
         if (!$fileHandle) {
             return false;
         }
-
-        //$this->writeHeaders($fileHandle);
 
         //JSON_PRETTY_PRINT
     }

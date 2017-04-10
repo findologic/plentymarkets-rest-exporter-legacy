@@ -2,17 +2,15 @@
 
 namespace Findologic\Plentymarkets;
 
-use \Logger;
-
 class Registry
 {
     /**
      * Registry constructor.
-     * @param \Logger $logger
+     * @param Log $log
      */
-    public function __construct($logger)
+    public function __construct($log)
     {
-        $this->set('logger', $logger);
+        $this->set('log', $log);
     }
 
     /**

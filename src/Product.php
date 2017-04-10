@@ -11,6 +11,7 @@ class Product
     const CATEGORY_ATTRIBUTE_FIELD = 'cat';
     const CATEGORY_URLS_ATTRIBUTE_FIELD = 'cat_url';
     const MANUFACTURER_ATTRIBUTE_FIELD = 'vendor';
+    const DEFAULT_EMPTY_VALUE = '';
 
     /**
      * @var int
@@ -103,7 +104,7 @@ class Product
             return $this->fields[$key];
         }
 
-        return '';
+        return self::DEFAULT_EMPTY_VALUE;
     }
 
     /**
@@ -158,7 +159,7 @@ class Product
     {
         if (!is_string($path) || $path == '') {
             $this->handleEmptyData();
-            return '';
+            return self::DEFAULT_EMPTY_VALUE;
         }
 
         // Using trim just in case if path could be passed with and without forward slash
@@ -223,7 +224,8 @@ class Product
     public function processVariations($data)
     {
         if (!isset($data['entries'])) {
-            return $this->handleEmptyData();
+            $this->handleEmptyData();
+            return $this;
         }
 
         foreach ($data['entries'] as $variation) {
@@ -251,7 +253,8 @@ class Product
     public function proccessVariationCategories($data)
     {
         if (!is_array($data)) {
-            return $this->handleEmptyData();
+            $this->handleEmptyData();
+            return $this;
         }
 
         foreach ($data as $category) {
@@ -276,7 +279,8 @@ class Product
     public function processVariationsProperties($data)
     {
         if (!is_array($data) || empty($data)) {
-            return $this->handleEmptyData();
+            $this->handleEmptyData();
+            return $this;
         }
 
         foreach ($data as $property) {
@@ -299,7 +303,8 @@ class Product
     public function processImages($data)
     {
         if (!is_array($data) || empty($data)) {
-            return $this->handleEmptyData();
+            $this->handleEmptyData();
+            return $this;
         }
 
         // Data for images could be returned as array of images if there is multiple images assigned
@@ -340,7 +345,7 @@ class Product
             return $array[$key];
         }
 
-        return '';
+        return self::DEFAULT_EMPTY_VALUE;
     }
 
     /**
@@ -352,7 +357,7 @@ class Product
     protected function getPropertyValue($property)
     {
         $propertyType = $property['property']['valueType'];
-        $value = '';
+        $value = self::DEFAULT_EMPTY_VALUE;
 
         switch ($propertyType) {
             //TODO: handling 'empty' type properties
@@ -381,7 +386,7 @@ class Product
                 $value = $property['valueFloat'];
                 break;
             default:
-                $value = '';
+                $value = self::DEFAULT_EMPTY_VALUE;
                 break;
         }
 
@@ -454,7 +459,8 @@ class Product
     protected function processVariationPrices($data)
     {
         if (!$data) {
-            return $this->handleEmptyData();
+            $this->handleEmptyData();
+            return $this;
         }
 
         foreach ($data as $price) {
@@ -494,7 +500,8 @@ class Product
     protected function processVariationAttributes($attributesData)
     {
         if (!count($attributesData)) {
-            return $this->handleEmptyData();
+            $this->handleEmptyData();
+            return $this;
         }
 
         /**
@@ -526,7 +533,8 @@ class Product
     protected function processUnits($data)
     {
         if (empty($data)) {
-            return $this->handleEmptyData();
+            $this->handleEmptyData();
+            return $this;
         }
 
         //TODO: it seems variations could have different unit values per variation ???
@@ -544,7 +552,8 @@ class Product
     protected function processTexts($data)
     {
         if (!isset($data['texts']) || !count($data['texts'])) {
-            return $this->handleEmptyData();
+            $this->handleEmptyData();
+            return $this;
         }
 
         foreach ($data['texts'] as $texts) {
@@ -563,13 +572,18 @@ class Product
     }
 
     /**
-     * Log information about missing data
+     * Get method name which is missing some data and pass the message to log class
      *
      * @return $this
      */
     protected function handleEmptyData()
     {
-        // TODO: maybe log the caller method name wheres the data is missing
+        if ($this->registry && ($log = $this->registry->get('log'))) {
+            $method = debug_backtrace()[1]['function'];
+            $message = 'Product class method: ' . $method . ' is missing some data for product with id ' . $this->getItemId();
+            $log->handleEmptyData($message);
+        }
+
         return $this;
     }
 }

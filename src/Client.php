@@ -2,10 +2,10 @@
 
 namespace Findologic\Plentymarkets;
 
-use HTTP_Request2;
-use Logger;
+use Findologic\Plentymarkets\Log;
 use Findologic\Plentymarkets\Exception\CriticalException;
 use Findologic\Plentymarkets\Exception\CustomerException;
+use HTTP_Request2;
 
 class Client
 {
@@ -16,10 +16,11 @@ class Client
     protected $url;
     protected $token;
     protected $refreshToken;
+
     /**
-     * @var Logger
+     * @var Log
      */
-    protected $logger;
+    protected $log;
 
     /**
      * Flag fol login call to api to avoid setting the headers for this call
@@ -55,16 +56,16 @@ class Client
      * @param string $username
      * @param string $password
      * @param string $url
-     * @param Logger $logger
+     * @param Log $log
      * @param bool $debug
      */
-    public function __construct($username, $password, $url, Logger $logger, $debug = false)
+    public function __construct($username, $password, $url, Log $log, $debug = false)
     {
         $this->username = $username;
         $this->password = $password;
         $url = rtrim($url, '/') . '/rest/';
         $this->url = $url;
-        $this->logger = $logger;
+        $this->log = $log;
         $this->debug = $debug;
     }
 
@@ -412,7 +413,7 @@ class Client
                 // If call to api was not successful check if retry limit was reached to stop retry cycle
                 if ($count >= self::RETRY_COUNT) {
                     $continue = false;
-                    $this->handleException($e);
+                    $this->log->handleException($e);
                 } else {
                     usleep(250000);
                 }
@@ -469,18 +470,5 @@ class Client
         $request->setHeader('Authorization', 'Bearer ' . $this->getToken());
 
         return $this;
-    }
-
-    /**
-     * @codeCoverageIgnore
-     * @param \Exception $e
-     */
-    protected function handleException($e)
-    {
-        //TODO: logging implementation
-        if ($e instanceof CriticalException) {
-            $this->logger->error($e->getMessage());
-            die();
-        }
     }
 }

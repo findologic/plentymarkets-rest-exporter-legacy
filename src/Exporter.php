@@ -7,7 +7,6 @@ use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Parser\ParserFactory;
 use Findologic\Plentymarkets\Parser\Attributes;
 use Findologic\Plentymarkets\Wrapper\WrapperInterface;
-use \Logger;
 
 class Exporter
 {
@@ -22,9 +21,9 @@ class Exporter
     protected $wrapper;
 
     /**
-     * @var \Logger $logger
+     * @var Log $log
      */
-    protected $logger;
+    protected $log;
 
     /**
      * @var \Findologic\Plentymarkets\Registry $registry
@@ -37,31 +36,33 @@ class Exporter
     /**
      * @param \Findologic\Plentymarkets\Client $client
      * @param \Findologic\Plentymarkets\Wrapper\WrapperInterface $wrapper
+     * @param \Findologic\Plentymarkets\Log $log
+     * @param \Findologic\Plentymarkets\Registry $registry
      */
-    public function __construct(Client $client, WrapperInterface $wrapper, Logger $logger, Registry $registry)
+    public function __construct(Client $client, WrapperInterface $wrapper, Log $log, Registry $registry)
     {
         $this->client = $client;
         $this->wrapper = $wrapper;
-        $this->logger = $logger;
+        $this->log = $log;
         $this->registry = $registry;
     }
 
     /**
-     * Init neccessary data for mapping ids of some item fields with actual names
+     * Init necessary data for mapping ids of some item fields with actual names
      *
      * @return $this
      */
     public function init()
     {
         try {
-            $this->logger->info('Starting to initialise necessary data (categories, attributes, etc.)');
+            $this->log->info('Starting to initialise necessary data (categories, attributes, etc.)');
             $this->getClient()->login();
             $this->initAdditionalData();
             $this->initCategoriesFullUrls();
             $this->initAttributeValues();
-            $this->logger->info('Finished initialising necessary data');
+            $this->log->info('Finished initialising necessary data');
         } catch (\Exception $e) {
-            $this->handleException($e);
+            $this->log->handleException($e);
         }
 
         return $this;
@@ -93,7 +94,7 @@ class Exporter
         try {
             $continue = true;
 
-            $this->logger->info('Starting product processing.');
+            $this->log->info('Starting product processing.');
 
             // Cycle the call for products to api until all we have all products
             while ($continue) {
@@ -107,7 +108,7 @@ class Exporter
 
                 $limit = $page * $itemsPerPage;
                 $offset = $limit - $itemsPerPage;
-                $this->logger->info('Processing items from ' . $offset . ' to ' . $limit);
+                $this->log->info('Processing items from ' . $offset . ' to ' . $limit);
 
                 foreach ($results['entries'] as $product) {
                     $this->processProductData($product);
@@ -120,15 +121,15 @@ class Exporter
                 $page++;
             }
 
-            $this->logger->info('All products has been processed.');
+            $this->log->info('All products has been processed.');
 
             $this->getWrapper()->allItemsHasBeenProcessed();
 
         } catch (\Exception $e) {
-            $this->handleException($e);
+            $this->log->handleException($e);
         }
 
-        $this->logger->info('Data processing finished.');
+        $this->log->info('Data processing finished.');
 
         return $this->getWrapper()->getResults();
     }
@@ -237,7 +238,7 @@ class Exporter
                     }
                 }
 
-                $this->logger->info('- ' . $type . ' data was parsed.');
+                $this->log->info('- ' . $type . ' data was parsed.');
             }
         }
 
@@ -245,7 +246,7 @@ class Exporter
     }
 
     /**
-     * Call all neccessary methods to fully get attributes values
+     * Call all necessary methods to fully get attributes values
      *
      * @throws Exception\CustomerException
      */
@@ -258,24 +259,9 @@ class Exporter
         }
 
         foreach ($attributes->getResults() as $id => $attribute) {
-            $values = $attributes->parseValues($this->getClient()->getAttributeValues($id));
+            $attributes->parseValues($this->getClient()->getAttributeValues($id));
         }
 
         return $this;
-    }
-
-    /**
-     * @codeCoverageIgnore
-     * @param \Exception $e
-     */
-    protected function handleException($e)
-    {
-        //TODO: logging implementation
-        if ($e instanceof CriticalException) {
-            $this->logger->fatal('Fatal error: ' . $e->getMessage());
-            die();
-        }
-
-        $this->logger->warn('An error occured while initializing necessary data: ' . $e->getMessage());
     }
 }
