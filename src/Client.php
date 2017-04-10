@@ -222,19 +222,8 @@ class Client
      */
     public function getAttributes()
     {
-        $response = $this->call('GET', $this->getEndpoint('items/attributes'));
-
-        return $this->returnResult($response);
-    }
-
-    /**
-     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
-     * @param int $attributeId
-     * @return array
-     */
-    public function getAttributeName($attributeId)
-    {
-        $response = $this->call('GET', $this->getEndpoint('items/attributes/' . $attributeId . '/names/'));
+        $params = array('with' => 'names');
+        $response = $this->call('GET', $this->getEndpoint('items/attributes', $params));
 
         return $this->returnResult($response);
     }
@@ -246,19 +235,8 @@ class Client
      */
     public function getAttributeValues($attributeId)
     {
-        $response = $this->call('GET', $this->getEndpoint('items/attributes/' . $attributeId . '/values/'));
-
-        return $this->returnResult($response);
-    }
-
-    /**
-     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
-     * @param int $valueId
-     * @return array
-     */
-    public function getAttributeValueName($valueId)
-    {
-        $response = $this->call('GET', $this->getEndpoint('items/attribute_values/' . $valueId . '/names/'));
+        $params = array('with' => 'names');
+        $response = $this->call('GET', $this->getEndpoint('items/attributes/' . $attributeId . '/values/', $params));
 
         return $this->returnResult($response);
     }

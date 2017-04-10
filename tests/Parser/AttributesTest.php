@@ -27,17 +27,19 @@ class AttributesTest extends PHPUnit_Framework_TestCase
             // There was no data provided so results should be empty
             array(
                 array(),
+                0,
                 array()
             ),
             // Parsing was successful
             array(
                 array(
                     'entries' => array(
-                        $this->getAttributeArray('1', 'Test 1'),
-                        $this->getAttributeArray('2', 'Test 2'),
-                        $this->getAttributeArray('3', 'Test 3')
+                        $this->getAttributeArray('1', 'Test 1', array('Test 1')),
+                        $this->getAttributeArray('2', 'Test 2', array()),
+                        $this->getAttributeArray('3', 'Test 3', array())
                     )
                 ),
+                1,
                 array(
                     '1' => $this->getAttributeResultArray('Test 1', array()),
                     '2' => $this->getAttributeResultArray('Test 2', array()),
@@ -50,9 +52,10 @@ class AttributesTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider parseProvider
      */
-    public function testParse($data, $expectedResult)
+    public function testParse($data, $attributesNamesCount, $expectedResult)
     {
-        $attributesMock = $this->getAttributesMock();
+        $attributesMock = $this->getAttributesMock(array('parseAttributeName'));
+        $attributesMock->expects($this->exactly($attributesNamesCount))->method('parseAttributeName')->willReturn('Test 1');
         $this->assertSame($expectedResult, $attributesMock->parse($data));
     }
 
@@ -70,10 +73,10 @@ class AttributesTest extends PHPUnit_Framework_TestCase
     {
         return array(
             // No data provider, results should be empty
-            array(false,array()),
+            array(false,''),
             // Attribute has some data but the language is not the same as in export configuration
             // so it should be skipped and results should be empty
-            array(array(array('name' => 'Test', 'lang' => 'lt', 'attributeId' => '1')), array()),
+            array(array(array('name' => 'Test', 'lang' => 'lt', 'attributeId' => '1')), ''),
             // Correct data provided
             array(
                 array(
@@ -83,9 +86,7 @@ class AttributesTest extends PHPUnit_Framework_TestCase
                         'lang' => 'en'
                     )
                 ),
-                array(
-                    '1' => $this->getAttributeResultArray('Test 1')
-                )
+                'Test 1'
             )
         );
     }
@@ -108,6 +109,12 @@ class AttributesTest extends PHPUnit_Framework_TestCase
      *              'id' => 1,
      *              'attributeId' => 1,
      *              'backendName' => 'black',
+     *              'valueNames' => array (
+     *                  array(
+     *                      'lang' => 'en',
+     *                      'name' => 'Blacks'
+     *                  )
+     *              )
      *              ...
      *          )
      *      )
@@ -126,8 +133,28 @@ class AttributesTest extends PHPUnit_Framework_TestCase
             array(
                 array(
                     'entries' => array(
-                        $this->getValuesArray('3', '1', 'Test Value'),
-                        $this->getValuesArray('3', '2', 'Test Value')
+                        $this->getValuesArray(
+                            '3',
+                            '1',
+                            'Test Value',
+                            array(
+                                array(
+                                    'lang' => 'en',
+                                    'name' => 'Test Value'
+                                )
+                            )
+                        ),
+                        $this->getValuesArray(
+                            '3',
+                            '2',
+                            'Test Value',
+                            array(
+                                array(
+                                    'lang' => 'en',
+                                    'name' => 'Test Value'
+                                )
+                            )
+                        )
                     )
                 ),
                 array(
@@ -152,55 +179,37 @@ class AttributesTest extends PHPUnit_Framework_TestCase
         $this->assertSame($expectedResult, $attributesMock->getResults());
     }
 
-    /**
-     *  Method $data property example:
-     *  array (
-     *      0 => array (
-     *          'lang' => 'en',
-     *          'valueId' => 1,
-     *          'name' => 'black',
-     *      ),
-     *  )
-     *
-     */
-    public function parseValueNamesProvider()
+    public function parseValueNameProvider()
     {
         return array(
             // No data about value provided, results should be empty
             array(
-                '1',
                 array(),
-                array()
+                ''
             ),
             // Parsing values successful
             array(
-                '1',
                 array(
                     array(
                         'valueId' => '1',
+                        'lang' => 'en',
                         'name' => 'Test Value'
                     )
                 ),
-                array(
-                    '1' => array(
-                        'values' => array(
-                            '1' => 'Test Value'
-                        )
-                    )
-                )
+                'Test Value'
             )
         );
     }
 
     /**
-     * @dataProvider parseValueNamesProvider
+     * @dataProvider parseValueNameProvider
      */
-    public function testParseValueNames($attributeId, $data, $expectedResult)
+    public function testParseValueName($data, $expectedResult)
     {
         $attributesMock = $this->getAttributesMock();
-        $attributesMock->parseValueNames($attributeId, $data);
-        $this->assertSame($expectedResult, $attributesMock->getResults());
+        $this->assertSame($expectedResult, $attributesMock->parseValueName($data));
     }
+
 
     public function attributeValueExistsProvider()
     {
@@ -288,16 +297,23 @@ class AttributesTest extends PHPUnit_Framework_TestCase
     /**
      * Helper function to minimize code lines in data provider methods
      *
-     * @param $id
-     * @param $name
+     * @param string $id
+     * @param string $name
+     * @param array $attributeNames
      * @return array
      */
-    protected function getAttributeArray($id, $name)
+    protected function getAttributeArray($id, $name, $attributeNames = array())
     {
-        return array(
+        $values = array(
             'id' => $id,
-            'backendName' => $name
+            'backendName' => $name,
         );
+
+        if (!empty($attributeNames)) {
+            $values['attributeNames'] = $attributeNames;
+        }
+
+        return $values;
     }
 
     /**
@@ -328,13 +344,19 @@ class AttributesTest extends PHPUnit_Framework_TestCase
      * @param $backendName
      * @return array
      */
-    protected function getValuesArray($attributeId, $id, $backendName)
+    protected function getValuesArray($attributeId, $id, $backendName, $valueNames = array())
     {
-        return array(
+        $values = array(
             'id' => $id,
             'attributeId' => $attributeId,
             'backendName' => $backendName
         );
+
+        if (!empty($valueNames)) {
+            $values['valueNames'] = $valueNames;
+        }
+
+        return $values;
     }
 
     /**
@@ -352,7 +374,7 @@ class AttributesTest extends PHPUnit_Framework_TestCase
 
         $attributesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Attributes')
             ->disableOriginalConstructor()
-            ->setMethods(array('getConfigLanguageCode'))
+            ->setMethods($methods)
             ->getMock();
 
         $attributesMock->expects($this->any())->method('getConfigLanguageCode')->willReturn('EN');

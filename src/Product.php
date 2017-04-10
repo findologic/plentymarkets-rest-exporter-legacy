@@ -355,6 +355,7 @@ class Product
         $value = '';
 
         switch ($propertyType) {
+            //TODO: handling 'empty' type properties
             case 'text':
                 foreach ($property['names'] as $name) {
                     if (strtoupper($name['lang']) != $this->getConfigLanguageCode()) {

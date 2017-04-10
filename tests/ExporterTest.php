@@ -68,13 +68,11 @@ class ExporterTest extends PHPUnit_Framework_TestCase
 
     /**
      * Init attributes should get attributes from 'Attributes' parser and iterate over them to get attribute values
-     * Each value also needs a call to parse value name so it should be as many calls to 'parseValueNames' function as
-     * there is values for attribute
      */
     public function testInitAttributeValues()
     {
         $attributesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Attributes')
-            ->setMethods(array('getResults', 'parseValues', 'parseValueNames'))
+            ->setMethods(array('getResults', 'parseValues'))
             ->getMock();
         $attributesMock->expects($this->once())
             ->method('getResults')
@@ -82,8 +80,6 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $attributesMock->expects($this->once())
             ->method('parseValues')
             ->will($this->returnValue(array('1' => 'Test Value', '2' => 'Test Value')));
-        $attributesMock->expects($this->exactly(2))
-            ->method('parseValueNames');
 
         $registryMock = $this->getRegistryMock(array('get'));
         $registryMock->expects($this->any())
@@ -240,8 +236,11 @@ class ExporterTest extends PHPUnit_Framework_TestCase
      */
     protected function getExporterMockBuilder($mocks = array())
     {
+        $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')->disableOriginalConstructor()->getMock();
+        $clientMock->expects($this->any())->method('setItemsPerPage')->willReturn($clientMock);
+
         $defaultMocks = array(
-            'client' => $this->getMockBuilder('Findologic\Plentymarkets\Client')->disableOriginalConstructor()->getMock(),
+            'client' => $clientMock,
             'wrapper' => $this->getMockBuilder('Findologic\Plentymarkets\Wrapper\Csv')->getMock(),
             'logger' => $this->getMockBuilder('Logger')->disableOriginalConstructor()->getMock(),
             'registry' => $this->getMockBuilder('Findologic\Plentymarkets\Registry')->disableOriginalConstructor()->getMock()

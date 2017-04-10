@@ -47,6 +47,10 @@ class Attributes implements ParserInterface
                 'name' => $attribute['backendName'],
                 'values' => array()
             );
+
+            if (isset($attribute['attributeNames']) && ($name = $this->parseAttributeName($attribute['attributeNames']))) {
+                $this->results[$attribute['id']]['name'] = $name;
+            }
         }
 
         return $this->results;
@@ -54,23 +58,23 @@ class Attributes implements ParserInterface
 
     /**
      * @param array $data
-     * @return array
+     * @return string
      */
     public function parseAttributeName($data)
     {
+        $name = '';
         if (!is_array($data) || empty($data)) {
-            return $this->results;
+            return $name;
         }
 
-        foreach ($data as $name) {
-            if (strtoupper($name['lang']) != $this->getConfigLanguageCode()) {
-                continue;
+        foreach ($data as $attributeName) {
+            if (strtoupper($attributeName['lang']) == $this->getConfigLanguageCode()) {
+                $name = $attributeName['name'];
+                break;
             }
-
-            $this->results[$name['attributeId']]['name'] = $name['name'];
         }
 
-        return $this->results;
+        return $name;
     }
 
     /**
@@ -88,12 +92,10 @@ class Attributes implements ParserInterface
 
         foreach ($data['entries'] as $value) {
             $attributeId = $value['attributeId'];
-            $values[$value['id']] = $value['backendName'];
+            $values[$value['id']] = $this->parseValueName($value['valueNames']);
         }
 
-        if ($attributeId) {
-            $this->results[$attributeId]['values'] = $values;
-        }
+        $this->results[$attributeId]['values'] = $values;
 
         return $values;
     }
@@ -101,20 +103,22 @@ class Attributes implements ParserInterface
     /**
      * @param string $attributeId
      * @param array $data
-     * @return array
+     * @return string
      */
-    public function parseValueNames($attributeId, $data)
+    public function parseValueName($data)
     {
+        $name = '';
         if (!is_array($data) || empty($data)) {
-            return $this->results;
+            return $name;
         }
 
-        //TODO: maybe check if attribute value exists ?
         foreach ($data as $value) {
-            $this->results[$attributeId]['values'][$value['valueId']] = $value['name'];
+            if (strtoupper($value['lang']) == $this->getConfigLanguageCode()) {
+                $name = $value['name'];
+            }
         }
 
-        return $this->results;
+        return $name;
     }
 
     /**

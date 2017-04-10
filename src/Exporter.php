@@ -93,7 +93,7 @@ class Exporter
         try {
             $continue = true;
 
-            $this->logger->info('Starting product processing.)');
+            $this->logger->info('Starting product processing.');
 
             // Cycle the call for products to api until all we have all products
             while ($continue) {
@@ -120,13 +120,15 @@ class Exporter
                 $page++;
             }
 
-            $this->logger->info('All products has been processed.)');
+            $this->logger->info('All products has been processed.');
 
             $this->getWrapper()->allItemsHasBeenProcessed();
 
         } catch (\Exception $e) {
             $this->handleException($e);
         }
+
+        $this->logger->info('Data processing finished.');
 
         return $this->getWrapper()->getResults();
     }
@@ -256,12 +258,7 @@ class Exporter
         }
 
         foreach ($attributes->getResults() as $id => $attribute) {
-            $attributes->parseAttributeName($this->getClient()->getAttributeName($id));
             $values = $attributes->parseValues($this->getClient()->getAttributeValues($id));
-            // Get values for frontend names
-            foreach ($values as $valueId => $value) {
-                $attributes->parseValueNames($id, $this->getClient()->getAttributeValueName($valueId));
-            }
         }
 
         return $this;
