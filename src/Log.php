@@ -24,14 +24,14 @@ class Log
         if ($logger != null) {
             $this->logger = $logger;
         } else {
-            Logger::configure('Logger/config.xml');
+            Logger::configure('Logger/import.xml');
             $this->logger = Logger::getLogger('import.php');
         }
     }
 
     public function info($message)
     {
-
+        //TODO: implement logic for logging messages to logger and customerLogger
     }
 
     /**
@@ -54,7 +54,7 @@ class Log
     public function handleException($e)
     {
         if ($e instanceof CriticalException) {
-            $this->logger->fatal('Fatal error: ' . $e->getMessage());
+            $this->logger->fatal('Critical error: ' . $e->getMessage());
             die();
         }
 

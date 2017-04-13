@@ -420,7 +420,7 @@ class Client
             }
         }
 
-        // The itemPerPage and page properties should be reseted after every call as the caller methods should
+        // The itemPerPage and page properties should be reset after every call as the caller methods should
         // take the actions for setting them again
         $this->itemsPerPage = false;
         $this->page = false;

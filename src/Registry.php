@@ -5,7 +5,8 @@ namespace Findologic\Plentymarkets;
 class Registry
 {
     /**
-     * Registry constructor.
+     * Require log class for constructor to make sure it exists.
+     *
      * @param Log $log
      */
     public function __construct($log)
@@ -18,6 +19,10 @@ class Registry
      */
     protected $registry = array();
 
+    /**
+     * @param string $key
+     * @param mixed $object
+     */
     public function set($key, $object)
     {
         $key = strtolower($key);
@@ -26,6 +31,10 @@ class Registry
         }
     }
 
+    /**
+     * @param string $key
+     * @return bool|mixed
+     */
     public function get($key)
     {
         $key = strtolower($key);

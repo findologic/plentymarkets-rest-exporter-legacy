@@ -176,6 +176,7 @@ class Csv implements WrapperInterface
      */
     public function convertData($data)
     {
+        // Fields which values can not contain html
         $htmlFields = array('ordernumber', 'name', 'summary', 'description', 'keywords');
         $data['attributes'] = http_build_query($data['attributes']);
         $data['ordernumber'] = implode(self::ORDERNUMBER_DELIMITER, $data['ordernumber']);
@@ -192,7 +193,6 @@ class Csv implements WrapperInterface
     /**
      * Set the header line of csv
      *
-     * @param $outstream
      * @param $headersData
      */
     protected function setHeaders($headersData)
