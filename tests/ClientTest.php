@@ -27,7 +27,15 @@ class ClientTest extends PHPUnit_Framework_TestCase
      */
     public function testLoginProtocol()
     {
-        $clientMock = $this->getClientMock(array('call'));
+        $logMock = $this->getMockBuilder('\Findologic\Plentymarkets\Log')
+            ->disableOriginalConstructor()
+            ->setMethods(array())
+            ->getMock();
+
+        $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
+            ->setConstructorArgs(array('username', 'password', 'url', $logMock))
+            ->setMethods(array('call'))
+            ->getMock();
 
         $inccorectResponseMock = $this->getResponseMock('{"Moved permanently !"}', 301);
         $body = '{"accessToken":"TEST_TOKEN","tokenType":"Bearer","expiresIn":86400,"refreshToken":"REFERSH_TOKEN"}';
@@ -44,12 +52,20 @@ class ClientTest extends PHPUnit_Framework_TestCase
      */
     public function testLoginResponseStatusException()
     {
-        $clientMock = $this->getClientMock(array('call'));
+        $logMock = $this->getMockBuilder('\Findologic\Plentymarkets\Log')
+            ->disableOriginalConstructor()
+            ->setMethods(array())
+            ->getMock();
+
+        $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
+            ->setConstructorArgs(array('username', 'password', 'url', $logMock))
+            ->setMethods(array('call'))
+            ->getMock();
 
         $body = 'No response!';
         $responseMock = $this->getResponseMock($body, 400);
 
-        $clientMock->expects($this->once())->method('call')->will($this->returnValue($responseMock));
+        $clientMock->expects($this->exactly(2))->method('call')->will($this->returnValue($responseMock));
 
         $this->setExpectedException(\Findologic\Plentymarkets\Exception\CriticalException::class);
 

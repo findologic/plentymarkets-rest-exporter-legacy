@@ -4,6 +4,7 @@ namespace Findologic\Plentymarkets;
 
 use \HTTP_Request2;
 use \HTTP_Request2_Response;
+use \Findologic\Plentymarkets\Exception\InternalException;
 
 class Debugger
 {
@@ -12,7 +13,7 @@ class Debugger
      *
      * @var string
      */
-    protected $directory = 'tmp';
+    protected $directory = 'dump';
 
     /**
      * Array for holding specific paths of api calls to debug
@@ -24,8 +25,20 @@ class Debugger
      */
     protected $pathsToDebug = array();
 
-    public function __construct($directory = false, $pathsToDebug = array())
+    /**
+     * @var \Findologic\Plentymarkets\Log $log
+     */
+    protected $log;
+
+    /**
+     * @param \Findologic\Plentymarkets\Log $log
+     * @param string|bool $directory
+     * @param array $pathsToDebug
+     */
+    public function __construct($log, $directory = false, $pathsToDebug = array())
     {
+        $this->log = $log;
+
         if ($directory) {
             $this->directory = rtrim($directory, '/');
         }
@@ -48,11 +61,15 @@ class Debugger
             $path = $this->getApiCallDirectoryPath($request->getUrl()->getPath());
             $filePrefix = $this->getFilePrefix();
             $this->createDirectory($path);
-            $this->debugRequest($request, $path, $filePrefix);
-            $this->debugResponse($response, $path, $filePrefix);
+            $fileHandle = $this->createFile($path, $filePrefix . 'Request.txt');
+            $this->debugRequest($request, $fileHandle);
+            $this->debugResponse($response, $fileHandle);
+            fclose($fileHandle);
         } catch (\Exception $e) {
-            //TODO: Logging the errors
+            $this->log->handleException($e);
         }
+
+        return true;
     }
 
     /**
@@ -120,17 +137,15 @@ class Debugger
     }
 
     /**
-     * Create file handle
-     *
      * @param string $directory
      * @param string $file
      * @return bool|resource
+     * @throws InternalException
      */
     protected function createFile($directory, $file)
     {
-        if (($fileHandle = @fopen($directory . $file, 'w+')) === false ) {
-            //TODO: should it throw exception if file creation was not successful ???
-            return false;
+        if (($fileHandle = @fopen($directory . DIRECTORY_SEPARATOR . $file, 'wb+')) === false ) {
+            throw new InternalException("Could not create or open the file for dumping the request data for debugging!");
         }
 
         return $fileHandle;
@@ -138,28 +153,91 @@ class Debugger
 
     /**
      * @param \HTTP_Request2 $request
-     * @param string $path
-     * @param string $filePrefix
+     * @param resource $fileHandle
      * @return bool
      */
-    protected function debugRequest($request, $path, $filePrefix)
+    protected function debugRequest($request, $fileHandle)
     {
-        $fileHandle = $this->createFile($path, $filePrefix . 'Request.html');
-
         if (!$fileHandle) {
             return false;
         }
 
-        //JSON_PRETTY_PRINT
+        if ($url = $request->getUrl()) {
+            $this->writeToFile($fileHandle, 'Requested URL', $url->__toString());
+        }
+
+        $this->writeToFile($fileHandle, 'Method type', $request->getMethod());
+        $this->writeToFile($fileHandle, 'Headers', $request->getHeaders());
+
+        return true;
     }
 
     /**
      * @param \HTTP_Request2_Response $response
-     * @param string $path
-     * @param string $filePrefix
+     * @param resource $fileHandle
+     * @return bool
      */
-    protected function debugResponse($response, $path, $filePrefix)
+    protected function debugResponse($response, $fileHandle)
     {
+        if (!$fileHandle) {
+            return false;
+        }
 
+        $this->writeToFile($fileHandle, 'Headers', $response->getHeader());
+        $this->writeToFile($fileHandle, 'Body', $response->getBody());
+
+        return true;
+    }
+
+    /**
+     * Write debug data to file and add some formatting if needed
+     *
+     * @param $fileHandle
+     * @param string $title
+     * @param string|int|array $data
+     */
+    protected function writeToFile($fileHandle, $title, $data, $nestingLevel = 0)
+    {
+        if (empty($data)) {
+            // Insert some predifined value if data for this field is empty
+            $data = '--- EMPTY ---';
+        }
+
+        // Get initial field nesting level sting
+        $nesting = $this->getNestingString($nestingLevel);
+        fwrite($fileHandle, print_r($nesting . $title . " : ", TRUE));
+
+        // Get field value nesting level sting
+        $nesting = $this->getNestingString(++$nestingLevel);
+
+        if (is_array($data)) {
+            // If data is array call the method again for each array field
+            fwrite($fileHandle, $nesting . print_r( "\n", TRUE));
+            foreach ($data as $key => $value) {
+                $this->writeToFile($fileHandle, $key, $value, $nestingLevel);
+            }
+        } else {
+            fwrite($fileHandle, print_r($data, TRUE) . "\n");
+        }
+    }
+
+    /**
+     * Format a nesting string using the level parameter
+     *
+     * @param int $nestingLevel
+     * @return string
+     */
+    protected function getNestingString($nestingLevel)
+    {
+        $nesting = '';
+        if ($nestingLevel < 1) {
+            return $nesting;
+        }
+
+        for ($i = 0; $i < $nestingLevel; $i++) {
+            $nesting .= '    ';
+        }
+
+        return $nesting;
     }
 }

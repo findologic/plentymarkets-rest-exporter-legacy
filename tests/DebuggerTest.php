@@ -27,7 +27,7 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
         $requestMock = $this->getRequestMock('/rest/items');
 
         $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
-            ->setConstructorArgs(array($this->fileSystemMock->url(), array('items')))
+            ->setConstructorArgs(array($this->getLogMock(), $this->fileSystemMock->url(), array('items')))
             ->setMethods(array('debugRequest', 'debugResponse'))
             ->getMock();
 
@@ -47,7 +47,7 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
         $requestMock = $this->getRequestMock('/rest/items');
 
         $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
-            ->setConstructorArgs(array('/tmp/', array('login', 'some/path')))
+            ->setConstructorArgs(array($this->getLogMock(), '/tmp/', array('login', 'some/path')))
             ->setMethods(array('debugRequest', 'debugResponse'))
             ->getMock();
 
@@ -65,7 +65,7 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
         $requestMock = $this->getRequestMock('/rest/items');
 
         $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
-            ->setConstructorArgs(array($this->fileSystemMock->url(), array('items')))
+            ->setConstructorArgs(array($this->getLogMock(), $this->fileSystemMock->url(), array('items')))
             ->setMethods(array('debugResponse'))
             ->getMock();
 
@@ -76,6 +76,19 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
     }
 
     /* ------ helper functions ------ */
+
+    /**
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getLogMock()
+    {
+        $logMock = $this->getMockBuilder('\Findologic\Plentymarkets\Log')
+            ->disableOriginalConstructor()
+            ->setMethods(array())
+            ->getMock();
+
+        return $logMock;
+    }
 
     /**
      * @param string $path

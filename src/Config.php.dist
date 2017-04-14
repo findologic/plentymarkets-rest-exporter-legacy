@@ -6,11 +6,11 @@ class Config {
     const USERNAME = 'Username';
     const PASSWORD = 'Password';
     // IMPORTANT! No protocol should be provided as client class will take care of this
-    const ENDPOINT = 'yourshop.com/';
+    const URL = 'yourshop.com/';
     const TAXRATE_COUNTRY_CODE = 'GB';
-    const TEXT_LANGUAGE = 'EN';
+    const TEXT_LANGUAGE_CODE = 'EN';
     //Currently it seems the max value for api is 50
-    const NUMBER_OR_ITEMS_PER_PAGE = 100;
+    const NUMBER_OF_ITEMS_PER_PAGE = 100;
     const DEFAULT_EMPTY_VALUE = '';
     const DEBUG = false;
 }

@@ -134,10 +134,11 @@ class Client
             )
         );
 
-        // If using incorrect protocol the api returns 301 so it could be used to check if correct protocal is used
-        // and make appropriate changes
-        if ($response && $response->getStatus() == 301) {
+        // If using incorrect protocol the api returns status between 301-404  so it could be used to check if correct
+        // protocol is used and make appropriate changes
+        if ($response && ($response->getStatus() >= 301 && $response->getStatus() <= 404)) {
             $this->protocol = 'http://';
+            $this->log->info('Api client requests protocol changed to http://.)');
             $response = $this->call('POST', $this->getEndpoint('login'), array(
                     'username' => $this->username,
                     'password' => $this->password
@@ -431,9 +432,9 @@ class Client
     /**
      * Create request and set default parameters
      *
-     * @param string $method
-     * @param string $uri
-     * @param array $params
+     * @param string $method - 'GET', 'POST' , etc.
+     * @param string $uri - full endpoint path with query (GET) parameters
+     * @param array $params - POST parameters
      * @return HTTP_Request2
      */
     protected function createRequest($method, $uri, $params = null)
