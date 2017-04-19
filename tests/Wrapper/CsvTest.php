@@ -50,7 +50,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $wrapperMock = $this->getWrapperMock($url, array('getResults'));
         $this->fileMock->chmod(0);
         $this->setExpectedException('\Findologic\Plentymarkets\Exception\CriticalException');
-        $wrapperMock->wrapItem($this->getItemDataMock());
+        @$wrapperMock->wrapItem($this->getItemDataMock());
     }
 
     /**

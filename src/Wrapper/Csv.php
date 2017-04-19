@@ -114,7 +114,7 @@ class Csv implements WrapperInterface
     {
         if (!$this->stream) {
             // If can not create the file throw the exception
-            if (($this->stream = @fopen($this->filename, 'w+')) === false ) {
+            if (($this->stream = fopen($this->filename, 'w+')) === false ) {
                 throw new CriticalException('File for saving export data could not be created!');
             }
         }

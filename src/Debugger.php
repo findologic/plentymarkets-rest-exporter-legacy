@@ -95,7 +95,7 @@ class Debugger
      */
     protected function getFilePrefix()
     {
-        return date('H_i_s', time()) . '_';
+        return time() . '_';
     }
 
     /**
@@ -144,7 +144,7 @@ class Debugger
      */
     protected function createFile($directory, $file)
     {
-        if (($fileHandle = @fopen($directory . DIRECTORY_SEPARATOR . $file, 'wb+')) === false ) {
+        if (($fileHandle = fopen($directory . DIRECTORY_SEPARATOR . $file, 'wb+')) === false ) {
             throw new InternalException("Could not create or open the file for dumping the request data for debugging!");
         }
 
@@ -162,8 +162,11 @@ class Debugger
             return false;
         }
 
+        $this->addSeparatorToFile($fileHandle, 'Request', false);
+
         if ($url = $request->getUrl()) {
             $this->writeToFile($fileHandle, 'Requested URL', $url->__toString());
+            $this->writeToFile($fileHandle, 'Port', $url->getPort());
         }
 
         $this->writeToFile($fileHandle, 'Method type', $request->getMethod());
@@ -183,6 +186,10 @@ class Debugger
             return false;
         }
 
+        $this->addSeparatorToFile($fileHandle, 'Response');
+
+        $this->writeToFile($fileHandle, 'Response Status', $response->getStatus());
+        $this->writeToFile($fileHandle, 'Response Phrase', $response->getReasonPhrase());
         $this->writeToFile($fileHandle, 'Headers', $response->getHeader());
         $this->writeToFile($fileHandle, 'Body', $response->getBody());
 
@@ -219,6 +226,21 @@ class Debugger
         } else {
             fwrite($fileHandle, print_r($data, TRUE) . "\n");
         }
+    }
+
+    /**
+     * @param resource $fileHandle
+     * @param string $title
+     * @param bool $firstLine
+     */
+    protected function addSeparatorToFile($fileHandle, $title, $firstLine = true)
+    {
+        if ($firstLine) {
+            fwrite($fileHandle, "\n");
+        }
+
+        fwrite($fileHandle, " ---- " . $title . " ---- \n");
+        fwrite($fileHandle, "\n");
     }
 
     /**
