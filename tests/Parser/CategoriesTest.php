@@ -103,6 +103,7 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
     public function testParseCategoryFullUrls($data, $urls, $expectedResult)
     {
         $categoriesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Categories')
+            ->disableOriginalConstructor()
             ->setMethods(array('getCategoryUrlKey'))
             ->getMock();
 

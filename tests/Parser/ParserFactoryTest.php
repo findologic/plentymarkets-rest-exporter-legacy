@@ -14,7 +14,7 @@ class ParserFactoryTest extends PHPUnit_Framework_TestCase
      */
     public function testCreate()
     {
-        $parser = ParserFactory::create('Categories');
+        $parser = ParserFactory::create('Categories', $this->getRegistryMock());
         $this->assertInstanceOf(Categories::class, $parser);
     }
 
@@ -24,7 +24,7 @@ class ParserFactoryTest extends PHPUnit_Framework_TestCase
     public function testCreateInterfaceException()
     {
         $this->setExpectedException(\Exception::class);
-        $parser = ParserFactory::create('ParserFactory');
+        $parser = ParserFactory::create('ParserFactory', $this->getRegistryMock());
     }
 
     /**
@@ -33,6 +33,21 @@ class ParserFactoryTest extends PHPUnit_Framework_TestCase
     public function testCreateNotExistingClass()
     {
         $this->setExpectedException(\Exception::class);
-        $parser = ParserFactory::create('TestParser');
+        $parser = ParserFactory::create('TestParser', $this->getRegistryMock());
+    }
+
+    /**
+     * Helper function to get registry mock
+     *
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getRegistryMock()
+    {
+        $mock = $this->getMockBuilder('\Findologic\Plentymarkets\Registry')
+            ->disableOriginalConstructor()
+            ->setMethods(null)
+            ->getMock();
+
+        return $mock;
     }
 }

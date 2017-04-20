@@ -88,6 +88,14 @@ class Client
     }
 
     /**
+     * @return \Findologic\Plentymarkets\Log
+     */
+    public function getLog()
+    {
+        return $this->log;
+    }
+
+    /**
      * Set request items per page count
      *
      * @param int $itemsPerPage
@@ -138,7 +146,7 @@ class Client
         // protocol is used and make appropriate changes
         if ($response && ($response->getStatus() >= 301 && $response->getStatus() <= 404)) {
             $this->protocol = 'http://';
-            $this->log->info('Api client requests protocol changed to http://.)');
+            $this->getLog()->info('Api client requests protocol changed to http://)');
             $response = $this->call('POST', $this->getEndpoint('login'), array(
                     'username' => $this->username,
                     'password' => $this->password
@@ -414,7 +422,7 @@ class Client
                 // If call to api was not successful check if retry limit was reached to stop retry cycle
                 if ($count >= self::RETRY_COUNT) {
                     $continue = false;
-                    $this->log->handleException($e);
+                    $this->getLog()->handleException($e);
                 } else {
                     usleep(250000);
                 }

@@ -6,14 +6,33 @@ use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Exception\CriticalException;
 use \Logger;
 
+/**
+ * Class for wrapping logic for logging information into one unit so it would be easier to change in the future
+ *
+ * Class Log
+ * @package Findologic\Plentymarkets
+ */
 class Log
 {
+    /**
+     * This logger should be used for information which should be displayed to customer
+     *
+     * @var Logger
+     */
     protected $customerLogger;
 
+    /**
+     * This logger should be used for logging data used by developers
+     *
+     * @var Logger
+     */
     protected $logger;
+
+    protected $loggerMethods = array('trace', 'debug', 'info', 'warn', 'error', 'fatal');
 
     /**
      * Log constructor.
+     *
      * @param \Logger $customerLogger
      * @param \Logger|bool $logger
      */
@@ -29,52 +48,24 @@ class Log
         }
     }
 
-    /*
-     * Logger wrapper functions for logging messages to customer and internal logger by level (trace, debug, etc.)
+    /**
+     * Magic method for wrapping the Logger class logging methods
      *
-     * Wrapper functions allows easier modifications for logging in the future if some level message logging logic
-     * should be changed.
+     * @param string $name
+     * @param array $arguments
+     * @return bool
      */
-
-    public function trace($message)
+    public function __call($name, $arguments)
     {
-        $this->customerLogger->trace($message);
-        $this->logger->trace($message);
-    }
+        if (!in_array($name, $this->loggerMethods)) {
+            return false;
+        }
 
-    public function debug($message)
-    {
-        $this->customerLogger->debug($message);
-        $this->logger->debug($message);
-    }
+        $message = $arguments[0];
 
-    public function info($message)
-    {
-        $this->customerLogger->info($message);
-        $this->logger->info($message);
+        $this->customerLogger->$name($message);
+        $this->logger->$name($message);
     }
-
-    public function warn($message)
-    {
-        $this->customerLogger->warn($message);
-        $this->logger->warn($message);
-    }
-
-    public function error($message)
-    {
-        $this->customerLogger->error($message);
-        $this->logger->error($message);
-    }
-
-    public function fatal($message)
-    {
-        $this->customerLogger->fatal($message);
-        $this->logger->fatal($message);
-    }
-
-    /*
-     * Specific messages handling functions
-     */
 
     /**
      * Log information about missing data
@@ -97,6 +88,8 @@ class Log
      */
     public function handleException($e)
     {
+        // CriticalException means that plugin will not function properly if execution would be continued
+        // Example: wrong credentials provided so plugin can't login to api
         if ($e instanceof CriticalException) {
             $this->fatal('Critical error: ' . $e->getMessage());
             die();

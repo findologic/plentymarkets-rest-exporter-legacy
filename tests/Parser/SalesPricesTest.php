@@ -7,16 +7,6 @@ use PHPUnit_Framework_TestCase;
 
 class SalesPricesTest extends PHPUnit_Framework_TestCase
 {
-    /**
-     * @var \Findologic\Plentymarkets\Parser\SalesPrices
-     */
-    protected $parser;
-
-    public function setUp()
-    {
-        $this->parser = new SalesPrices();
-    }
-
     public function parseProvider()
     {
         return array(
@@ -42,8 +32,13 @@ class SalesPricesTest extends PHPUnit_Framework_TestCase
      */
     public function testParse($data, $expectedResult)
     {
-        $this->parser->parse($data);
-        $this->assertSame($expectedResult, $this->parser->getResults());
+        $salesPricesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\SalesPrices')
+            ->disableOriginalConstructor()
+            ->setMethods(null)
+            ->getMock();
+
+        $salesPricesMock->parse($data);
+        $this->assertSame($expectedResult, $salesPricesMock->getResults());
     }
 
     public function getRRPProvider()
@@ -61,7 +56,12 @@ class SalesPricesTest extends PHPUnit_Framework_TestCase
      */
     public function testGetRRPProvider($salesPrices, $expectedResult)
     {
-        $this->parser->setResults($salesPrices);
-        $this->assertSame($expectedResult, $this->parser->getRRP());
+        $salesPricesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\SalesPrices')
+            ->disableOriginalConstructor()
+            ->setMethods(null)
+            ->getMock();
+
+        $salesPricesMock->setResults($salesPrices);
+        $this->assertSame($expectedResult, $salesPricesMock->getRRP());
     }
 }

@@ -68,16 +68,33 @@ class Exporter
         return $this;
     }
 
+    /**
+     * @return WrapperInterface
+     */
     public function getWrapper()
     {
         return $this->wrapper;
     }
 
+    /**
+     * @return Client
+     */
     public function getClient()
     {
         return $this->client;
     }
 
+    /**
+     * @return Log
+     */
+    public function getLog()
+    {
+        return $this->log;
+    }
+
+    /**
+     * @return Registry
+     */
     public function getRegistry()
     {
         return $this->registry;
@@ -85,6 +102,8 @@ class Exporter
 
 
     /**
+     * Get all products
+     *
      * @param int $numberOfItemsPerPage
      * @param int $page
      * @return mixed
@@ -94,7 +113,7 @@ class Exporter
         try {
             $continue = true;
 
-            $this->log->info('Starting product processing.');
+            $this->getLog()->info('Starting product processing.');
 
             // Cycle the call for products to api until all we have all products
             while ($continue) {
@@ -108,7 +127,7 @@ class Exporter
 
                 $limit = $page * $itemsPerPage;
                 $offset = $limit - $itemsPerPage;
-                $this->log->info('Processing items from ' . $offset . ' to ' . $limit);
+                $this->getLog()->info('Processing items from ' . $offset . ' to ' . $limit);
 
                 foreach ($results['entries'] as $product) {
                     $this->processProductData($product);
@@ -121,15 +140,15 @@ class Exporter
                 $page++;
             }
 
-            $this->log->info('All products has been processed.');
+            $this->getLog()->info('All products has been processed.');
 
             $this->getWrapper()->allItemsHasBeenProcessed();
 
         } catch (\Exception $e) {
-            $this->log->handleException($e);
+            $this->getLog()->handleException($e);
         }
 
-        $this->log->info('Data processing finished.');
+        $this->getLog()->info('Data processing finished.');
 
         return $this->getWrapper()->getResults();
     }
@@ -164,15 +183,28 @@ class Exporter
             return $this;
         }
 
-        $variations = $this->getClient()->getProductVariations($product->getItemId());
+        $continue = true;
+        $itemsPerPage = Config::NUMBER_OF_ITEMS_PER_PAGE;
+        $page = 1;
 
-        if (isset($variations['entries'])) {
-            $product->processVariations($variations);
-            foreach ($variations['entries'] as $variation) {
-                $product->processVariationsProperties(
-                    $this->getClient()->getVariationProperties($product->getItemId(), $variation['id'])
-                );
+        while ($continue) {
+            $this->getClient()->setItemsPerPage($itemsPerPage)->setPage($page);
+            $variations = $this->getClient()->getProductVariations($product->getItemId());
+
+            if (isset($variations['entries'])) {
+                $product->processVariations($variations);
+                foreach ($variations['entries'] as $variation) {
+                    $product->processVariationsProperties(
+                        $this->getClient()->getVariationProperties($product->getItemId(), $variation['id'])
+                    );
+                }
             }
+
+            if (!isset($variations['entries']) || $variations['isLastPage']) {
+                $continue = false;
+            }
+
+            $page++;
         }
 
         $product->processImages($this->getClient()->getProductImages($product->getItemId()));
@@ -183,7 +215,7 @@ class Exporter
     }
 
     /**
-     * Function for gettings the units id with actual values
+     * Function for getting the units id with actual values
      *
      * @return array
      */
@@ -222,11 +254,10 @@ class Exporter
             }
 
             if (!$this->getRegistry()->get($type)) {
-                $parser = ParserFactory::create($type);
+                $parser = ParserFactory::create($type, $this->getRegistry());
                 $this->getRegistry()->set($type, $parser);
                 $continue = true;
-                //TODO: replace with config value
-                $itemsPerPage = 50;
+                $itemsPerPage = Config::NUMBER_OF_ITEMS_PER_PAGE;
                 $page = 1;
                 while ($continue) {
                     $this->getClient()->setItemsPerPage($itemsPerPage)->setPage($page);
@@ -238,7 +269,7 @@ class Exporter
                     }
                 }
 
-                $this->log->info('- ' . $type . ' data was parsed.');
+                $this->getLog()->info('- ' . $type . ' data was parsed.');
             }
         }
 

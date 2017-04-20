@@ -268,6 +268,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
     public function testProcessManufacturer($manufacturerId, $manufacturerName, $expectedResult)
     {
         $manufacturersMock = $this->getMockBuilder('Findologic\Plentymarkets\Parser\Manufacturers')
+            ->disableOriginalConstructor()
             ->setMethods(array('getManufacturerName'))
             ->getMock();
 
@@ -394,6 +395,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
     public function testProcessVariations($data, $expectedAttributes, $expectedIdentifiers, $expectedFields)
     {
         $attributesMock = $this->getMockBuilder('Findologic\Plentymarkets\Parser\Attributes')
+            ->disableOriginalConstructor()
             ->setMethods(array('attributeValueExists', 'getAttributeName', 'getAttributeValueName'))
             ->getMock();
 
@@ -402,12 +404,14 @@ class ProductTest extends PHPUnit_Framework_TestCase
         $attributesMock->expects($this->any())->method('getAttributeValueName')->willReturn('Test');
 
         $salesPricesMock = $this->getMockBuilder('Findologic\Plentymarkets\Parser\SalesPrices')
+            ->disableOriginalConstructor()
             ->setMethods(array('getRRP'))
             ->getMock();
 
         $salesPricesMock->expects($this->any())->method('getRRP')->willReturn(array('2'));
 
         $vatMock = $this->getMockBuilder('Findologic\Plentymarkets\Parser\Vat')
+            ->disableOriginalConstructor()
             ->setMethods(array('getVatRateByVatId'))
             ->getMock();
 
@@ -461,6 +465,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
     public function testProccessVariationCategories($data, $categories , $expectedResult)
     {
         $categoriesMock = $this->getMockBuilder('Findologic\Plentymarkets\Parser\Categories')
+            ->disableOriginalConstructor()
             ->setMethods(array('getCategoryName', 'getCategoryFullPath'))
             ->getMock();
 

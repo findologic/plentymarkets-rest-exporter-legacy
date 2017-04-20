@@ -2,7 +2,7 @@
 
 namespace Findologic\Plentymarkets\Parser;
 
-class SalesPrices implements ParserInterface
+class SalesPrices extends ParserAbstract implements ParserInterface
 {
     const RRP_TYPE = 'rrp';
 

@@ -4,7 +4,7 @@ namespace Findologic\Plentymarkets\Parser;
 
 use Findologic\Plentymarkets\Config;
 
-class Attributes implements ParserInterface
+class Attributes extends ParserAbstract implements ParserInterface
 {
     protected $results = array();
 

@@ -129,7 +129,7 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
         $requestMock = $this->getRequestMock('/rest/items');
 
         $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
-            ->setConstructorArgs(array($this->getLogMoc(), $this->fileSystemMock->url(), array('items')))
+            ->setConstructorArgs(array($this->getLogMock(), $this->fileSystemMock->url(), array('items')))
             ->setMethods(array('getApiCallDirectoryPath', 'createDirectory', 'getFilePrefix', 'debugResponse'))
             ->getMock();
 

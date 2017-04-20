@@ -5,7 +5,7 @@ namespace Findologic\Plentymarkets\Parser;
 use Findologic\Plentymarkets\Config;
 use Findologic\Plentymarkets\Data\Countries;
 
-class Vat implements ParserInterface
+class Vat extends ParserAbstract implements ParserInterface
 {
     protected $results = array();
 

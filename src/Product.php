@@ -3,11 +3,12 @@
 namespace Findologic\Plentymarkets;
 
 use Findologic\Plentymarkets\Config;
+use Findologic\Plentymarkets\Parser\ParserAbstract;
 use Findologic\Plentymarkets\Registry;
 use Findologic\Plentymarkets\Data\Units;
 use Findologic\Plentymarkets\Parser\Attributes;
 
-class Product
+class Product extends ParserAbstract
 {
     const CATEGORY_ATTRIBUTE_FIELD = 'cat';
     const CATEGORY_URLS_ATTRIBUTE_FIELD = 'cat_url';
@@ -52,11 +53,6 @@ class Product
 
     protected $protocol = 'http://';
 
-    public function __construct(Registry $registry)
-    {
-        $this->registry = $registry;
-    }
-
     /**
      * Item id used for identification
      *
@@ -81,6 +77,14 @@ class Product
     public function getStoreUrl()
     {
         return rtrim(Config::URL, '/');
+    }
+
+    /**
+     * @return \Findologic\Plentymarkets\Registry
+     */
+    public function getRegistry()
+    {
+        return $this->registry;
     }
 
     /**
@@ -210,7 +214,7 @@ class Product
         if ($manufacturerId) {
             $this->setAttributeField(
                 self::MANUFACTURER_ATTRIBUTE_FIELD,
-                $this->registry->get('manufacturers')->getManufacturerName($manufacturerId)
+                $this->getRegistry()->get('manufacturers')->getManufacturerName($manufacturerId)
             );
         }
 
@@ -231,7 +235,7 @@ class Product
         foreach ($data['entries'] as $variation) {
             $this->setField(
                 'taxrate',
-                $this->registry->get('vat')->getVatRateByVatId($this->getFromArray($variation, 'vatId'))
+                $this->getRegistry()->get('vat')->getVatRateByVatId($this->getFromArray($variation, 'vatId'))
             );
 
             $this->processVariationIdentifiers($variation)
@@ -261,11 +265,11 @@ class Product
             $categoryId = $this->getFromArray($category, 'categoryId');
             $this->setAttributeField(
                 self::CATEGORY_ATTRIBUTE_FIELD,
-                $this->registry->get('categories')->getCategoryName($categoryId)
+                $this->getRegistry()->get('categories')->getCategoryName($categoryId)
             );
             $this->setAttributeField(
                 self::CATEGORY_URLS_ATTRIBUTE_FIELD,
-                $this->registry->get('categories')->getCategoryFullPath($categoryId)
+                $this->getRegistry()->get('categories')->getCategoryFullPath($categoryId)
             );
         }
 
@@ -324,7 +328,7 @@ class Product
      */
     protected function getRRP()
     {
-        $prices = $this->registry->get('SalesPrices');
+        $prices = $this->getRegistry()->get('SalesPrices');
         if (!$prices) {
             return array();
         }
@@ -507,7 +511,7 @@ class Product
         /**
          * @var \Findologic\Plentymarkets\Parser\Attributes
          */
-        $attributesValues = $this->registry->get('Attributes');
+        $attributesValues = $this->getRegistry()->get('Attributes');
 
 
         foreach ($attributesData as $attribute) {
@@ -566,22 +570,6 @@ class Product
                 ->setField('description', $this->getFromArray($texts, 'description'))
                 ->setField('url', $this->getProductFullUrl($this->getFromArray($texts, 'urlPath')))
                 ->setField('keywords', $this->getFromArray($texts, 'keywords'));
-        }
-
-        return $this;
-    }
-
-    /**
-     * Get method name which is missing some data and pass the message to log class
-     *
-     * @return $this
-     */
-    protected function handleEmptyData()
-    {
-        if ($this->registry && ($log = $this->registry->get('log'))) {
-            $method = debug_backtrace()[1]['function'];
-            $message = 'Product class method: ' . $method . ' is missing some data for product with id ' . $this->getItemId();
-            $log->handleEmptyData($message);
         }
 
         return $this;

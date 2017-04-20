@@ -36,7 +36,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     {
         $logMock = $this->getMockBuilder('\Findologic\Plentymarkets\Log')
             ->disableOriginalConstructor()
-            ->setMethods(array('handleException'))
+            ->setMethods(array())
             ->getMock();
         $logMock->expects($this->once())->method('handleException');
 
@@ -78,6 +78,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     public function testInitAttributeValues()
     {
         $attributesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Attributes')
+            ->disableOriginalConstructor()
             ->setMethods(array('getResults', 'parseValues'))
             ->getMock();
         $attributesMock->expects($this->once())
@@ -133,7 +134,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     {
         $logMock = $this->getMockBuilder('\Findologic\Plentymarkets\Log')
             ->disableOriginalConstructor()
-            ->setMethods(array('handleException'))
+            ->setMethods(array())
             ->getMock();
         $logMock->expects($this->once())->method('handleException');
 
@@ -146,6 +147,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $exporterMock = $this->getExporterMockBuilder(array('log' => $logMock, 'client' => $clientMock))
             ->setMethods(array('init'))
             ->getMock();
+
         $exporterMock->getProducts();
     }
 
@@ -203,7 +205,10 @@ class ExporterTest extends PHPUnit_Framework_TestCase
             ->method('getProductVariations')
             ->will(
                 $this->returnValue(
-                    array('entries' => array(array('id' => 'Test')))
+                    array(
+                        'entries' => array(array('id' => 'Test')),
+                        'isLastPage' => true
+                    )
                 )
             );
 
