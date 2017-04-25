@@ -11,14 +11,6 @@ class Categories extends ParserAbstract implements ParserInterface
     protected $fullUrls = array();
 
     /**
-     * @codeCoverageIgnore - Ignore this method as it used for better mocking
-     */
-    public function getConfigLanguageCode()
-    {
-        return strtoupper(Config::TEXT_LANGUAGE_CODE);
-    }
-
-    /**
      * @inheritdoc
      */
     public function getResults()
@@ -93,7 +85,7 @@ class Categories extends ParserAbstract implements ParserInterface
             return $this->results[$categoryId]['name'];
         }
 
-        return Config::DEFAULT_EMPTY_VALUE;
+        return $this->getDefaultEmptyValue();
     }
 
     /**
@@ -106,7 +98,7 @@ class Categories extends ParserAbstract implements ParserInterface
             return $this->fullUrls[$categoryId];
         }
 
-        return Config::DEFAULT_EMPTY_VALUE;
+        return $this->getDefaultEmptyValue();
     }
 
     /**

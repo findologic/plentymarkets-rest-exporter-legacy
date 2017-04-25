@@ -42,7 +42,7 @@ class Manufacturers extends ParserAbstract implements ParserInterface
             return $this->results[$manufacturerId];
         }
 
-        return Config::DEFAULT_EMPTY_VALUE;
+        return $this->getDefaultEmptyValue();
     }
 
 }

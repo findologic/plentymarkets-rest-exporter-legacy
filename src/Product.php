@@ -64,22 +64,6 @@ class Product extends ParserAbstract
     }
 
     /**
-     * @codeCoverageIgnore - Ignore this method as it used for better mocking
-     */
-    public function getConfigLanguageCode()
-    {
-        return strtoupper(Config::TEXT_LANGUAGE_CODE);
-    }
-
-    /**
-     * @codeCoverageIgnore - Ignore this method as it used for better mocking
-     */
-    public function getStoreUrl()
-    {
-        return rtrim(Config::URL, '/');
-    }
-
-    /**
      * @return \Findologic\Plentymarkets\Registry
      */
     public function getRegistry()
@@ -108,7 +92,7 @@ class Product extends ParserAbstract
             return $this->fields[$key];
         }
 
-        return Config::DEFAULT_EMPTY_VALUE;
+        return $this->getDefaultEmptyValue();
     }
 
     /**
@@ -163,7 +147,7 @@ class Product extends ParserAbstract
     {
         if (!is_string($path) || $path == '') {
             $this->handleEmptyData();
-            return Config::DEFAULT_EMPTY_VALUE;
+            return $this->getDefaultEmptyValue();
         }
 
         // Using trim just in case if path could be passed with and without forward slash
@@ -191,6 +175,13 @@ class Product extends ParserAbstract
      */
     public function processInitialData($data)
     {
+        if (!$this->shouldProcessProduct($data)) {
+            // Ignore this product if filter conditions is not met
+            // To skip further product processing set item id to false
+            $this->itemId = false;
+            return $this;
+        }
+
         $this->itemId = $this->getFromArray($data, 'id');
 
         $this->setField('id', $this->getItemId())
@@ -349,7 +340,7 @@ class Product extends ParserAbstract
             return $array[$key];
         }
 
-        return Config::DEFAULT_EMPTY_VALUE;
+        return $this->getDefaultEmptyValue();
     }
 
     /**
@@ -361,7 +352,7 @@ class Product extends ParserAbstract
     protected function getPropertyValue($property)
     {
         $propertyType = $property['property']['valueType'];
-        $value = Config::DEFAULT_EMPTY_VALUE;
+        $value = $this->getDefaultEmptyValue();
 
         switch ($propertyType) {
             //TODO: handling 'empty' type properties
@@ -390,11 +381,26 @@ class Product extends ParserAbstract
                 $value = $property['valueFloat'];
                 break;
             default:
-                $value = Config::DEFAULT_EMPTY_VALUE;
+                $value = $this->getDefaultEmptyValue();
                 break;
         }
 
         return $value;
+    }
+
+    /**
+     * Check if product should be added to import or skipped
+     *
+     * @param $data
+     * @return bool
+     */
+    protected function shouldProcessProduct($data)
+    {
+        if (isset($data['isActive']) && $data['isActive'] == false) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -446,6 +452,7 @@ class Product extends ParserAbstract
     protected function addVariationIdentifier($value)
     {
         if ($value && !in_array($value, $this->getField('ordernumber'))) {
+            $value = trim($value);
             $this->setField('ordernumber', $value, true);
         }
 
@@ -487,7 +494,6 @@ class Product extends ParserAbstract
             }
 
             if (in_array($price['salesPriceId'], $this->getRRP())) {
-                //TODO: rrp with highest id should be used
                 $this->setField('instead', $price['price']);
             }
         }
@@ -541,7 +547,6 @@ class Product extends ParserAbstract
             return $this;
         }
 
-        //TODO: it seems variations could have different unit values per variation ???
         $unitId = $this->getFromArray($data, 'unitId');
         $this->setField('base_unit', Units::getUnitValue($unitId));
         $this->setField('package_size', $this->getFromArray($data, 'content'));

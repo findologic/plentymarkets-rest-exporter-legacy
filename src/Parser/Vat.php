@@ -19,19 +19,11 @@ class Vat extends ParserAbstract implements ParserInterface
 
     public function __construct()
     {
-        $countryId = Countries::getCountryByIsoCode(strtoupper($this->getConfigTaxRateCountryCode()));
+        $countryId = Countries::getCountryByIsoCode($this->getConfigTaxRateCountryCode());
 
         if ($countryId) {
             $this->countryId = $countryId;
         }
-    }
-
-    /**
-     * @codeCoverageIgnore - Ignore this method as it used for better mocking
-     */
-    public function getConfigTaxRateCountryCode()
-    {
-        return Config::TAXRATE_COUNTRY_CODE;
     }
 
     /**
@@ -64,7 +56,7 @@ class Vat extends ParserAbstract implements ParserInterface
     public function getVatRateByVatId($vatRate)
     {
         if (!isset($this->results[$this->countryId][$vatRate])) {
-            return '';
+            return $this->getDefaultEmptyValue();
         }
 
         return $this->results[$this->countryId][$vatRate];

@@ -3,6 +3,7 @@
 namespace Findologic\Plentymarkets\Parser;
 
 use Findologic\Plentymarkets\Registry;
+use Findologic\Plentymarkets\Config;
 
 abstract class ParserAbstract
 {
@@ -34,5 +35,39 @@ abstract class ParserAbstract
         }
 
         return $this;
+    }
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as it used for better mocking
+     */
+    public function getConfigLanguageCode()
+    {
+        return strtoupper(Config::TEXT_LANGUAGE_CODE);
+    }
+
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as it used for better mocking
+     */
+    public function getConfigTaxRateCountryCode()
+    {
+        return strtoupper(Config::TAXRATE_COUNTRY_CODE);
+    }
+
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as it used for better mocking
+     */
+    public function getStoreUrl()
+    {
+        return rtrim(Config::URL, '/');
+    }
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as it used for better mocking
+     */
+    public function getDefaultEmptyValue()
+    {
+        return Config::DEFAULT_EMPTY_VALUE;
     }
 }

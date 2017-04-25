@@ -9,14 +9,6 @@ class Attributes extends ParserAbstract implements ParserInterface
     protected $results = array();
 
     /**
-     * @codeCoverageIgnore - Ignore this method as it used for better mocking
-     */
-    public function getConfigLanguageCode()
-    {
-        return strtoupper(Config::TEXT_LANGUAGE_CODE);
-    }
-
-    /**
      * @inheritdoc
      */
     public function getResults()
@@ -62,7 +54,8 @@ class Attributes extends ParserAbstract implements ParserInterface
      */
     public function parseAttributeName($data)
     {
-        $name = Config::DEFAULT_EMPTY_VALUE;
+        $name = $this->getDefaultEmptyValue();
+
         if (!is_array($data) || empty($data)) {
             return $name;
         }
@@ -107,7 +100,7 @@ class Attributes extends ParserAbstract implements ParserInterface
      */
     public function parseValueName($data)
     {
-        $name = Config::DEFAULT_EMPTY_VALUE;
+        $name = $this->getDefaultEmptyValue();
         if (!is_array($data) || empty($data)) {
             return $name;
         }
@@ -145,7 +138,7 @@ class Attributes extends ParserAbstract implements ParserInterface
      */
     public function getAttributeName($attributeId)
     {
-        $result = Config::DEFAULT_EMPTY_VALUE;
+        $result = $this->getDefaultEmptyValue();
 
         if ($this->attributeValueExists($attributeId)) {
             $result = $this->results[$attributeId]['name'];
