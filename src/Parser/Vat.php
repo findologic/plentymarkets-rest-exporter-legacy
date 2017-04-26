@@ -2,13 +2,11 @@
 
 namespace Findologic\Plentymarkets\Parser;
 
-use Findologic\Plentymarkets\Config;
 use Findologic\Plentymarkets\Data\Countries;
+use Findologic\Plentymarkets\Registry;
 
 class Vat extends ParserAbstract implements ParserInterface
 {
-    protected $results = array();
-
     /**
      * Country id, country mapping could be found in \Findologic\Plentymarkets\Data\Countries;
      * Default value - 1 (Germany - DE)
@@ -17,21 +15,15 @@ class Vat extends ParserAbstract implements ParserInterface
      */
     protected $countryId = 1;
 
-    public function __construct()
+    public function __construct(Registry $registry)
     {
+        parent::__construct($registry);
+
         $countryId = Countries::getCountryByIsoCode($this->getConfigTaxRateCountryCode());
 
         if ($countryId) {
             $this->countryId = $countryId;
         }
-    }
-
-    /**
-     * @inheritdoc
-     */
-    public function getResults()
-    {
-        return $this->results;
     }
 
     /**

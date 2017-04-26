@@ -15,9 +15,18 @@ class Product extends ParserAbstract
     const MANUFACTURER_ATTRIBUTE_FIELD = 'vendor';
 
     /**
+     * Item id in shops system
+     *
      * @var int
      */
     protected $itemId;
+
+    /**
+     * Flag for allowing to skip this product if no active variations has been found
+     *
+     * @var bool
+     */
+    protected $hasData = false;
 
     /**
      * @var \Findologic\Plentymarkets\Registry
@@ -61,6 +70,17 @@ class Product extends ParserAbstract
     public function getItemId()
     {
         return $this->itemId;
+    }
+
+    /**
+     * Return a false value if there was no variations which was active or passed other
+     * configurated visibility filtering
+     *
+     * @return bool
+     */
+    public function hasData()
+    {
+        return $this->hasData;
     }
 
     /**
@@ -224,6 +244,10 @@ class Product extends ParserAbstract
         }
 
         foreach ($data['entries'] as $variation) {
+            if (!$this->shouldProcessVariation($variation)) {
+                continue;
+            }
+
             $this->setField(
                 'taxrate',
                 $this->getRegistry()->get('vat')->getVatRateByVatId($this->getFromArray($variation, 'vatId'))
@@ -397,7 +421,6 @@ class Product extends ParserAbstract
     protected function shouldProcessProduct($data)
     {
         if (!$this->getIncludeInactiveProductsFlag() && $data['isActive'] == false) {
-            //TODO: test innactive products
             return false;
         }
 
@@ -424,6 +447,8 @@ class Product extends ParserAbstract
         if (!$this->getIncludeInvisibleProductsFlag() && $data['isHiddenInCategoryList'] == true) {
             return false;
         }
+
+        $this->hasData = true;
 
         return true;
     }

@@ -6,24 +6,7 @@ class SalesPrices extends ParserAbstract implements ParserInterface
 {
     const RRP_TYPE = 'rrp';
 
-    protected $results = array();
-
     protected $rrp = false;
-
-    /**
-     * @inheritdoc
-     */
-    public function getResults()
-    {
-        return $this->results;
-    }
-
-    public function setResults($data)
-    {
-        $this->results = $data;
-
-        return $this;
-    }
 
     /**
      * @inheritdoc

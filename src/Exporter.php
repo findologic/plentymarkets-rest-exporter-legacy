@@ -205,8 +205,13 @@ class Exporter
             $page++;
         }
 
-        $product->processImages($this->getClient()->getProductImages($product->getItemId()));
-        $this->getWrapper()->wrapItem($product->getResults());
+        if ($product->hasData()) {
+            $product->processImages($this->getClient()->getProductImages($product->getItemId()));
+            $this->getWrapper()->wrapItem($product->getResults());
+        } else {
+            $this->getLog()->info('Product with id ' . $product->getItemId() . 'was skipped as no variations passed visibility filters');
+        }
+
         unset($product);
 
         return $this;

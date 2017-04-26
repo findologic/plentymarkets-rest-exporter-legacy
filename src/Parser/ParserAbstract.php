@@ -12,9 +12,39 @@ abstract class ParserAbstract
      */
     protected $registry;
 
+    /**
+     * Holds the parsed values
+     *
+     * @var array
+     */
+    protected $results = array();
+
     public function __construct(Registry $registry)
     {
         $this->registry = $registry;
+    }
+
+    /**
+     * Return parsed values
+     *
+     * @return array
+     */
+    public function getResults()
+    {
+        return $this->results;
+    }
+
+    /**
+     * Set results, only should be used for testing and mocking
+     *
+     * @param array $data
+     * @return $this
+     */
+    public function setResults($data)
+    {
+        $this->results = $data;
+
+        return $this;
     }
 
     /**

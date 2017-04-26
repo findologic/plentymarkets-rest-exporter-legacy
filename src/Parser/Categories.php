@@ -6,17 +6,7 @@ use Findologic\Plentymarkets\Config;
 
 class Categories extends ParserAbstract implements ParserInterface
 {
-    protected $results = array();
-
     protected $fullUrls = array();
-
-    /**
-     * @inheritdoc
-     */
-    public function getResults()
-    {
-        return $this->results;
-    }
 
     /**
      * @inheritdoc

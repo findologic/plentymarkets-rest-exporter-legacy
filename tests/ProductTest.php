@@ -250,6 +250,36 @@ class ProductTest extends PHPUnit_Framework_TestCase
         }
     }
 
+    public function processInitialDataInactiveProductsProvider()
+    {
+        return array(
+            array(
+                array(
+                    'id' => '1',
+                    'createdAt' => '2001-12-12 14:12:45',
+                    'isActive' => false
+                )
+            ),
+        );
+    }
+
+    /**
+     * Test if inactive product is not processed if configuration flag is set to not include inactive products
+     *
+     * @dataProvider processInitialDataInactiveProductsProvider
+     */
+    public function testProcessInitialDataSkipInactiveProducts($data)
+    {
+        $productMock = $this->getProductMock(array('getIncludeInactiveProductsFlag', 'processManufacturer', 'processTexts'));
+        $productMock->expects($this->once())->method('getIncludeInactiveProductsFlag')->willReturn(false);
+        $productMock->expects($this->never())->method('processManufacturer');
+        $productMock->expects($this->never())->method('processTexts');
+
+        $productMock->processInitialData($data);
+
+        $this->assertSame(false, $productMock->getItemId());
+    }
+
     public function getManufacturerProvider()
     {
         return array(

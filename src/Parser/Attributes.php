@@ -6,23 +6,6 @@ use Findologic\Plentymarkets\Config;
 
 class Attributes extends ParserAbstract implements ParserInterface
 {
-    protected $results = array();
-
-    /**
-     * @inheritdoc
-     */
-    public function getResults()
-    {
-        return $this->results;
-    }
-
-    public function setResults($data)
-    {
-        $this->results = $data;
-
-        return $this;
-    }
-
     /**
      * Parse the attributes ids from $data
      *

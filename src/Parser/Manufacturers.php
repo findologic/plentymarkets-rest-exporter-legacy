@@ -6,16 +6,6 @@ use Findologic\Plentymarkets\Config;
 
 class Manufacturers extends ParserAbstract implements ParserInterface
 {
-    protected $results = array();
-
-    /**
-     * @inheritdoc
-     */
-    public function getResults()
-    {
-        return $this->results;
-    }
-
     /**
      * @inheritdoc
      */
