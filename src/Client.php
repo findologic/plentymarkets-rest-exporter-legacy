@@ -413,9 +413,7 @@ class Client
                     $this->debug->debugCall($request, $response);
                 }
 
-                if ($response->getStatus() != 200) {
-                    throw new CustomerException('Could not call api method for ' . $uri);
-                }
+                $this->isResponseValid($response);
 
                 $continue = false;
             } catch (\Exception $e) {
@@ -435,6 +433,30 @@ class Client
         $this->page = false;
 
         return $response;
+    }
+
+
+    /**
+     * Check response for appropriate statuses to validate it was successful
+     *
+     * @param \HTTP_Request2_Response $response
+     * @return bool
+     * @throws CriticalException
+     * @throws CustomerException
+     */
+    protected function isResponseValid($response)
+    {
+        // Method is not reachable becouse provided api user do not have appropriate access rights
+        if ($response->getStatus() == 401 && $response->getReasonPhrase() == 'Unauthorized') {
+            throw new CriticalException('Provided rest client do not have access rights for method with url: ' . $response->getEffectiveUrl());
+        }
+
+        // Method is not reachable, maybe server is not reachable
+        if ($response->getStatus() != 200) {
+            throw new CustomerException('Could not call api method for ' . $response->getEffectiveUrl());
+        }
+
+        return true;
     }
 
     /**

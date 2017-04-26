@@ -58,7 +58,7 @@ abstract class ParserAbstract
     /**
      * @codeCoverageIgnore - Ignore this method as it used for better mocking
      */
-    public function getStoreUrl()
+    public function getConfigStoreUrl()
     {
         return rtrim(Config::URL, '/');
     }
@@ -69,5 +69,29 @@ abstract class ParserAbstract
     public function getDefaultEmptyValue()
     {
         return Config::DEFAULT_EMPTY_VALUE;
+    }
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as it used for better mocking
+     */
+    public function getIncludeInactiveProductsFlag()
+    {
+        return Config::INCLUDE_INACTIVE_PRODUCTS_FLAG;
+    }
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as it used for better mocking
+     */
+    public function getIncludeUnavailableProductsFlag()
+    {
+        return Config::INCLUDE_UNAVAILABLE_PRODUCTS_FLAG;
+    }
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as it used for better mocking
+     */
+    public function getIncludeInvisibleProductsFlag()
+    {
+        return Config::INCLUDE_INVISIBLE_PRODUCTS_FLAG;
     }
 }

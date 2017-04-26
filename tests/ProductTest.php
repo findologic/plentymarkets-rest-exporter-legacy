@@ -134,8 +134,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
      */
     public function testGetProductFullUrl($storeUrl, $path, $productId, $expectedResult)
     {
-        $productMock = $this->getProductMock(array('getStoreUrl', 'getItemId'));
-        $productMock->expects($this->once())->method('getStoreUrl')->willReturn($storeUrl);
+        $productMock = $this->getProductMock(array('getConfigStoreUrl', 'getItemId'));
+        $productMock->expects($this->once())->method('getConfigStoreUrl')->willReturn($storeUrl);
         $productMock->expects($this->once())->method('getItemId')->willReturn($productId);
 
         $this->assertSame($expectedResult, $productMock->getProductFullUrl($path));

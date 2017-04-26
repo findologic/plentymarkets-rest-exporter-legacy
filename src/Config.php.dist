@@ -11,6 +11,9 @@ class Config {
     const TEXT_LANGUAGE_CODE = 'EN';
     //Currently it seems the max value for api is 50
     const NUMBER_OF_ITEMS_PER_PAGE = 100;
+    const INCLUDE_INACTIVE_PRODUCTS_FLAG = true;
+    const INCLUDE_UNAVAILABLE_PRODUCTS_FLAG = true;
+    const INCLUDE_INVISIBLE_PRODUCTS_FLAG = true;
     const DEFAULT_EMPTY_VALUE = '';
     const DEBUG = false;
 }

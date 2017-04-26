@@ -125,9 +125,7 @@ class Exporter
                     throw new CustomerException('Could not find any results!');
                 }
 
-                $limit = $page * $itemsPerPage;
-                $offset = $limit - $itemsPerPage;
-                $this->getLog()->info('Processing items from ' . $offset . ' to ' . $limit);
+                $this->getLog()->info('Processing items from ' . (($page - 1) * $itemsPerPage) . ' to ' . ($page * $itemsPerPage));
 
                 foreach ($results['entries'] as $product) {
                     $this->processProductData($product);

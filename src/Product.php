@@ -154,7 +154,7 @@ class Product extends ParserAbstract
         $path = '/' . ltrim($path, '/');
         $path = rtrim($path, '/');
 
-        return $this->protocol . $this->getStoreUrl() . $path . '/' . 'a-' . $this->getItemId();
+        return $this->protocol . $this->getConfigStoreUrl() . $path . '/' . 'a-' . $this->getItemId();
     }
 
     /**
@@ -391,12 +391,37 @@ class Product extends ParserAbstract
     /**
      * Check if product should be added to import or skipped
      *
-     * @param $data
+     * @param array $data
      * @return bool
      */
     protected function shouldProcessProduct($data)
     {
-        if (isset($data['isActive']) && $data['isActive'] == false) {
+        if (!$this->getIncludeInactiveProductsFlag() && $data['isActive'] == false) {
+            //TODO: test innactive products
+            return false;
+        }
+
+        return true;
+    }
+
+    /**
+     * Check if product variation should be added to import or skipped
+     *
+     * @param array $data
+     * @return bool
+     */
+    protected function shouldProcessVariation($data)
+    {
+        if (!$this->getIncludeInactiveProductsFlag() && $data['isActive'] == false) {
+            //TODO: test innactive variations
+            return false;
+        }
+
+        if (!$this->getIncludeUnavailableProductsFlag() && $data['availability'] <= 0) {
+            return false;
+        }
+
+        if (!$this->getIncludeInvisibleProductsFlag() && $data['isHiddenInCategoryList'] == true) {
             return false;
         }
 
