@@ -142,7 +142,8 @@ class ExporterTest extends PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->setMethods(array('getProducts'))
             ->getMock();
-        $clientMock->expects($this->once())->method('getProducts')->willThrowException(new CriticalException());
+
+        $clientMock->expects($this->once())->method('getProducts')->willReturn(array());
 
         $exporterMock = $this->getExporterMockBuilder(array('log' => $logMock, 'client' => $clientMock))
             ->setMethods(array('init'))

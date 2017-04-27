@@ -73,15 +73,17 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
     public function testDebugCallFileCreation()
     {
         $requestMock = $this->getRequestMock('/rest/items');
+        $responseMock = $this->getResponseMock(array('getStatus', 'getReasonPhrase', 'getHeader', 'getBody'));
+
 
         $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
             ->setConstructorArgs(array($this->getLogMock(), $this->fileSystemMock->url(), array('items')))
-            ->setMethods(array('debugResponse', 'getFilePrefix'))
+            ->setMethods(array('getFilePrefix'))
             ->getMock();
 
         $debuggerMock->expects($this->once())->method('getFilePrefix')->willReturn('test');
 
-        $debuggerMock->debugCall($requestMock, false);
+        $debuggerMock->debugCall($requestMock, $responseMock);
         $dateFolder =  date('Y-m-d', time());
 
         // Check if request dir was created
@@ -177,6 +179,21 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
 
         return $requestMock;
     }
+
+    /**
+     * @param string $path
+     * @return mixed
+     */
+    protected function getResponseMock($methods = array())
+    {
+        $responseMock = $this->getMockBuilder('\HTTP_Request2_Response')
+            ->disableOriginalConstructor()
+            ->setMethods($methods)
+            ->getMock();
+
+        return $responseMock;
+    }
+
 
     /**
      * @param string $path

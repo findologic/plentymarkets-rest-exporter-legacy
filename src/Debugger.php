@@ -158,10 +158,6 @@ class Debugger
      */
     protected function debugRequest($request, $fileHandle)
     {
-        if (!$fileHandle) {
-            return false;
-        }
-
         $this->addSeparatorToFile($fileHandle, 'Request', false);
 
         if ($url = $request->getUrl()) {
@@ -182,10 +178,6 @@ class Debugger
      */
     protected function debugResponse($response, $fileHandle)
     {
-        if (!$fileHandle) {
-            return false;
-        }
-
         $this->addSeparatorToFile($fileHandle, 'Response');
 
         $this->writeToFile($fileHandle, 'Response Status', $response->getStatus());
