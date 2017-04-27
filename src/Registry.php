@@ -7,6 +7,7 @@ class Registry
     /**
      * Require log class for constructor to make sure it exists.
      *
+     * @codeCoverageIgnore
      * @param Log $log
      */
     public function __construct($log)

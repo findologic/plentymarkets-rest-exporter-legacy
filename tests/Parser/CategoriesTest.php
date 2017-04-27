@@ -71,10 +71,7 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
      */
     public function testParse($data, $expectedResult)
     {
-        $categoriesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Categories')
-            ->disableOriginalConstructor()
-            ->setMethods(array('getConfigLanguageCode'))
-            ->getMock();
+        $categoriesMock = $this->getCategoriesMock(array('getConfigLanguageCode'));
 
         $categoriesMock->expects($this->any())->method('getConfigLanguageCode')->willReturn('EN');
 
@@ -91,7 +88,24 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
                         array("categoryId" => 1, "category1Id" => 2, "category2Id" => 3, "category3Id" => null)
                     )
                 ),
-                array('category', 'category1', 'category2'),
+                array(
+                    1 => array('url' => 'category'),
+                    2 => array('url' => 'category1'),
+                ),
+                array(2 => '/category/category1/')
+            ),
+            // Categories paths successfully parsed
+            array(
+                array(
+                    'entries' => array(
+                        array("categoryId" => 1, "category1Id" => 2, "category2Id" => 3, "category3Id" => null)
+                    )
+                ),
+                array(
+                    1 => array('url' => 'category'),
+                    2 => array('url' => 'category1'),
+                    3 => array('url' => 'category2'),
+                ),
                 array(3 => '/category/category1/category2/')
             )
         );
@@ -100,18 +114,11 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider parseCategoryFullUrlsProvider
      */
-    public function testParseCategoryFullUrls($data, $urls, $expectedResult)
+    public function testParseCategoryFullUrls($data, $parsedCategories, $expectedResult)
     {
-        $categoriesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Categories')
-            ->disableOriginalConstructor()
-            ->setMethods(array('getCategoryUrlKey'))
-            ->getMock();
+        $categoriesMock = $this->getCategoriesMock(array('parse'));
 
-        $i = 0;
-        foreach ($urls as $url) {
-            $categoriesMock->expects($this->at($i))->method('getCategoryUrlKey')->willReturn($url);
-            $i++;
-        }
+        $categoriesMock->setResults($parsedCategories);
 
         $this->assertSame($expectedResult, $categoriesMock->parseCategoryFullUrls($data));
     }
@@ -122,29 +129,21 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
         return array(
             // No categories was parsed, no data for id
             array(array(), 1, $this->defaultEmptyValue),
-            // Categories data given but there is no results for configured language
+            // Categories data given but there is no results for this id
             array(
                 array(
-                    'entries' => array(
-                        array(
-                            'details' => array(
-                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'lt', 'nameUrl' => 'test')
-                            )
-                        )
+                    1 => array(
+                        'name' => 'Test'
                     )
                 ),
                 2,
                 $this->defaultEmptyValue
             ),
-            // Categories data given, results should contain array with category id => name
+            // Categories data given, correct name should be returned
             array(
                 array(
-                    'entries' => array(
-                        array(
-                            'details' => array(
-                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'en', 'nameUrl' => 'test')
-                            )
-                        )
+                    1 => array(
+                        'name' => 'Test'
                     )
                 ),
                 1,
@@ -156,16 +155,67 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider getCategoryNameProvider
      */
-    public function testGetCategoryName($data, $categoryId, $expectedResult)
+    public function testGetCategoryName($parsedCategories, $categoryId, $expectedResult)
     {
-        $categoriesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Categories')
-            ->disableOriginalConstructor()
-            ->setMethods(array('getConfigLanguageCode'))
-            ->getMock();
+        $categoriesMock = $this->getCategoriesMock(array('getConfigLanguageCode'));
 
         $categoriesMock->expects($this->any())->method('getConfigLanguageCode')->willReturn('EN');
 
-        $categoriesMock->parse($data);
+        $categoriesMock->setResults($parsedCategories);
         $this->assertSame($expectedResult, $categoriesMock->getCategoryName($categoryId));
+    }
+
+    public function getCategoryFullPathProvider()
+    {
+        return array(
+            // No categories urls exists, results should be empty
+            array(
+                array(),
+                1,
+                $this->defaultEmptyValue
+            ),
+            // Category paths data provided but such category path is not found
+            array(
+                array(1 => 'test/category'),
+                2,
+                $this->defaultEmptyValue
+            ),
+            // Category path found
+            array(
+                array(1 => 'test/category'),
+                1,
+                'test/category'
+            )
+        );
+    }
+
+    /**
+     * @dataProvider getCategoryFullPathProvider
+     */
+    public function testGetCategoryFullPath($parsedUrls, $categoryId, $expectedResult)
+    {
+        $categoriesMock = $this->getCategoriesMock(array('getDefaultEmptyValue'));
+
+        $categoriesMock->expects($this->any())->method('getDefaultEmptyValue')->willReturn($this->defaultEmptyValue);
+        $categoriesMock->setFullUrls($parsedUrls);
+
+        $this->assertSame($expectedResult, $categoriesMock->getCategoryFullPath($categoryId));
+
+    }
+
+    /**
+     * Helper function to avoid mock creation code duplication
+     *
+     * @param array $methods
+     * @return \PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getCategoriesMock($methods = array())
+    {
+        $categoriesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Categories')
+            ->disableOriginalConstructor()
+            ->setMethods($methods)
+            ->getMock();
+
+        return $categoriesMock;
     }
 }

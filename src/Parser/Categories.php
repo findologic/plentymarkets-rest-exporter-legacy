@@ -9,6 +9,20 @@ class Categories extends ParserAbstract implements ParserInterface
     protected $fullUrls = array();
 
     /**
+     * Method for allowing to mock and test the url logic
+     *
+     * @codeCoverageIgnore
+     * @param array $fullUrls
+     * @return $this
+     */
+    public function setFullUrls($fullUrls)
+    {
+        $this->fullUrls = $fullUrls;
+
+        return $this;
+    }
+
+    /**
      * @inheritdoc
      */
     public function parse($data)
@@ -58,6 +72,8 @@ class Categories extends ParserAbstract implements ParserInterface
                 if ($categoryPath = $this->getCategoryUrlKey($categoryId)) {
                     $fullPath .= $categoryPath . '/';
                     $lastCategoryId = $categoryId;
+                } else {
+                    $this->handleEmptyData('Could not find the url path from parsed data key for category with id ' . $categoryId);
                 }
             }
         }

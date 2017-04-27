@@ -69,4 +69,50 @@ class VatTest extends PHPUnit_Framework_TestCase
         $vatMock->parse($data);
         $this->assertSame($expectedResult, $vatMock->getResults());
     }
+
+    public function getVatRateByVatIdProvider()
+    {
+        return array(
+            // Vat rate by provided id is not found
+            array(
+                array(
+                    1 => array(
+                        0 => '19',
+                        1 => '17'
+                    )
+                ),
+                3,
+                ''
+            ),
+            // Vat rate was found
+            array(
+                array(
+                    1 => array(
+                        0 => '19',
+                        1 => '17'
+                    )
+                ),
+                0,
+                '19'
+            )
+        );
+    }
+
+    /**
+     * @dataProvider getVatRateByVatIdProvider
+     */
+    public function testGetVatRateByVatId($parsedVat, $vatId, $expectedResult)
+    {
+        $vatMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Vat')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getDefaultEmptyValue'))
+            ->getMock();
+
+        $vatMock->expects($this->any())->method('getDefaultEmptyValue')->willReturn('');
+
+        $vatMock->setResults($parsedVat);
+
+        $this->assertSame($expectedResult, $vatMock->getVatRateByVatId($vatId));
+
+    }
 }
