@@ -330,6 +330,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'position' => '1',
                             'number' => 'Test Number',
                             'model' => 'Test Model',
+                            'availability' => 1,
                             'id' => 'Test Id',
                             'variationSalesPrices' => array(),
                             'vatId' => 2,
@@ -360,6 +361,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'position' => '1',
                             'number' => 'Test Number',
                             'model' => 'Test Model',
+                            'availability' => 1,
                             'id' => 'Test Id',
                             'vatId' => 2,
                             'variationSalesPrices' => array(
@@ -387,6 +389,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'position' => '2',
                             'number' => 'Test Number 2',
                             'model' => 'Test Model 2',
+                            'availability' => 1,
                             'id' => 'Test Id',
                             'variationSalesPrices' => array(
                                 array(
@@ -461,6 +464,70 @@ class ProductTest extends PHPUnit_Framework_TestCase
         foreach ($expectedFields as $field => $expectedValue) {
             $this->assertSame($expectedValue, $productMock->getField($field));
         }
+    }
+
+    public function processVariationsWhenVariationIsNotActiveProvider()
+    {
+        return array(
+            // Variation is not active and config is set to not include inactive variations
+            array(
+                array(
+                    'entries' => array(
+                        array(
+                            'isActive' => false,
+                            'availability' => 1,
+                        )
+                    )
+                ),
+                false,
+                true,
+                array()
+            ),
+            // Variation is not active and config is set to include inactive variations but availability ids config
+            // is set and variation availability id is not in config
+            array(
+                array(
+                    'entries' => array(
+                        array(
+                            'isActive' => false,
+                            'availability' => 1,
+                        )
+                    )
+                ),
+                true,
+                true,
+                array(2, 3)
+            )
+        );
+    }
+
+    /**
+     * Variation should be skipped if product is not active or availability ids is not in config array
+     *
+     * @dataProvider processVariationsWhenVariationIsNotActiveProvider
+     */
+    public function testProcessVariationsWhenVariationIsNotActive($data, $inactiveProductsFlag, $unavailableProductsFlag, $availabilityIds)
+    {
+        $productMock = $this->getProductMock(
+            array(
+                'getIncludeInactiveProductsFlag',
+                'getIncludeUnavailableProductsFlag',
+                'getConfigAvailabilityIds',
+                'processVariationIdentifiers',
+                'proccessVariationCategories'
+            )
+        );
+
+        $productMock->expects($this->any())->method('getIncludeInactiveProductsFlag')->willReturn($inactiveProductsFlag);
+        $productMock->expects($this->any())->method('getIncludeUnavailableProductsFlag')->willReturn($unavailableProductsFlag);
+        $productMock->expects($this->any())->method('getConfigAvailabilityIds')->willReturn($availabilityIds);
+
+        // Further processing methods should not be called if variation do not pass visibility filtering so it could be
+        // used to indicate whether it passes or not
+        $productMock->expects($this->never())->method('processVariationIdentifiers');
+        $productMock->expects($this->never())->method('proccessVariationCategories');
+
+        $productMock->processVariations($data);
     }
 
     public function proccessVariationCategoriesProvider()

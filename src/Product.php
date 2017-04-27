@@ -440,15 +440,27 @@ class Product extends ParserAbstract
             return false;
         }
 
-        if (!$this->getIncludeUnavailableProductsFlag() && $data['availability'] <= 0) {
-            return false;
-        }
-
-        if (!$this->getIncludeInvisibleProductsFlag() && $data['isHiddenInCategoryList'] == true) {
+        if (!$this->isProductAvailable($data['availability'])) {
+            //TODO: test unavailable variations
             return false;
         }
 
         $this->hasData = true;
+
+        return true;
+    }
+
+    /**
+     * @param int $itemAvailabilityId
+     * @return bool
+     */
+    protected function isProductAvailable($itemAvailabilityId)
+    {
+        $availabilityIds = $this->getConfigAvailabilityIds();
+
+        if (!empty($availabilityIds) && !in_array($itemAvailabilityId, $availabilityIds)) {
+            return false;
+        }
 
         return true;
     }

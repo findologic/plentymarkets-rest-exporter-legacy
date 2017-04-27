@@ -9,11 +9,13 @@ class Config {
     const URL = 'yourshop.com/';
     const TAXRATE_COUNTRY_CODE = 'GB';
     const TEXT_LANGUAGE_CODE = 'EN';
-    //Currently it seems the max value for api is 50
+    // Currently it seems the max value for api is 50
     const NUMBER_OF_ITEMS_PER_PAGE = 100;
     const INCLUDE_INACTIVE_PRODUCTS_FLAG = true;
     const INCLUDE_UNAVAILABLE_PRODUCTS_FLAG = true;
-    const INCLUDE_INVISIBLE_PRODUCTS_FLAG = true;
+    // Used for filtering product variations by availibity id if INCLUDE_UNAVAILABLE_PRODUCTS_FLAG to false
+    // and array is not empty
+    const AVAILABILITY_IDS = array();
     const DEFAULT_EMPTY_VALUE = '';
     const DEBUG = false;
 }

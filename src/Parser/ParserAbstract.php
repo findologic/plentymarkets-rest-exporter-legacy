@@ -120,8 +120,9 @@ abstract class ParserAbstract
     /**
      * @codeCoverageIgnore - Ignore this method as it used for better mocking
      */
-    public function getIncludeInvisibleProductsFlag()
+    public function getConfigAvailabilityIds()
     {
-        return Config::INCLUDE_INVISIBLE_PRODUCTS_FLAG;
+        return Config::AVAILABILITY_IDS;
     }
+
 }
