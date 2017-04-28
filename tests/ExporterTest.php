@@ -65,7 +65,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
 
         $exporterMock->init();
 
-        $items = array('Vat', 'Categories', 'SalesPrices', 'Attributes');
+        $items = array('Vat', 'Categories', 'SalesPrices', 'Attributes', 'Stores', 'Manufacturers');
 
         foreach ($items as $item) {
             $this->assertInstanceOf('\Findologic\Plentymarkets\Parser\\' . $item, $exporterMock->getRegistry()->get($item));

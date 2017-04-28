@@ -530,7 +530,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
         $productMock->processVariations($data);
     }
 
-    public function proccessVariationCategoriesProvider()
+    public function processVariationCategoriesProvider()
     {
         return array(
             // No data for categories provider, results should be empty
@@ -557,9 +557,9 @@ class ProductTest extends PHPUnit_Framework_TestCase
     /**
      * Test setting the categories attribute field
      *
-     * @dataProvider proccessVariationCategoriesProvider
+     * @dataProvider processVariationCategoriesProvider
      */
-    public function testProccessVariationCategories($data, $categories , $expectedResult)
+    public function testProcessVariationCategories($data, $categories , $expectedResult)
     {
         $categoriesMock = $this->getMockBuilder('Findologic\Plentymarkets\Parser\Categories')
             ->disableOriginalConstructor()
@@ -581,8 +581,57 @@ class ProductTest extends PHPUnit_Framework_TestCase
         $registry->set('categories', $categoriesMock);
 
         $productMock = $this->getProductMock(array('handleEmptyData'), array($registry));
-        $productMock->proccessVariationCategories($data);
-        $this->assertSame($productMock->getField('attributes'), $expectedResult);
+        $productMock->processVariationCategories($data);
+        $this->assertSame($expectedResult, $productMock->getField('attributes'));
+    }
+
+
+
+    public function processVariationGroupsProvider()
+    {
+        return array(
+            // No data for categories provider, results should be empty
+            array(
+                array(),
+                false,
+                ''
+            ),
+            // Variations belongs to two categories, categories names is saved in attributes field
+            array(
+                array(array('plentyId' => 31776), array('plentyId' => 31777)),
+                array(0, 1),
+                '0_,1_'
+            )
+        );
+    }
+
+    /**
+     * Test setting the categories attribute field
+     *
+     * @dataProvider processVariationGroupsProvider
+     */
+    public function testProcessVariationGroups($data, $stores , $expectedResult)
+    {
+        $storesMock = $this->getMockBuilder('Findologic\Plentymarkets\Parser\Stores')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getStoreInternalIdByIdentifier'))
+            ->getMock();
+
+        if ($stores) {
+            // Mock return method for testing product with multiple stores
+            $i = 0;
+            foreach ($stores as $store) {
+                $storesMock->expects($this->at($i))->method('getStoreInternalIdByIdentifier')->will($this->returnValue($store));
+                $i++;
+            }
+        }
+
+        $registry = $this->getRegistryMock();
+        $registry->set('stores', $storesMock);
+
+        $productMock = $this->getProductMock(array('handleEmptyData'), array($registry));
+        $productMock->processVariationGroups($data);
+        $this->assertSame($expectedResult, $productMock->getField('groups'));
     }
 
     /**

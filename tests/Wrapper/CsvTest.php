@@ -37,8 +37,8 @@ class CsvTest extends PHPUnit_Framework_TestCase
 
         $wrapperMock->wrapItem($this->getItemDataMock());
 
-        $this->assertTrue(is_file($url));
-        $this->assertTrue(file_exists($url));
+        $this->assertTrue(is_file($url), 'Csv file was not created!');
+        $this->assertTrue(file_exists($url), 'Csv file was not created!');
     }
 
     /**

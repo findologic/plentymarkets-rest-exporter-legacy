@@ -238,6 +238,18 @@ class Client
         return $this->returnResult($response);
     }
 
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
+     * @return array
+     */
+    public function getStores()
+    {
+        $response = $this->call('GET', $this->getEndpoint('webstores'));
+
+        return $this->returnResult($response);
+    }
+
     /**
      * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
      * @param int $attributeId
@@ -320,7 +332,15 @@ class Client
     public function getProductVariations($productId)
     {
         $params = array(
-            'with' => array('variationSalesPrices', 'variationBarcodes', 'variationCategories', 'variationAttributeValues', 'unit')
+            'with' =>
+                array(
+                    'variationSalesPrices',
+                    'variationBarcodes',
+                    'variationCategories',
+                    'variationAttributeValues',
+                    'variationClients',
+                    'unit'
+                )
         );
 
         $response = $this->call('GET', $this->getEndpoint('items/' . $productId . '/variations', $params));

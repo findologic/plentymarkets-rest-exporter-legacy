@@ -31,7 +31,7 @@ class Exporter
     protected $registry;
 
 
-    protected $additionalData = array('Vat', 'Categories', 'SalesPrices', 'Attributes', 'Manufacturers');
+    protected $additionalDataParsers = array('Vat', 'Categories', 'SalesPrices', 'Attributes', 'Manufacturers', 'Stores');
 
     /**
      * @param \Findologic\Plentymarkets\Client $client
@@ -250,7 +250,7 @@ class Exporter
      */
     protected function initAdditionalData()
     {
-        foreach ($this->additionalData as $type) {
+        foreach ($this->additionalDataParsers as $type) {
             $methodName = 'get' . ucwords($type);
             if (!method_exists($this->getClient(), $methodName)) {
                 continue;
@@ -267,7 +267,7 @@ class Exporter
                     $results = $this->getClient()->$methodName();
                     $parser->parse($results);
                     $page++;
-                    if (!$results || $results['isLastPage']) {
+                    if (!$results || !isset($results['isLastPage']) ||$results['isLastPage']) {
                         $continue = false;
                     }
                 }

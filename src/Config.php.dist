@@ -13,7 +13,7 @@ class Config {
     const NUMBER_OF_ITEMS_PER_PAGE = 100;
     const INCLUDE_INACTIVE_PRODUCTS_FLAG = true;
     const INCLUDE_UNAVAILABLE_PRODUCTS_FLAG = true;
-    // Used for filtering product variations by availibity id if INCLUDE_UNAVAILABLE_PRODUCTS_FLAG to false
+    // Used for filtering product variations by availability id if INCLUDE_UNAVAILABLE_PRODUCTS_FLAG to false
     // and array is not empty
     const AVAILABILITY_IDS = array();
     const DEFAULT_EMPTY_VALUE = '';

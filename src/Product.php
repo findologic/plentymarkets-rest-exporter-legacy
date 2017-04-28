@@ -254,7 +254,8 @@ class Product extends ParserAbstract
             );
 
             $this->processVariationIdentifiers($variation)
-                ->proccessVariationCategories($this->getFromArray($variation, 'variationCategories'))
+                ->processVariationCategories($this->getFromArray($variation, 'variationCategories'))
+                ->processVariationGroups($this->getFromArray($variation, 'variationClients'))
                 ->processVariationPrices($this->getFromArray($variation, 'variationSalesPrices'))
                 ->processVariationAttributes($this->getFromArray($variation, 'variationAttributeValues'))
                 ->processUnits($this->getFromArray($variation, 'unit'));
@@ -269,9 +270,9 @@ class Product extends ParserAbstract
      * @param array $data
      * @return $this
      */
-    public function proccessVariationCategories($data)
+    public function processVariationCategories($data)
     {
-        if (!is_array($data)) {
+        if (!is_array($data) || empty($data)) {
             $this->handleEmptyData();
             return $this;
         }
@@ -287,6 +288,31 @@ class Product extends ParserAbstract
                 $this->getRegistry()->get('categories')->getCategoryFullPath($categoryId)
             );
         }
+
+        return $this;
+    }
+
+    public function processVariationGroups($variationStores)
+    {
+        if (!is_array($variationStores) || empty($variationStores)) {
+            $this->handleEmptyData();
+            return $this;
+        }
+
+        $groups = '';
+
+        //TODO: find a way to get customer classes per item as current api do not provide this info
+
+        foreach ($variationStores as $store) {
+            $storeId = $this->getRegistry()->get('stores')->getStoreInternalIdByIdentifier($store['plentyId']);
+            if ($storeId !== $this->getDefaultEmptyValue()) {
+                $groups .= $storeId . '_' . ',';
+            }
+        }
+
+        $groups = rtrim($groups, ',');
+
+        $this->setField('groups', $groups);
 
         return $this;
     }
