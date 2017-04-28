@@ -28,6 +28,7 @@ class Categories extends ParserAbstract implements ParserInterface
     public function parse($data)
     {
         if (!isset($data['entries'])) {
+            $this->handleEmptyData('No data provided for parsing categories.');
             return $this->results;
         }
 
@@ -55,6 +56,7 @@ class Categories extends ParserAbstract implements ParserInterface
     public function parseCategoryFullUrls($data)
     {
         if (!is_array($data) || !isset($data['entries'])) {
+            $this->handleEmptyData('No data provided for parsing categories urls.');
             return $this->fullUrls;
         }
 

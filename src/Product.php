@@ -436,12 +436,10 @@ class Product extends ParserAbstract
     protected function shouldProcessVariation($data)
     {
         if (!$this->getIncludeInactiveProductsFlag() && $data['isActive'] == false) {
-            //TODO: test innactive variations
             return false;
         }
 
         if (!$this->isProductAvailable($data['availability'])) {
-            //TODO: test unavailable variations
             return false;
         }
 
@@ -580,7 +578,6 @@ class Product extends ParserAbstract
          * @var \Findologic\Plentymarkets\Parser\Attributes
          */
         $attributesValues = $this->getRegistry()->get('Attributes');
-
 
         foreach ($attributesData as $attribute) {
             // Check if attribute exist in attributes data parsed on export initialization

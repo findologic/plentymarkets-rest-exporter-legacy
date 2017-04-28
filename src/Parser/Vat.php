@@ -19,6 +19,7 @@ class Vat extends ParserAbstract implements ParserInterface
     {
         parent::__construct($registry);
 
+        // Get country id to know which country vat should be applied
         $countryId = Countries::getCountryByIsoCode($this->getConfigTaxRateCountryCode());
 
         if ($countryId) {
@@ -32,6 +33,7 @@ class Vat extends ParserAbstract implements ParserInterface
     public function parse($data)
     {
         if (!isset($data['entries'])) {
+            $this->handleEmptyData('No data provided for parsing vat.');
             return $this->results;
         }
 
@@ -45,12 +47,18 @@ class Vat extends ParserAbstract implements ParserInterface
         return $this->results;
     }
 
+    /**
+     * Get vat rate value by id
+     *
+     * @param int $vatId
+     * @return string
+     */
     public function getVatRateByVatId($vatId)
     {
-        if (!isset($this->results[$this->countryId][$vatId])) {
-            return $this->getDefaultEmptyValue();
+        if (isset($this->results[$this->countryId][$vatId])) {
+            return $this->results[$this->countryId][$vatId];
         }
 
-        return $this->results[$this->countryId][$vatId];
+        return $this->getDefaultEmptyValue();
     }
 }

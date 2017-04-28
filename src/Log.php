@@ -58,6 +58,7 @@ class Log
     public function __call($name, $arguments)
     {
         if (!in_array($name, $this->loggerMethods)) {
+            $this->logger->warn('Plugin has tried to call undefined Log class method: ' . $name);
             return false;
         }
 
@@ -75,7 +76,8 @@ class Log
      */
     public function handleEmptyData($message)
     {
-        $this->logger->info($message);
+        //TODO: maybe the message level for internal logger and customer logger should be different
+        $this->info($message);
 
         return $this;
     }

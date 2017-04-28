@@ -472,7 +472,7 @@ class Client
         $request = new HTTP_Request2($uri, $method);
         $request->setAdapter('curl');
 
-        // ignore setting default params for login method as it not required
+        // Ignore setting default params for login method as it not required
         if (!$this->loginFlag) {
             $this->setDefaultParams($request);
         }

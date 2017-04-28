@@ -14,6 +14,7 @@ class SalesPrices extends ParserAbstract implements ParserInterface
     public function parse($data)
     {
         if (!isset($data['entries'])) {
+            $this->handleEmptyData('No data provided for parsing sales prices.');
             return $this->results;
         }
 

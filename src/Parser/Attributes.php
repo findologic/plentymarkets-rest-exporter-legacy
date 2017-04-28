@@ -14,6 +14,7 @@ class Attributes extends ParserAbstract implements ParserInterface
     public function parse($data)
     {
         if (!isset($data['entries'])) {
+            $this->handleEmptyData('No data provided for parsing attributes.');
             return $this->results;
         }
 
@@ -60,6 +61,7 @@ class Attributes extends ParserAbstract implements ParserInterface
     public function parseValues($data)
     {
         if (!isset($data['entries'])) {
+            $this->handleEmptyData('No data provided for parsing attribute values.');
             return $this->results;
         }
 
