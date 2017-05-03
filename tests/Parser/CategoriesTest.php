@@ -61,7 +61,7 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
                         )
                     )
                 ),
-                array(1 => array('name' => 'Test', 'url' => 'test'))
+                array(1 => array('name' => 'Test', 'urlKey' => 'test'))
             )
         );
     }
@@ -89,10 +89,13 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
                     )
                 ),
                 array(
-                    1 => array('url' => 'category'),
-                    2 => array('url' => 'category1'),
+                    1 => array('name' => 'category', 'urlKey' => 'category'),
+                    2 => array('name' => 'category1', 'urlKey' => 'category1'),
                 ),
-                array(2 => '/category/category1/')
+                array(
+                    1 => array('name' => 'category', 'urlKey' => 'category'),
+                    2 => array('name' => 'category1', 'urlKey' => 'category1', 'fullPath' => '/category/category1/', 'fullNamePath' => 'category_category1')
+                )
             ),
             // Categories paths successfully parsed
             array(
@@ -102,11 +105,20 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
                     )
                 ),
                 array(
-                    1 => array('url' => 'category'),
-                    2 => array('url' => 'category1'),
-                    3 => array('url' => 'category2'),
+                    1 => array('name' => 'category', 'urlKey' => 'category'),
+                    2 => array('name' => 'category1', 'urlKey' => 'category1'),
+                    3 => array('name' => 'category2', 'urlKey' => 'category2'),
                 ),
-                array(3 => '/category/category1/category2/')
+                array(
+                    1 => array('name' => 'category', 'urlKey' => 'category'),
+                    2 => array('name' => 'category1', 'urlKey' => 'category1'),
+                    3 => array(
+                        'name' => 'category2',
+                        'urlKey' => 'category2',
+                        'fullPath' => '/category/category1/category2/',
+                        'fullNamePath' => 'category_category1_category2'
+                    )
+                )
             )
         );
     }
@@ -176,13 +188,13 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
             ),
             // Category paths data provided but such category path is not found
             array(
-                array(1 => 'test/category'),
+                array(1 => array('fullPath' => 'test/category')),
                 2,
                 $this->defaultEmptyValue
             ),
             // Category path found
             array(
-                array(1 => 'test/category'),
+                array(1 => array('fullPath' => 'test/category')),
                 1,
                 'test/category'
             )
@@ -197,7 +209,7 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
         $categoriesMock = $this->getCategoriesMock(array('getDefaultEmptyValue'));
 
         $categoriesMock->expects($this->any())->method('getDefaultEmptyValue')->willReturn($this->defaultEmptyValue);
-        $categoriesMock->setFullUrls($parsedUrls);
+        $categoriesMock->setResults($parsedUrls);
 
         $this->assertSame($expectedResult, $categoriesMock->getCategoryFullPath($categoryId));
 

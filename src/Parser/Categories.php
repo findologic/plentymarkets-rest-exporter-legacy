@@ -6,29 +6,13 @@ use Findologic\Plentymarkets\Config;
 
 class Categories extends ParserAbstract implements ParserInterface
 {
-    protected $fullUrls = array();
-
-    /**
-     * Method for allowing to mock and test the url logic
-     *
-     * @codeCoverageIgnore
-     * @param array $fullUrls
-     * @return $this
-     */
-    public function setFullUrls($fullUrls)
-    {
-        $this->fullUrls = $fullUrls;
-
-        return $this;
-    }
-
     /**
      * @inheritdoc
      */
     public function parse($data)
     {
         if (!isset($data['entries'])) {
-            $this->handleEmptyData('No data provided for parsing categories.');
+            $this->handleEmptyData('No data provided for parsing categories .');
             return $this->results;
         }
 
@@ -41,7 +25,7 @@ class Categories extends ParserAbstract implements ParserInterface
                 $this->results[$details['categoryId']] =
                     array(
                         'name' => $details['name'],
-                        'url' => $details['nameUrl']
+                        'urlKey' => $details['nameUrl']
                     );
             }
         }
@@ -57,30 +41,41 @@ class Categories extends ParserAbstract implements ParserInterface
     {
         if (!is_array($data) || !isset($data['entries'])) {
             $this->handleEmptyData('No data provided for parsing categories urls.');
-            return $this->fullUrls;
+            return $this->results;
         }
 
         foreach ($data['entries'] as $branch) {
             $fullPath = '/';
+            $fullNamePath = '';
             $lastCategoryId = false;
+            $i = 0;
+            $total = count($branch) - 1;
             foreach ($branch as $level => $categoryId) {
-                if (!$categoryId) {
+                if (!$categoryId || $total == $i) {
                     if ($fullPath != '/') {
-                        $this->fullUrls[$lastCategoryId] = $fullPath;
+                        $this->results[$lastCategoryId]['fullPath'] = $fullPath;
+                    }
+
+                    if ($fullNamePath != '') {
+                        $fullNamePath = rtrim($fullNamePath, '_');
+                        $this->results[$lastCategoryId]['fullNamePath'] = $fullNamePath;
                     }
                     break;
                 }
 
                 if ($categoryPath = $this->getCategoryUrlKey($categoryId)) {
                     $fullPath .= $categoryPath . '/';
+                    $fullNamePath .= $this->getCategoryName($categoryId) . '_';
                     $lastCategoryId = $categoryId;
                 } else {
                     $this->handleEmptyData('Could not find the url path from parsed data key for category with id ' . $categoryId);
                 }
+
+                $i++;
             }
         }
 
-        return $this->fullUrls;
+        return $this->results;
     }
 
     /**
@@ -102,8 +97,21 @@ class Categories extends ParserAbstract implements ParserInterface
      */
     public function getCategoryFullPath($categoryId)
     {
-        if (array_key_exists($categoryId, $this->fullUrls)) {
-            return $this->fullUrls[$categoryId];
+        if (array_key_exists($categoryId, $this->results)) {
+            return $this->results[$categoryId]['fullPath'];
+        }
+
+        return $this->getDefaultEmptyValue();
+    }
+
+    /**
+     * @param int $categoryId
+     * @return string
+     */
+    public function getCategoryFullNamePath($categoryId)
+    {
+        if (array_key_exists($categoryId, $this->results)) {
+            return $this->results[$categoryId]['fullNamePath'];
         }
 
         return $this->getDefaultEmptyValue();
@@ -116,7 +124,7 @@ class Categories extends ParserAbstract implements ParserInterface
     protected function getCategoryUrlKey($categoryId)
     {
         if (array_key_exists($categoryId, $this->results)) {
-            return $this->results[$categoryId]['url'];
+            return $this->results[$categoryId]['urlKey'];
         }
 
         return false;

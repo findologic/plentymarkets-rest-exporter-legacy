@@ -75,7 +75,6 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
         $requestMock = $this->getRequestMock('/rest/items');
         $responseMock = $this->getResponseMock(array('getStatus', 'getReasonPhrase', 'getHeader', 'getBody'));
 
-
         $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
             ->setConstructorArgs(array($this->getLogMock(), $this->fileSystemMock->url(), array('items')))
             ->setMethods(array('getFilePrefix'))
@@ -100,7 +99,7 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
     {
         $requestMock = $this->getRequestMock('/rest/items');
 
-        // If exception is thrown the log handle method should ne called
+        // If exception is thrown the log handle method should be called
         $logMock = $this->getLogMock(array('handleException'));
         $logMock->expects($this->once())->method('handleException');
 
@@ -111,8 +110,6 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
 
         $debuggerMock->expects($this->once())->method('getApiCallDirectoryPath')->willReturn($this->fileSystemMock->url());
         $debuggerMock->expects($this->once())->method('getFilePrefix')->willReturn('test');
-        $debuggerMock->expects($this->once())->method('createDirectory')->willReturn(null);
-        $debuggerMock->expects($this->once())->method('createDirectory')->willReturn(null);
 
         $fileMock = new vfsStreamFile('testRequest.txt');
         $fileMock->setContent('Test');
@@ -124,29 +121,29 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Check the content of the file after dumping the request
+     * Check the file actually has some content
      */
     public function testDebugCallWriteToFile()
     {
-        $requestMock = $this->getRequestMock('/rest/items');
+        $requestMock = $this->getMockBuilder('\HTTP_Request2')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getUrl'))
+            ->getMock();
+
+        $requestMock->expects($this->any())->method('getUrl')->will($this->returnValue($this->getUrlMock('/rest/items')));
 
         $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
             ->setConstructorArgs(array($this->getLogMock(), $this->fileSystemMock->url(), array('items')))
-            ->setMethods(array('getApiCallDirectoryPath', 'createDirectory', 'getFilePrefix', 'debugResponse'))
+            ->setMethods(array('getFilePrefix', 'debugResponse'))
             ->getMock();
 
-        $debuggerMock->expects($this->once())->method('getApiCallDirectoryPath')->willReturn($this->fileSystemMock->url());
         $debuggerMock->expects($this->once())->method('getFilePrefix')->willReturn('test');
-        $debuggerMock->expects($this->once())->method('createDirectory')->willReturn(null);
-        $debuggerMock->expects($this->once())->method('createDirectory')->willReturn(null);
 
-        $fileMock = new vfsStreamFile('testRequest.txt');
-        $fileMock->setContent('Test');
-        $fileMock->chmod(0);
-        $this->fileSystemMock->addChild($fileMock);
+        $debuggerMock->debugCall($requestMock, false);
 
-        // Silence fopen warnings for tests
-        @$debuggerMock->debugCall($requestMock, false);
+        $dateFolder =  date('Y-m-d', time());
+        $dumpDir = $this->fileSystemMock->getChild('items')->getChild($dateFolder);
+        $file = $dumpDir->getChild('testRequest.txt');
     }
 
     /* ------ helper functions ------ */

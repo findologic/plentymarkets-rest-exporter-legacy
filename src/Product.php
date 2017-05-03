@@ -281,7 +281,7 @@ class Product extends ParserAbstract
             $categoryId = $this->getFromArray($category, 'categoryId');
             $this->setAttributeField(
                 self::CATEGORY_ATTRIBUTE_FIELD,
-                $this->getRegistry()->get('categories')->getCategoryName($categoryId)
+                $this->getRegistry()->get('categories')->getCategoryFullNamePath($categoryId)
             );
             $this->setAttributeField(
                 self::CATEGORY_URLS_ATTRIBUTE_FIELD,

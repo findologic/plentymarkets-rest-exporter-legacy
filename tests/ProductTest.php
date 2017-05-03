@@ -543,8 +543,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
             array(
                 array(array('categoryId' => 1), array('categoryId' => 2)),
                 array(
-                    array('name' => 'Test', 'url' => 'test'),
-                    array('name' => 'Category', 'url' => 'category')
+                    array('urlKey' => 'test', 'fullNamePath' => 'Test'),
+                    array('urlKey' => 'category', 'fullNamePath' => 'Category')
                 ),
                 array(
                     Product::CATEGORY_ATTRIBUTE_FIELD => array('Test', 'Category'),
@@ -563,16 +563,16 @@ class ProductTest extends PHPUnit_Framework_TestCase
     {
         $categoriesMock = $this->getMockBuilder('Findologic\Plentymarkets\Parser\Categories')
             ->disableOriginalConstructor()
-            ->setMethods(array('getCategoryName', 'getCategoryFullPath'))
+            ->setMethods(array('getCategoryFullNamePath', 'getCategoryFullPath'))
             ->getMock();
 
         if ($categories) {
             // Mock return method for testing product with multiple categories
             $i = 0;
             foreach ($categories as $category) {
-                $categoriesMock->expects($this->at($i))->method('getCategoryName')->will($this->returnValue($category['name']));
+                $categoriesMock->expects($this->at($i))->method('getCategoryFullNamePath')->will($this->returnValue($category['fullNamePath']));
                 $i++;
-                $categoriesMock->expects($this->at($i))->method('getCategoryFullPath')->will($this->returnValue($category['url']));
+                $categoriesMock->expects($this->at($i))->method('getCategoryFullPath')->will($this->returnValue($category['urlKey']));
                 $i++;
             }
         }
