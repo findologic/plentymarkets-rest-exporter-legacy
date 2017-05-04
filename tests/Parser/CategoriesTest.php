@@ -3,6 +3,7 @@
 namespace Findologic\PlentymarketsTest\Parser;
 
 use Findologic\Plentymarkets\Config;
+use function foo\func;
 use PHPUnit_Framework_TestCase;
 
 class CategoriesTest extends PHPUnit_Framework_TestCase
@@ -184,19 +185,22 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
             array(
                 array(),
                 1,
+                $this->defaultEmptyValue,
                 $this->defaultEmptyValue
             ),
             // Category paths data provided but such category path is not found
             array(
-                array(1 => array('fullPath' => 'test/category')),
+                array(1 => array('fullPath' => 'test/category'), 'fullNamePath' => 'Test_Category'),
                 2,
+                $this->defaultEmptyValue,
                 $this->defaultEmptyValue
             ),
             // Category path found
             array(
-                array(1 => array('fullPath' => 'test/category')),
+                array(1 => array('fullPath' => 'test/category', 'fullNamePath' => 'Test_Category')),
                 1,
-                'test/category'
+                'test/category',
+                'Test_Category'
             )
         );
     }
@@ -204,15 +208,15 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider getCategoryFullPathProvider
      */
-    public function testGetCategoryFullPath($parsedUrls, $categoryId, $expectedResult)
+    public function testGetCategoryFullPath($parsedUrls, $categoryId, $expectedUrlPath, $expectedCategoryPath)
     {
         $categoriesMock = $this->getCategoriesMock(array('getDefaultEmptyValue'));
 
         $categoriesMock->expects($this->any())->method('getDefaultEmptyValue')->willReturn($this->defaultEmptyValue);
         $categoriesMock->setResults($parsedUrls);
 
-        $this->assertSame($expectedResult, $categoriesMock->getCategoryFullPath($categoryId));
-
+        $this->assertSame($expectedUrlPath, $categoriesMock->getCategoryFullPath($categoryId));
+        $this->assertSame($expectedCategoryPath, $categoriesMock->getCategoryFullNamePath($categoryId));
     }
 
     /**

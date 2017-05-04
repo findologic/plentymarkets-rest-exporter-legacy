@@ -1,6 +1,9 @@
 <?php
 
-namespace Findologic\PlentymarketsTest;
+/**
+ * Use tested class but not test namespace to allow overriding global php functions
+ */
+namespace Findologic\Plentymarkets;
 
 use Findologic\Plentymarkets\Exception\InternalException;
 use PHPUnit_Framework_TestCase;
@@ -8,6 +11,14 @@ use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamFile;
 use org\bovigo\vfs\vfsStreamWrapper;
 use org\bovigo\vfs\vfsStreamDirectory;
+
+/**
+ * Override time function for easier testing
+ */
+function time()
+{
+    return DebuggerTest::$now ? DebuggerTest::$now : \time();
+}
 
 class DebuggerTest extends PHPUnit_Framework_TestCase
 {
@@ -21,6 +32,11 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
      */
     protected $fileSystemMock;
 
+    /**
+     * @var int $now Timestamp that will be returned by time()
+     */
+    public static $now;
+
     public function setUp()
     {
         $this->testFilePath = 'tmp';
@@ -28,6 +44,14 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
         vfsStreamWrapper::setRoot(new vfsStreamDirectory($this->testFilePath));
         $this->fileSystemMock = vfsStreamWrapper::getRoot();
 
+    }
+
+    /**
+     * Reset custom time after test
+     */
+    protected function tearDown()
+    {
+        self::$now = null;
     }
 
     /**
@@ -77,19 +101,19 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
 
         $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
             ->setConstructorArgs(array($this->getLogMock(), $this->fileSystemMock->url(), array('items')))
-            ->setMethods(array('getFilePrefix'))
+            ->setMethods(null)
             ->getMock();
 
-        $debuggerMock->expects($this->once())->method('getFilePrefix')->willReturn('test');
-
-        $debuggerMock->debugCall($requestMock, $responseMock);
+        //1970-01-01
+        self::$now = 1493895229;
         $dateFolder =  date('Y-m-d', time());
+        $debuggerMock->debugCall($requestMock, $responseMock);
 
         // Check if request dir was created
         $this->assertTrue($this->fileSystemMock->getChild('items')->hasChild($dateFolder));
         // Check if request dump file was created
         $dumpDir = $this->fileSystemMock->getChild('items')->getChild($dateFolder);
-        $this->assertTrue($dumpDir->hasChild('testRequest.txt'));
+        $this->assertTrue($dumpDir->hasChild('1493895229_Request.txt'));
     }
 
     /**
@@ -127,10 +151,11 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
     {
         $requestMock = $this->getMockBuilder('\HTTP_Request2')
             ->disableOriginalConstructor()
-            ->setMethods(array('getUrl'))
+            ->setMethods(array('getUrl', 'getHeaders'))
             ->getMock();
 
         $requestMock->expects($this->any())->method('getUrl')->will($this->returnValue($this->getUrlMock('/rest/items')));
+        $requestMock->expects($this->any())->method('getHeaders')->will($this->returnValue(array('Authorization' => 'Test')));
 
         $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
             ->setConstructorArgs(array($this->getLogMock(), $this->fileSystemMock->url(), array('items')))
@@ -143,7 +168,19 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
 
         $dateFolder =  date('Y-m-d', time());
         $dumpDir = $this->fileSystemMock->getChild('items')->getChild($dateFolder);
+
+        //expected file content
+        $content = ' ---- Request ---- 
+
+Requested URL : --- EMPTY ---
+Port : --- EMPTY ---
+Method type : GET
+Headers :     
+    Authorization : Test
+';
+
         $file = $dumpDir->getChild('testRequest.txt');
+        $this->assertEquals($content, $file->getContent());
     }
 
     /* ------ helper functions ------ */
