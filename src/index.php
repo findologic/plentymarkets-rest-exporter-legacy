@@ -12,7 +12,7 @@ $logger = Logger::getLogger("main");
 $log = new Findologic\Plentymarkets\Log($logger);
 
 if (Config::DEBUG) {
-    $log->info('Initialising the plugin with DEBUG mode ON.');
+    $log->info('Initialising the plugin with DEBUG mode ON.', false);
     $debug = new \Findologic\Plentymarkets\Debugger($log);
 }
 

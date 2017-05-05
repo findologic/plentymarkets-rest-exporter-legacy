@@ -33,6 +33,8 @@ class Exporter
 
     protected $additionalDataParsers = array('Vat', 'Categories', 'SalesPrices', 'Attributes', 'Manufacturers', 'Stores');
 
+    protected $skippedProductsCount = 0;
+
     /**
      * @param \Findologic\Plentymarkets\Client $client
      * @param \Findologic\Plentymarkets\Wrapper\WrapperInterface $wrapper
@@ -138,8 +140,7 @@ class Exporter
                 $page++;
             }
 
-            $this->getLog()->info('All products has been processed.');
-
+            $this->getLog()->info('Products processing finished. ' . $this->skippedProductsCount . ' products where skipped.');
             $this->getWrapper()->allItemsHasBeenProcessed();
 
         } catch (\Exception $e) {
@@ -178,6 +179,8 @@ class Exporter
 
         // Ignore product if there is no id
         if (!$product->getItemId()) {
+            $this->skippedProductsCount++;
+            $this->getLog()->trace('Product was skipped as it has no id.');
             return $this;
         }
 
@@ -209,7 +212,8 @@ class Exporter
             $product->processImages($this->getClient()->getProductImages($product->getItemId()));
             $this->getWrapper()->wrapItem($product->getResults());
         } else {
-            $this->getLog()->info('Product with id ' . $product->getItemId() . 'was skipped as no variations passed visibility filters');
+            $this->skippedProductsCount++;
+            $this->getLog()->trace('Product with id ' . $product->getItemId() . 'was skipped as it has no correct data (all variations could be inactive or etc.)');
         }
 
         unset($product);
@@ -253,6 +257,12 @@ class Exporter
         foreach ($this->additionalDataParsers as $type) {
             $methodName = 'get' . ucwords($type);
             if (!method_exists($this->getClient(), $methodName)) {
+                $this->getLog()->warn(
+                    'Plugin tried to call method from api client 
+                        which do not exists when initialising parsers. Parser type: ' . $type .
+                        ' Method called: ' . $methodName,
+                    true
+                );
                 continue;
             }
 

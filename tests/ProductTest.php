@@ -393,6 +393,10 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'id' => 'Test Id',
                             'variationSalesPrices' => array(
                                 array(
+                                    'price' => 0,
+                                    'salesPriceId' => '1'
+                                ),
+                                array(
                                     'price' => 15,
                                     'salesPriceId' => '1'
                                 ),

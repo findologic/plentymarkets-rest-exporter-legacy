@@ -53,7 +53,7 @@ class Log
      *
      * @param string $name
      * @param array $arguments
-     * @return bool
+     * @return mixed
      */
     public function __call($name, $arguments)
     {
@@ -63,9 +63,20 @@ class Log
         }
 
         $message = $arguments[0];
+        $isInternalMessage = false;
 
-        $this->customerLogger->$name($message);
+        // Use second parameter to log message only to internal logger
+        if (isset($arguments[1])) {
+            $isInternalMessage = $arguments[1];
+        }
+
+        if (!$isInternalMessage) {
+            $this->customerLogger->$name($message);
+        }
+
         $this->logger->$name($message);
+
+        return $this;
     }
 
     /**
