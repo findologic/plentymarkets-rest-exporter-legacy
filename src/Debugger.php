@@ -198,7 +198,7 @@ class Debugger
     protected function writeToFile($fileHandle, $title, $data, $nestingLevel = 0)
     {
         if (empty($data)) {
-            // Insert some predifined value if data for this field is empty
+            // Insert some predefined value if data for this field is empty
             $data = '--- EMPTY ---';
         }
 

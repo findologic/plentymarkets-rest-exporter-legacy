@@ -756,9 +756,18 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'backendName' => 'Test Default',
                             'valueType' => 'Test'
                         )
+                    ),
+                    // Empty type properties means that property value is saved as property 'backendName'
+                    // and actual property name should be taken from property group name
+                    array(
+                        'property' => array(
+                            'backendName' => 'Test Value',
+                            'valueType' => 'empty',
+                            'propertyGroupId' => 2
+                        )
                     )
                 ),
-                array('Test Property Select' => array('Select Value'), 'Test Int' => array(3))
+                array('Test Property Select' => array('Select Value'), 'Test Int' => array(3), 'Test' => array('Test Value'))
             )
         );
     }
@@ -768,7 +777,21 @@ class ProductTest extends PHPUnit_Framework_TestCase
      */
     public function testProcessVariationsProperties($data, $expectedResult)
     {
-        $productMock = $this->getProductMock();
+        $propertyGroupsMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\PropertyGroups')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getPropertyGroupName'))
+            ->getMock();
+
+        $propertyGroupsMock->expects($this->any())->method('getPropertyGroupName')->willReturn('Test');
+
+        $registryMock = $this->getMockBuilder('\Findologic\Plentymarkets\Registry')
+            ->disableOriginalConstructor()
+            ->setMethods(array('get'))
+            ->getMock();
+
+        $registryMock->expects($this->any())->method('get')->willReturn($propertyGroupsMock);
+
+        $productMock = $this->getProductMock(array(), array('registry' => $registryMock));
         $productMock->processVariationsProperties($data);
 
         $this->assertSame($expectedResult, $productMock->getField('attributes'));

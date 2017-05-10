@@ -2,11 +2,13 @@
 
 namespace Findologic\PlentymarketsTest\Parser;
 
-use Findologic\Plentymarkets\Parser\Stores;
+use Findologic\Plentymarkets\Config;
 use PHPUnit_Framework_TestCase;
 
 class StoresTest extends PHPUnit_Framework_TestCase
 {
+    protected $defaultEmptyValue = Config::DEFAULT_EMPTY_VALUE;
+
     /**
      *  array (
      *      array (
@@ -89,7 +91,7 @@ class StoresTest extends PHPUnit_Framework_TestCase
             ->setMethods(array('getDefaultEmptyValue'))
             ->getMock();
 
-        $vatMock->expects($this->any())->method('getDefaultEmptyValue')->willReturn('');
+        $vatMock->expects($this->any())->method('getDefaultEmptyValue')->willReturn($this->defaultEmptyValue);
 
         $vatMock->setResults($parsedStores);
 

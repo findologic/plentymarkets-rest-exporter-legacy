@@ -31,7 +31,7 @@ class Exporter
     protected $registry;
 
 
-    protected $additionalDataParsers = array('Vat', 'Categories', 'SalesPrices', 'Attributes', 'Manufacturers', 'Stores');
+    protected $additionalDataParsers = array('Vat', 'Categories', 'SalesPrices', 'Attributes', 'Manufacturers', 'Stores', 'PropertyGroups');
 
     protected $skippedProductsCount = 0;
 
@@ -57,14 +57,14 @@ class Exporter
     public function init()
     {
         try {
-            $this->log->info('Starting to initialise necessary data (categories, attributes, etc.)');
+            $this->getLog()->info('Starting to initialise necessary data (categories, attributes, etc.)');
             $this->getClient()->login();
             $this->initAdditionalData();
             $this->initCategoriesFullUrls();
             $this->initAttributeValues();
-            $this->log->info('Finished initialising necessary data');
+            $this->getLog()->info('Finished initialising necessary data');
         } catch (\Exception $e) {
-            $this->log->handleException($e);
+            $this->getLog()->handleException($e);
         }
 
         return $this;
@@ -102,6 +102,23 @@ class Exporter
         return $this->registry;
     }
 
+    /**
+     * Function for getting the units id with actual values
+     *
+     * @return array
+     */
+    public function getUnits()
+    {
+        $results = $this->getClient()->getUnits();
+
+        $units = array();
+
+        foreach ($results['entries'] as $result) {
+            $units[$result['id']] = $result['unitOfMeasurement'];
+        }
+
+        return $units;
+    }
 
     /**
      * Get all products
@@ -219,24 +236,6 @@ class Exporter
         unset($product);
 
         return $this;
-    }
-
-    /**
-     * Function for getting the units id with actual values
-     *
-     * @return array
-     */
-    public function getUnits()
-    {
-        $results = $this->getClient()->getUnits();
-
-        $units = array();
-
-        foreach ($results['entries'] as $result) {
-            $units[$result['id']] = $result['unitOfMeasurement'];
-        }
-
-        return $units;
     }
 
     /**

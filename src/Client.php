@@ -238,6 +238,16 @@ class Client
         return $this->returnResult($response);
     }
 
+    /**
+     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
+     * @return array
+     */
+    public function getPropertyGroups()
+    {
+        $response = $this->call('GET', $this->getEndpoint('items/property_groups'));
+
+        return $this->returnResult($response);
+    }
 
     /**
      * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
@@ -457,7 +467,7 @@ class Client
 
 
     /**
-     * Check response for appropriate statuses to validate it was successful
+     * Check response for appropriate statuses to validate if it was successful
      *
      * @param \HTTP_Request2_Response $response
      * @return bool
@@ -466,14 +476,14 @@ class Client
      */
     protected function isResponseValid($response)
     {
-        // Method is not reachable becouse provided api user do not have appropriate access rights
+        // Method is not reachable because provided api user do not have appropriate access rights
         if ($response->getStatus() == 401 && $response->getReasonPhrase() == 'Unauthorized') {
             throw new CriticalException('Provided rest client do not have access rights for method with url: ' . $response->getEffectiveUrl());
         }
 
-        // Method is not reachable, maybe server is not reachable
+        // Method is not reachable, maybe server is down
         if ($response->getStatus() != 200) {
-            throw new CustomerException('Could not call api method for ' . $response->getEffectiveUrl());
+            throw new CustomerException('Could not reach api method for ' . $response->getEffectiveUrl());
         }
 
         return true;

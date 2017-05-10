@@ -329,8 +329,16 @@ class Product extends ParserAbstract
         }
 
         foreach ($data as $property) {
-            $propertyName = $property['property']['backendName'];
-            $value = $this->getPropertyValue($property);
+            if ($property['property']['valueType'] != 'empty') {
+                $propertyName = $property['property']['backendName'];
+                $value = $this->getPropertyValue($property);
+            } else {
+                // Empty type properties means that property value is saved as property 'backendName'
+                // and actual property name should be taken from property group name
+                $value = $property['property']['backendName'];
+                $propertyName = $this->getPropertyValue($property);
+            }
+
             if ($value != null) {
                 $this->setAttributeField($propertyName, $value);
             }
@@ -405,7 +413,9 @@ class Product extends ParserAbstract
         $value = $this->getDefaultEmptyValue();
 
         switch ($propertyType) {
-            //TODO: handling 'empty' type properties
+            case 'empty':
+                $value = $this->getRegistry()->get('PropertyGroups')->getPropertyGroupName($property['property']['propertyGroupId']);
+                break;
             case 'text':
                 foreach ($property['names'] as $name) {
                     if (strtoupper($name['lang']) != $this->getConfigLanguageCode()) {
