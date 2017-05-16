@@ -95,14 +95,14 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
                 ),
                 array(
                     1 => array('name' => 'category', 'urlKey' => 'category'),
-                    2 => array('name' => 'category1', 'urlKey' => 'category1', 'fullPath' => '/category/category1/', 'fullNamePath' => 'category_category1')
+                    2 => array('name' => 'category1', 'urlKey' => 'category1', 'fullPath' => '/category1/', 'fullNamePath' => 'category1')
                 )
             ),
             // Categories paths successfully parsed
             array(
                 array(
                     'entries' => array(
-                        array("categoryId" => 1, "category1Id" => 2, "category2Id" => 3, "category3Id" => null)
+                        array("categoryId" => 3, "category1Id" => 1, "category2Id" => 2, "category3Id" => 3)
                     )
                 ),
                 array(

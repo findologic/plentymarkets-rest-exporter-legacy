@@ -49,7 +49,12 @@ class Categories extends ParserAbstract implements ParserInterface
             $fullNamePath = '';
             $lastCategoryId = false;
             $i = 0;
-            $total = count($branch) - 1;
+            // Unset first category as plentymarkets for some reason inserts last category
+            unset($branch['categoryId']);
+            // IMPORTANT! Insert fake element to array so if category tree has values in all branches the last value
+            // also would be processed
+            $branch['End'] = null;
+            $total = count($branch);
             foreach ($branch as $level => $categoryId) {
                 if (!$categoryId || $total == $i) {
                     if ($fullPath != '/') {
