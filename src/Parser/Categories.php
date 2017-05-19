@@ -103,7 +103,11 @@ class Categories extends ParserAbstract implements ParserInterface
     public function getCategoryFullPath($categoryId)
     {
         if (array_key_exists($categoryId, $this->results)) {
-            return $this->results[$categoryId]['fullPath'];
+           if (isset($this->results[$categoryId]['fullPath'])) {
+               return $this->results[$categoryId]['fullPath'];
+           } else {
+               return $this->results[$categoryId]['urlKey'];
+           }
         }
 
         return $this->getDefaultEmptyValue();
@@ -116,7 +120,11 @@ class Categories extends ParserAbstract implements ParserInterface
     public function getCategoryFullNamePath($categoryId)
     {
         if (array_key_exists($categoryId, $this->results)) {
-            return $this->results[$categoryId]['fullNamePath'];
+            if (isset($this->results[$categoryId]['fullNamePath'])) {
+                return $this->results[$categoryId]['fullNamePath'];
+            } else {
+                return $this->getCategoryName($categoryId);
+            }
         }
 
         return $this->getDefaultEmptyValue();

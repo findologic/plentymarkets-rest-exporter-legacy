@@ -230,7 +230,7 @@ class Exporter
             $this->getWrapper()->wrapItem($product->getResults());
         } else {
             $this->skippedProductsCount++;
-            $this->getLog()->trace('Product with id ' . $product->getItemId() . 'was skipped as it has no correct data (all variations could be inactive or etc.)');
+            $this->getLog()->debug('Product with id ' . $product->getItemId() . ' was skipped as it has no correct data (all variations could be inactive or etc.)');
         }
 
         unset($product);

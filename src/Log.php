@@ -5,6 +5,7 @@ namespace Findologic\Plentymarkets;
 use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Exception\CriticalException;
 use \Logger;
+use \LoggerConfiguratorBasic;
 
 /**
  * Class for wrapping logic for logging information into one unit so it would be easier to change in the future
@@ -44,6 +45,7 @@ class Log
             $this->logger = $logger;
         } else {
             Logger::configure('Logger/import.xml');
+            Logger::initialize();
             $this->logger = Logger::getLogger('import.php');
         }
     }
@@ -88,7 +90,7 @@ class Log
     public function handleEmptyData($message)
     {
         //TODO: maybe the message level for internal logger and customer logger should be different
-        $this->info($message);
+        $this->trace($message);
 
         return $this;
     }

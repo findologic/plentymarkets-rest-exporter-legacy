@@ -63,6 +63,14 @@ class Product extends ParserAbstract
     protected $protocol = 'http://';
 
     /**
+     * Flag used to identify when the property value should be taken from property name and property name from
+     * property group name
+     *
+     * @var bool
+     */
+    protected $swapPropertyValuesFlag = false;
+
+    /**
      * Item id used for identification
      *
      * @return int
@@ -195,13 +203,6 @@ class Product extends ParserAbstract
      */
     public function processInitialData($data)
     {
-        if (!$this->shouldProcessProduct($data)) {
-            // Ignore this product if filter conditions is not met
-            // To skip further product processing set item id to false
-            $this->itemId = false;
-            return $this;
-        }
-
         $this->itemId = $this->getFromArray($data, 'id');
 
         $this->setField('id', $this->getItemId())
@@ -329,17 +330,19 @@ class Product extends ParserAbstract
         }
 
         foreach ($data as $property) {
-            if ($property['property']['valueType'] != 'empty') {
-                $propertyName = $property['property']['backendName'];
-                $value = $this->getPropertyValue($property);
-            } else {
-                // Empty type properties means that property value is saved as property 'backendName'
+            $propertyName = $property['property']['backendName'];
+            $value = $this->getPropertyValue($property);
+
+            if ($this->swapPropertyValuesFlag) {
+                // This means that property value is saved as property 'backendName'
                 // and actual property name should be taken from property group name
-                $value = $property['property']['backendName'];
-                $propertyName = $this->getPropertyValue($property);
+                $temp = $value;
+                $value = $propertyName;
+                $propertyName = $temp;
+                $this->swapPropertyValuesFlag = false;
             }
 
-            if ($value != null) {
+            if ($value != null && $value != $this->getDefaultEmptyValue()) {
                 $this->setAttributeField($propertyName, $value);
             }
         }
@@ -415,14 +418,21 @@ class Product extends ParserAbstract
         switch ($propertyType) {
             case 'empty':
                 $value = $this->getRegistry()->get('PropertyGroups')->getPropertyGroupName($property['property']['propertyGroupId']);
+                $this->swapPropertyValuesFlag = true;
                 break;
             case 'text':
-                foreach ($property['names'] as $name) {
-                    if (strtoupper($name['lang']) != $this->getConfigLanguageCode()) {
-                        continue;
-                    }
+                // For some specific shops the structure of text property is different and do not have 'names' field
+                if (isset($property['valueTexts'])) {
+                    foreach ($property['valueTexts'] as $name) {
+                        if (strtoupper($name['lang']) != $this->getConfigLanguageCode()) {
+                            continue;
+                        }
 
-                    $value = $name['value'];
+                        $value = $name['value'];
+                    }
+                } else {
+                    $value = $this->getRegistry()->get('PropertyGroups')->getPropertyGroupName($property['property']['propertyGroupId']);
+                    $this->swapPropertyValuesFlag = true;
                 }
                 break;
             case 'selection':
@@ -446,21 +456,6 @@ class Product extends ParserAbstract
         }
 
         return $value;
-    }
-
-    /**
-     * Check if product should be added to import or skipped
-     *
-     * @param array $data
-     * @return bool
-     */
-    protected function shouldProcessProduct($data)
-    {
-        if (!$this->getIncludeInactiveProductsFlag() && $data['isActive'] == false) {
-            return false;
-        }
-
-        return true;
     }
 
     /**

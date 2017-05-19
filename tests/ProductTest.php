@@ -250,36 +250,6 @@ class ProductTest extends PHPUnit_Framework_TestCase
         }
     }
 
-    public function processInitialDataInactiveProductsProvider()
-    {
-        return array(
-            array(
-                array(
-                    'id' => '1',
-                    'createdAt' => '2001-12-12 14:12:45',
-                    'isActive' => false
-                )
-            ),
-        );
-    }
-
-    /**
-     * Test if inactive product is not processed if configuration flag is set to not include inactive products
-     *
-     * @dataProvider processInitialDataInactiveProductsProvider
-     */
-    public function testProcessInitialDataSkipInactiveProducts($data)
-    {
-        $productMock = $this->getProductMock(array('getIncludeInactiveProductsFlag', 'processManufacturer', 'processTexts'));
-        $productMock->expects($this->once())->method('getIncludeInactiveProductsFlag')->willReturn(false);
-        $productMock->expects($this->never())->method('processManufacturer');
-        $productMock->expects($this->never())->method('processTexts');
-
-        $productMock->processInitialData($data);
-
-        $this->assertSame(false, $productMock->getItemId());
-    }
-
     public function getManufacturerProvider()
     {
         return array(
@@ -330,6 +300,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'position' => '1',
                             'number' => 'Test Number',
                             'model' => 'Test Model',
+                            'isActive' => true,
                             'availability' => 1,
                             'id' => 'Test Id',
                             'variationSalesPrices' => array(),
@@ -361,6 +332,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'position' => '1',
                             'number' => 'Test Number',
                             'model' => 'Test Model',
+                            'isActive' => true,
                             'availability' => 1,
                             'id' => 'Test Id',
                             'vatId' => 2,
@@ -389,6 +361,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'position' => '2',
                             'number' => 'Test Number 2',
                             'model' => 'Test Model 2',
+                            'isActive' => true,
                             'availability' => 1,
                             'id' => 'Test Id',
                             'variationSalesPrices' => array(
@@ -656,7 +629,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
      *              'isSearchable' => true,
      *              ...
      *          ),
-     *          'names' => array (
+     *          'valueTexts' => array (
      *              0 => array (
      *                  'propertyValueId' => 3,
      *                  'lang' => 'en',
@@ -692,7 +665,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'backendName' => 'Test Property',
                             'valueType' => 'text'
                         ),
-                        'names' => array(
+                        'valueTexts' => array(
                             array('value' => 'Test Value', 'lang' => 'lt')
                         )
                     ),
@@ -701,7 +674,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'backendName' => 'Test Property Select',
                             'valueType' => 'selection'
                         ),
-                        'names' => array(),
+                        'valueTexts' => array(),
                         'propertySelection' => array(
                             array('name' => 'Select Value', 'lang' => 'lt')
                         )
@@ -717,7 +690,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'backendName' => 'Test Property',
                             'valueType' => 'text'
                         ),
-                        'names' => array(
+                        'valueTexts' => array(
                             array('value' => 'Test Value', 'lang' => 'en')
                         )
                     ),
@@ -739,7 +712,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'backendName' => 'Test Property Select',
                             'valueType' => 'selection'
                         ),
-                        'names' => array(),
+                        'valueTexts' => array(),
                         'propertySelection' => array(
                             array('name' => 'Select Value', 'lang' => 'en')
                         )

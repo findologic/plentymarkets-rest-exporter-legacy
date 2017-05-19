@@ -124,7 +124,13 @@ abstract class ParserAbstract
      */
     public function getConfigAvailabilityIds()
     {
-        return Config::AVAILABILITY_IDS;
+        $ids = array();
+
+        if (Config::AVAILABILITY_ID !== null) {
+            $ids[] = Config::AVAILABILITY_ID;
+        }
+
+        return $ids;
     }
 
 }

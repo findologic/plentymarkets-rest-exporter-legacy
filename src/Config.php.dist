@@ -14,8 +14,8 @@ class Config {
     const INCLUDE_INACTIVE_PRODUCTS_FLAG = true;
     const INCLUDE_UNAVAILABLE_PRODUCTS_FLAG = true;
     // Used for filtering product variations by availability id if INCLUDE_UNAVAILABLE_PRODUCTS_FLAG to false
-    // and array is not empty
-    const AVAILABILITY_IDS = array();
+    // and AVAILABILITY_ID is not null
+    const AVAILABILITY_ID = null;
     const DEFAULT_EMPTY_VALUE = '';
     const DEBUG = false;
 }
