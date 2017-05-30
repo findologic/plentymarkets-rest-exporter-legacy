@@ -16,6 +16,8 @@ class Registry
     }
 
     /**
+     * Holds all objects/other values
+     *
      * @var array
      */
     protected $registry = array();

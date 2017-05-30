@@ -33,6 +33,8 @@ class Attributes extends ParserAbstract implements ParserInterface
     }
 
     /**
+     * Parse attribute name by config language
+     *
      * @param array $data
      * @return string
      */
@@ -139,7 +141,7 @@ class Attributes extends ParserAbstract implements ParserInterface
      */
     public function getAttributeValueName($attributeId, $valueId)
     {
-        $result = '';
+        $result = $this->getDefaultEmptyValue();
 
         if ($this->attributeValueExists($attributeId, $valueId)) {
             $result = $this->results[$attributeId]['values'][$valueId];

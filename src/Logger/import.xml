@@ -11,7 +11,7 @@
     <root>
         <appender_ref ref="default" />
     </root>
-    <logger name="import.php" additivity="true">
+    <logger name="import.php">
         <level value="ALL" />
         <appender_ref ref="default"/>
     </logger>

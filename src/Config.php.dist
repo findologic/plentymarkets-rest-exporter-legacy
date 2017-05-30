@@ -12,9 +12,6 @@ class Config {
     // Currently it seems the max value for api is 50
     const NUMBER_OF_ITEMS_PER_PAGE = 100;
     const INCLUDE_INACTIVE_PRODUCTS_FLAG = true;
-    const INCLUDE_UNAVAILABLE_PRODUCTS_FLAG = true;
-    // Used for filtering product variations by availability id if INCLUDE_UNAVAILABLE_PRODUCTS_FLAG to false
-    // and AVAILABILITY_ID is not null
     const AVAILABILITY_ID = null;
     const DEFAULT_EMPTY_VALUE = '';
     const DEBUG = false;

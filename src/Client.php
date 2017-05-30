@@ -11,10 +11,39 @@ class Client
 {
     const RETRY_COUNT = 5;
 
+    /**
+     * Rest login username
+     *
+     * @var string
+     */
     protected $username;
+
+    /**
+     * Rest login password
+     *
+     * @var string
+     */
     protected $password;
+
+    /**
+     * Rest api url
+     *
+     * @var string
+     */
     protected $url;
+
+    /**
+     * Rest login token
+     *
+     * @var
+     */
     protected $token;
+
+    /**
+     * Rest login refresh token
+     *
+     * @var
+     */
     protected $refreshToken;
 
     /**
@@ -34,6 +63,11 @@ class Client
      */
     protected $debug = false;
 
+    /**
+     * Connection to api protocol (some websites could use http other https)
+     *
+     * @var string
+     */
     protected $protocol = 'https://';
 
     /**

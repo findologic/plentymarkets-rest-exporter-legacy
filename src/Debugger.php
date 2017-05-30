@@ -110,6 +110,8 @@ class Debugger
     }
 
     /**
+     * Create directory by given path
+     *
      * @param string $path
      */
     protected function createDirectory($path)
@@ -137,6 +139,8 @@ class Debugger
     }
 
     /**
+     * Create file for writing
+     *
      * @param string $directory
      * @param string $file
      * @return bool|resource
@@ -152,6 +156,8 @@ class Debugger
     }
 
     /**
+     * Write request data to file
+     *
      * @param \HTTP_Request2 $request
      * @param resource $fileHandle
      * @return bool
@@ -172,6 +178,8 @@ class Debugger
     }
 
     /**
+     * Write response data to file
+     *
      * @param \HTTP_Request2_Response $response
      * @param resource $fileHandle
      * @return bool
@@ -221,6 +229,8 @@ class Debugger
     }
 
     /**
+     * Add separator for better debug files readability
+     *
      * @param resource $fileHandle
      * @param string $title
      * @param bool $firstLine
@@ -236,7 +246,7 @@ class Debugger
     }
 
     /**
-     * Format a nesting string using the level parameter
+     * Format a nesting string using the level parameter for better readability
      *
      * @param int $nestingLevel
      * @return string

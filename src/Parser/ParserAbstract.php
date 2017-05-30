@@ -114,14 +114,6 @@ abstract class ParserAbstract
     /**
      * @codeCoverageIgnore - Ignore this method as it used for better mocking
      */
-    public function getIncludeUnavailableProductsFlag()
-    {
-        return Config::INCLUDE_UNAVAILABLE_PRODUCTS_FLAG;
-    }
-
-    /**
-     * @codeCoverageIgnore - Ignore this method as it used for better mocking
-     */
     public function getConfigAvailabilityIds()
     {
         $ids = array();

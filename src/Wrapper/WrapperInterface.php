@@ -5,6 +5,8 @@ namespace Findologic\Plentymarkets\Wrapper;
 interface WrapperInterface
 {
     /**
+     * Method which writes the data to destination
+     *
      * @param array
      * @return mixed
      */
@@ -19,6 +21,8 @@ interface WrapperInterface
     public function allItemsHasBeenProcessed();
 
     /**
+     * Return results of wrapping
+     *
      * @return mixed
      */
     public function getResults();

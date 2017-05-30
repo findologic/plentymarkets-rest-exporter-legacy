@@ -60,6 +60,11 @@ class Product extends ParserAbstract
         'sort' => '',
     );
 
+    /**
+     * Protocol which should be used when formatting product url
+     *
+     * @var string
+     */
     protected $protocol = 'http://';
 
     /**
@@ -168,6 +173,8 @@ class Product extends ParserAbstract
     }
 
     /**
+     * Plentymarkets do not return full url so it should be formatted by given information
+     *
      * @param string $path
      * @return string
      */
@@ -234,6 +241,8 @@ class Product extends ParserAbstract
     }
 
     /**
+     * Process product variations
+     *
      * @param array $data
      * @return $this
      */
@@ -266,7 +275,7 @@ class Product extends ParserAbstract
     }
 
     /**
-     * Process variation categories
+     * Insert categories and category urls to attributes
      *
      * @param array $data
      * @return $this
@@ -293,6 +302,13 @@ class Product extends ParserAbstract
         return $this;
     }
 
+    /**
+     * Process variation groups, currently plentymarkets only provide data about variation store and the customer groups
+     * information is not provided
+     *
+     * @param array $variationStores
+     * @return $this
+     */
     public function processVariationGroups($variationStores)
     {
         if (!is_array($variationStores) || empty($variationStores)) {
@@ -319,6 +335,9 @@ class Product extends ParserAbstract
     }
 
     /**
+     * Process variation properties
+     * Some properties (empty type) have mixed up value for actual property name and value
+     *
      * @param array $data
      * @return $this
      */

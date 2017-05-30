@@ -21,6 +21,10 @@ class Stores extends ParserAbstract implements ParserInterface
         return $this->results;
     }
 
+    /**
+     * @param string $identifier
+     * @return string
+     */
     public function getStoreInternalIdByIdentifier($identifier)
     {
         if (isset($this->results[$identifier])) {

@@ -2,10 +2,10 @@
 
 namespace Findologic\Plentymarkets\Data;
 
-class Units {
-
+class Units
+{
     /**
-     * Default ids and values for plentymarkets units
+     * Unit id => Unit text value in plentymarkets systems
      *
      * @var array
      */

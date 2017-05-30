@@ -72,11 +72,11 @@ class Log
             $isInternalMessage = $arguments[1];
         }
 
-        if (!$isInternalMessage) {
+        if ($isInternalMessage) {
+            $this->logger->$name($message);
+        } else {
             $this->customerLogger->$name($message);
         }
-
-        $this->logger->$name($message);
 
         return $this;
     }

@@ -2,8 +2,13 @@
 
 namespace Findologic\Plentymarkets\Data;
 
-class Countries {
-
+class Countries
+{
+    /**
+     * Country ISO code => Country id in plentymarkets system
+     *
+     * @var array
+     */
     protected static $countries = array (
         'AD' => '71',
         'AE' => '254',

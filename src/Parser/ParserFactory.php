@@ -2,11 +2,18 @@
 
 namespace Findologic\Plentymarkets\Parser;
 
-use Findologic\Plentymarkets\Parser\Categories;
-use Findologic\Plentymarkets\Parser\Vat;
+use \Findologic\Plentymarkets\Parser\ParserInterface;
 
 class ParserFactory
 {
+    /**
+     * Create parser object by given type
+     *
+     * @param string $type
+     * @param \Findologic\Plentymarkets\Registry $registry
+     * @return \Findologic\Plentymarkets\Parser\ParserAbstract
+     * @throws \Exception
+     */
     public static function create($type, $registry)
     {
         $parser = '\Findologic\Plentymarkets\Parser\\' . ucwords($type);

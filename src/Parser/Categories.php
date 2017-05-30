@@ -57,6 +57,7 @@ class Categories extends ParserAbstract implements ParserInterface
             $total = count($branch);
             foreach ($branch as $level => $categoryId) {
                 if (!$categoryId || $total == $i) {
+                    // If it is last category insert the data
                     if ($fullPath != '/') {
                         $this->results[$lastCategoryId]['fullPath'] = $fullPath;
                     }
@@ -97,6 +98,9 @@ class Categories extends ParserAbstract implements ParserInterface
     }
 
     /**
+     * Return full path if category has any
+     * Categories not returned in /rest/category_branches method do not have have full path so return url key
+     *
      * @param int $categoryId
      * @return string
      */
@@ -114,6 +118,8 @@ class Categories extends ParserAbstract implements ParserInterface
     }
 
     /**
+     * Return full category name path if category has any
+     * Categories not returned in /rest/category_branches method do not have have full category name path so return name
      * @param int $categoryId
      * @return string
      */

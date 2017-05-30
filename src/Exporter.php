@@ -30,9 +30,19 @@ class Exporter
      */
     protected $registry;
 
-
+    /**
+     * List of data parsers which should be initialised before product parsing.
+     * !IMPORTANT! After creating new parser class it should also be inserted here
+     *
+     * @var array
+     */
     protected $additionalDataParsers = array('Vat', 'Categories', 'SalesPrices', 'Attributes', 'Manufacturers', 'Stores', 'PropertyGroups');
 
+    /**
+     * Count of products skipped during the export
+     *
+     * @var int
+     */
     protected $skippedProductsCount = 0;
 
     /**
