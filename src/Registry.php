@@ -2,10 +2,16 @@
 
 namespace Findologic\Plentymarkets;
 
+/**
+ * A container for holding objects (parsers with parsed data, loggers and etc.)
+ *
+ * Class Registry
+ * @package Findologic\Plentymarkets
+ */
 class Registry
 {
     /**
-     * Require log class for constructor to make sure it exists.
+     * Require log class for constructor to make sure it exists at all times.
      *
      * @codeCoverageIgnore
      * @param Log $log

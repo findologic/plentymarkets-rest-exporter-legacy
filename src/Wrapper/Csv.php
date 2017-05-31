@@ -128,7 +128,7 @@ class Csv implements WrapperInterface
      */
     public function getResults()
     {
-        return 'Results wrapping was successful';
+        return 'Results wrapping was successful! File: ' . $this->filename;
     }
 
     /**

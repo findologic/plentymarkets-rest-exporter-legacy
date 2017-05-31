@@ -160,7 +160,7 @@ class Exporter
                     $this->processProductData($product);
                 }
 
-                if (!isset($results['isLastPage']) || $results['isLastPage'] == true) {
+                if (!$results || !isset($results['isLastPage']) || $results['isLastPage'] == true) {
                     $continue = false;
                 }
 
@@ -228,7 +228,7 @@ class Exporter
                 }
             }
 
-            if (!isset($variations['entries']) || $variations['isLastPage']) {
+            if (!$variations || !isset($variations['entries']) || $variations['isLastPage']) {
                 $continue = false;
             }
 
@@ -267,9 +267,9 @@ class Exporter
             $methodName = 'get' . ucwords($type);
             if (!method_exists($this->getClient(), $methodName)) {
                 $this->getLog()->warn(
-                    'Plugin tried to call method from api client 
-                        which do not exists when initialising parsers. Parser type: ' . $type .
-                        ' Method called: ' . $methodName,
+                    'Plugin tried to call method from api client which do not exists when initialising parsers. ' .
+                    'Parser type: ' . $type .
+                    ' Method called: ' . $methodName,
                     true
                 );
                 continue;

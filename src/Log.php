@@ -5,7 +5,6 @@ namespace Findologic\Plentymarkets;
 use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Exception\CriticalException;
 use \Logger;
-use \LoggerConfiguratorBasic;
 
 /**
  * Class for wrapping logic for logging information into one unit so it would be easier to change in the future
@@ -29,6 +28,11 @@ class Log
      */
     protected $logger;
 
+    /**
+     * List of available logger methods as they will be called using magic method
+     *
+     * @var array
+     */
     protected $loggerMethods = array('trace', 'debug', 'info', 'warn', 'error', 'fatal');
 
     /**
@@ -60,7 +64,7 @@ class Log
     public function __call($name, $arguments)
     {
         if (!in_array($name, $this->loggerMethods)) {
-            $this->logger->warn('Plugin has tried to call undefined Log class method: ' . $name);
+            $this->logger->warn('Plugin has tried to call undefined logger class method: ' . $name);
             return false;
         }
 
@@ -103,7 +107,8 @@ class Log
      */
     public function handleException($e)
     {
-        // CriticalException means that plugin will not function properly if execution would be continued
+        // CriticalException means that plugin will not function properly if execution would be continued so it
+        // should be terminated
         // Example: wrong credentials provided so plugin can't login to api
         if ($e instanceof CriticalException) {
             $this->fatal('Critical error: ' . $e->getMessage());
