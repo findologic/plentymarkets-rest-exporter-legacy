@@ -114,6 +114,7 @@ class Client
     }
 
     /**
+     * @codeCoverageIgnore
      * @return string
      */
     public function getProtocol()

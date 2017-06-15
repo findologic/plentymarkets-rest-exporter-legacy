@@ -113,6 +113,14 @@ class Exporter
     }
 
     /**
+     * @return int
+     */
+    public function getSkippedProductsCount()
+    {
+        return $this->skippedProductsCount;
+    }
+
+    /**
      * Function for getting the units id with actual values
      *
      * @return array

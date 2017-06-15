@@ -99,7 +99,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $responseMock = $this->getResponseMock($body, 200);
 
         $clientMock->expects($this->once())->method('call')->will($this->returnValue($responseMock));
-
+        $clientMock->setItemsPerPage(50)->setpage(1);
         $this->assertSame(array('Test' => 'Test'), $clientMock->getProducts());
     }
 
@@ -140,6 +140,10 @@ class ClientTest extends PHPUnit_Framework_TestCase
             ->setMethods(array('send'))
             ->getMock();
 
+        $debugMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
+            ->disableOriginalConstructor()
+            ->getMock();
+
         $failedResponse = $this->getResponseMock('Failed', 404);
         $requestMock->expects($this->any())->method('send')->will($this->returnValue($failedResponse));
 
@@ -150,7 +154,44 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $logMock->expects($this->once())->method('handleException');
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
-            ->setConstructorArgs(array('User', 'Pass', 'Url', $logMock))
+            ->setConstructorArgs(array('User', 'Pass', 'Url', $logMock, $debugMock))
+            ->setMethods(array('createRequest'))
+            ->getMock();
+
+        $clientMock->expects($this->once())->method('createRequest')->will($this->returnValue($requestMock));
+        $clientMock->getProductVariations('1');
+    }
+
+    /**
+     * Test if debugger is called and critical exception should be handled if response return 401
+     */
+    public function testCallInvalidLogin()
+    {
+        $requestMock = $this->getMockBuilder('\HTTP_Request2')
+            ->disableOriginalConstructor()
+            ->setMethods(array('send'))
+            ->getMock();
+
+        $debugMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        // Check if debugger is called
+        $debugMock->expects($this->atMost(5))->method('debugCall');
+
+        $failedResponse = $this->getResponseMock('Failed', 401);
+        $failedResponse->expects($this->any())->method('getReasonPhrase')->willReturn('Unauthorized');
+        $requestMock->expects($this->any())->method('send')->will($this->returnValue($failedResponse));
+
+        $logMock = $this->getMockBuilder('\Findologic\Plentymarkets\Log')
+            ->disableOriginalConstructor()
+            ->setMethods(array('handleException'))
+            ->getMock();
+
+        $logMock->expects($this->once())->method('handleException');
+
+        $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
+            ->setConstructorArgs(array('User', 'Pass', 'Url', $logMock, $debugMock))
             ->setMethods(array('createRequest'))
             ->getMock();
 
@@ -204,7 +245,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
     {
         $responseMock = $this->getMockBuilder('\HTTP_Request2_Response')
             ->disableOriginalConstructor()
-            ->setMethods(array('getStatus', 'getBody'))
+            ->setMethods(array('getStatus', 'getBody', 'getReasonPhrase'))
             ->getMock();
 
         $responseMock->expects($this->any())->method('getBody')->will($this->returnValue($body));

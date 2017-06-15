@@ -233,6 +233,48 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Test if product wrapping is skipped if product has data flag is false
+     */
+    public function testProcessProductDataProductDoNotHaveData()
+    {
+        $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getProductImages', 'getVariationProperties', 'getProductVariations'))
+            ->getMock();
+
+        $clientMock->expects($this->any())
+            ->method('getProductVariations')
+            ->will(
+                $this->returnValue(
+                    array(
+                        'entries' => array(array('id' => 'Test')),
+                        'isLastPage' => true
+                    )
+                )
+            );
+
+        $exporterMock = $this->getExporterMockBuilder(array('client' => $clientMock));
+        $exporterMock->setMethods(array('createProductItem'));
+        $exporterMock = $exporterMock->getMock();
+
+        $productMock = $this->getMockBuilder('\Findologic\Plentymarkets\Product')
+            ->disableOriginalConstructor()
+            ->setMethods(array('processVariations', 'processImages', 'getItemId', 'hasData'))
+            ->getMock();
+
+        $productMock->expects($this->once())->method('processVariations');
+        $productMock->expects($this->never())->method('processImages');
+        $productMock->expects($this->once())->method('hasData')->willReturn(false);
+        $productMock->expects($this->any())->method('getItemId')->will($this->returnValue(1));
+
+        $exporterMock->expects($this->once())->method('createProductItem')->will($this->returnValue($productMock));
+
+        $this->assertEquals(null, $exporterMock->getSkippedProductsCount());
+        $exporterMock->processProductData(array());
+        $this->assertEquals(1, $exporterMock->getSkippedProductsCount());
+    }
+
+    /**
      * If created product don't have an id then processing should be skipped
      */
     public function testProcessProductDataNoItem()

@@ -112,7 +112,7 @@ class Log
         // Example: wrong credentials provided so plugin can't login to api
         if ($e instanceof CriticalException) {
             $this->fatal('Critical error: ' . $e->getMessage());
-            die();
+            die('Plugin execution was terminated!');
         }
 
         $this->warn('An error occurred while running the exporter: ' . $e->getMessage());
