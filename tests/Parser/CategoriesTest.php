@@ -201,6 +201,12 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
                 1,
                 'test/category',
                 'Test_Category'
+            ),
+            array(
+                array(1 => array('name' => 'Category', 'urlKey' => 'category', 'fullPath' => null, 'fullNamePath' => null)),
+                1,
+                'category',
+                'Category'
             )
         );
     }
