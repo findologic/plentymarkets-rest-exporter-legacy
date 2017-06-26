@@ -1,20 +1,12 @@
 {
-  "name": "findologic-plentymarkets",
+  "name": "findologic/plentymarkets",
   "type": "application",
+  "version": "0.1.0",
   "description": "Findologic plugin for Plentymarkets",
   "keywords": [
     "plentymarkets",
     "findologic"
   ],
-  "repositories": [
-    {
-      "type": "vcs",
-      "url": "git@github.com:findologic/plentymarkets-rest-export.git",
-      "no-api": true
-    }
-  ],
-  "minimal-stability": "dev",
-  "prefer-stable": true,
   "require": {
     "php": ">=5.5.0",
     "pear/http_request2": "^2.3",
