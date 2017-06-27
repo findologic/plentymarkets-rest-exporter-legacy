@@ -436,8 +436,7 @@ class Product extends ParserAbstract
 
         switch ($propertyType) {
             case 'empty':
-                $value = $this->getRegistry()->get('PropertyGroups')->getPropertyGroupName($property['property']['propertyGroupId']);
-                $this->swapPropertyValuesFlag = true;
+                $value = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
                 break;
             case 'text':
                 // For some specific shops the structure of text property is different and do not have 'names' field
@@ -448,10 +447,13 @@ class Product extends ParserAbstract
                         }
 
                         $value = $name['value'];
+
+                        if (!$value) {
+                            $value = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
+                        }
                     }
                 } else {
-                    $value = $this->getRegistry()->get('PropertyGroups')->getPropertyGroupName($property['property']['propertyGroupId']);
-                    $this->swapPropertyValuesFlag = true;
+                    $value = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
                 }
                 break;
             case 'selection':
@@ -473,6 +475,18 @@ class Product extends ParserAbstract
                 $value = $this->getDefaultEmptyValue();
                 break;
         }
+
+        return $value;
+    }
+
+    /**
+     * @param int $propertyGroupId
+     * @return string|mixed
+     */
+    protected function getPropertyGroupForPropertyName($propertyGroupId)
+    {
+        $value = $this->getRegistry()->get('PropertyGroups')->getPropertyGroupName($propertyGroupId);
+        $this->swapPropertyValuesFlag = true;
 
         return $value;
     }

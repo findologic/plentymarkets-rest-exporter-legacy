@@ -487,7 +487,7 @@ class Client
                     $continue = false;
                     $this->getLog()->handleException($e);
                 } else {
-                    usleep(250000);
+                    usleep(100000);
                 }
             }
         }
