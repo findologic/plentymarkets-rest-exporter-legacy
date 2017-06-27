@@ -57,9 +57,19 @@ class ExporterTest extends PHPUnit_Framework_TestCase
      */
     public function testInitAdditionalData()
     {
+        $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
+            ->disableOriginalConstructor()
+            ->setMethods(array())
+            ->getMock();
+
+        $clientMock->expects($this->any())->method('setItemsPerPage')->willReturn($clientMock);
+        // Check if category branches will be parsed
+        $clientMock->expects($this->once())->method('getCategoriesBranches');
+
         $exporterMock = $this->getExporterMockBuilder(
-            array('registry' => $this->getRegistryMock())
+            array('registry' => $this->getRegistryMock(), 'client' => $clientMock)
         );
+
         $exporterMock->setMethods(array('initAttributeValues', 'handleException'));
         $exporterMock = $exporterMock->getMock();
 

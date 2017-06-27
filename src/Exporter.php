@@ -261,7 +261,18 @@ class Exporter
      */
     protected function initCategoriesFullUrls()
     {
-        $this->getRegistry()->get('categories')->parseCategoryFullUrls($this->getClient()->getCategoriesBranches());
+        $continue = true;
+        $itemsPerPage = Config::NUMBER_OF_ITEMS_PER_PAGE;
+        $page = 1;
+        while ($continue) {
+            $this->getClient()->setItemsPerPage($itemsPerPage)->setPage($page);
+            $results = $this->getClient()->getCategoriesBranches();
+            $this->getRegistry()->get('categories')->parseCategoryFullUrls($results);
+            $page++;
+            if (!$results || !isset($results['isLastPage']) ||$results['isLastPage']) {
+                $continue = false;
+            }
+        }
 
         return $this;
     }
