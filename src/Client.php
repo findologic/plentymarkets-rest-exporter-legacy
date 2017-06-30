@@ -538,7 +538,7 @@ class Client
      */
     protected function createRequest($method, $uri, $params = null)
     {
-        $request = new HTTP_Request2($uri, $method, array('ssl_verify_peer' => false, 'ssl_verify_host' => false));
+        $request = new HTTP_Request2($uri, $method);
         $request->setAdapter('curl');
 
         // Ignore setting default params for login method as it not required
