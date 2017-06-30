@@ -118,6 +118,14 @@ class Exporter
     }
 
     /**
+     * @return \PlentyConfig
+     */
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    /**
      * @return int
      */
     public function getSkippedProductsCount()
@@ -207,10 +215,10 @@ class Exporter
         $product = new Product($this->getRegistry());
         $product
             ->setProtocol($this->getClient()->getProtocol())
-            ->setStoreUrl($this->config->getDomain())
-            ->setLanguageCode($this->config->getLanguage())
-            ->setTaxRateCountryCode($this->config->getCountry())
-            ->setAvailabilityIds($this->config->getAvailabilityId())
+            ->setStoreUrl($this->getConfig()->getDomain())
+            ->setLanguageCode($this->getConfig()->getLanguage())
+            ->setTaxRateCountryCode($this->getConfig()->getCountry())
+            ->setAvailabilityIds($this->getConfig()->getAvailabilityId())
             ->processInitialData($productData);
 
         return $product;
@@ -309,7 +317,7 @@ class Exporter
 
             if (!$this->getRegistry()->get($type)) {
                 $parser = ParserFactory::create($type, $this->getRegistry());
-                $parser->setLanguageCode($this->config->getLanguage());
+                $parser->setLanguageCode($this->getConfig()->getLanguage());
                 $this->getRegistry()->set($type, $parser);
                 $continue = true;
                 $page = 1;

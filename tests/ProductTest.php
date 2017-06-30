@@ -134,8 +134,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
      */
     public function testGetProductFullUrl($storeUrl, $path, $productId, $expectedResult)
     {
-        $productMock = $this->getProductMock(array('getConfigStoreUrl', 'getItemId'));
-        $productMock->expects($this->once())->method('getConfigStoreUrl')->willReturn($storeUrl);
+        $productMock = $this->getProductMock(array('getStoreUrl', 'getItemId'));
+        $productMock->expects($this->once())->method('getStoreUrl')->willReturn($storeUrl);
         $productMock->expects($this->once())->method('getItemId')->willReturn($productId);
 
         $this->assertSame($expectedResult, $productMock->getProductFullUrl($path));
@@ -432,7 +432,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
         $registry->set('SalesPrices', $salesPricesMock);
         $registry->set('Vat', $vatMock);
 
-        $productMock = $this->getProductMock(array('getItemId', 'getConfigLanguageCode'), array($registry));
+        $productMock = $this->getProductMock(array('getItemId', 'getLanguageCode'), array($registry));
 
         $productMock->processVariations($data);
 
@@ -838,8 +838,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
     protected function getProductMock($methods = array(), $constructorArgs = false)
     {
         // Add getters of config values to mock
-        if (!in_array('getConfigLanguageCode', $methods)) {
-            $methods[] = 'getConfigLanguageCode';
+        if (!in_array('getLanguageCode', $methods)) {
+            $methods[] = 'getLanguageCode';
         }
 
         $productMock = $this->getMockBuilder('\Findologic\Plentymarkets\Product');
@@ -852,7 +852,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
 
         $productMock = $productMock->setMethods($methods)->getMock();
 
-        $productMock->expects($this->any())->method('getConfigLanguageCode')->willReturn('EN');
+        $productMock->expects($this->any())->method('getLanguageCode')->willReturn('EN');
 
         return $productMock;
     }

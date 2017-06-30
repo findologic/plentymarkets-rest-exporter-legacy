@@ -370,8 +370,8 @@ class AttributesTest extends PHPUnit_Framework_TestCase
     protected function getAttributesMock($methods = array())
     {
         // Add getters of config values to mock
-        if (!in_array('getConfigLanguageCode', $methods)) {
-            $methods[] = 'getConfigLanguageCode';
+        if (!in_array('getLanguageCode', $methods)) {
+            $methods[] = 'getLanguageCode';
         }
 
         $attributesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Attributes')
@@ -379,7 +379,7 @@ class AttributesTest extends PHPUnit_Framework_TestCase
             ->setMethods($methods)
             ->getMock();
 
-        $attributesMock->expects($this->any())->method('getConfigLanguageCode')->willReturn('EN');
+        $attributesMock->expects($this->any())->method('getLanguageCode')->willReturn('EN');
 
         return $attributesMock;
     }

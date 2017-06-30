@@ -27,21 +27,13 @@ class ClientTest extends PHPUnit_Framework_TestCase
      */
     public function testLoginProtocol()
     {
-        $logMock = $this->getMockBuilder('\Findologic\Plentymarkets\Log')
-            ->disableOriginalConstructor()
-            ->setMethods(array())
-            ->getMock();
+        $clientMock = $this->getClientMock(array('call'));
 
-        $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
-            ->setConstructorArgs(array('username', 'password', 'url', $logMock))
-            ->setMethods(array('call'))
-            ->getMock();
-
-        $inccorectResponseMock = $this->getResponseMock('{"Moved permanently !"}', 301);
+        $incorrectResponseMock = $this->getResponseMock('{"Moved permanently !"}', 301);
         $body = '{"accessToken":"TEST_TOKEN","tokenType":"Bearer","expiresIn":86400,"refreshToken":"REFERSH_TOKEN"}';
         $responseMock = $this->getResponseMock($body, 200);
 
-        $clientMock->expects($this->exactly(2))->method('call')->will($this->onConsecutiveCalls($inccorectResponseMock, $responseMock));
+        $clientMock->expects($this->exactly(2))->method('call')->will($this->onConsecutiveCalls($incorrectResponseMock, $responseMock));
         $clientMock->login();
 
         $this->assertEquals('TEST_TOKEN', $clientMock->getToken());
@@ -52,15 +44,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
      */
     public function testLoginResponseStatusException()
     {
-        $logMock = $this->getMockBuilder('\Findologic\Plentymarkets\Log')
-            ->disableOriginalConstructor()
-            ->setMethods(array())
-            ->getMock();
-
-        $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
-            ->setConstructorArgs(array('username', 'password', 'url', $logMock))
-            ->setMethods(array('call'))
-            ->getMock();
+        $clientMock = $this->getClientMock(array('call'));
 
         $body = 'No response!';
         $responseMock = $this->getResponseMock($body, 400);
@@ -153,8 +137,10 @@ class ClientTest extends PHPUnit_Framework_TestCase
             ->getMock();
         $logMock->expects($this->once())->method('handleException');
 
+        $configMock = $this->getMockBuilder('PlentyConfig')->getMock();
+
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
-            ->setConstructorArgs(array('User', 'Pass', 'Url', $logMock, $debugMock))
+            ->setConstructorArgs(array($configMock, $logMock, $debugMock))
             ->setMethods(array('createRequest'))
             ->getMock();
 
@@ -190,8 +176,10 @@ class ClientTest extends PHPUnit_Framework_TestCase
 
         $logMock->expects($this->once())->method('handleException');
 
+        $configMock = $this->getMockBuilder('PlentyConfig')->getMock();
+
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
-            ->setConstructorArgs(array('User', 'Pass', 'Url', $logMock, $debugMock))
+            ->setConstructorArgs(array($configMock, $logMock, $debugMock))
             ->setMethods(array('createRequest'))
             ->getMock();
 
@@ -233,8 +221,15 @@ class ClientTest extends PHPUnit_Framework_TestCase
 
     protected function getClientMock($methods)
     {
-        $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
+        $logMock = $this->getMockBuilder('\Findologic\Plentymarkets\Log')
             ->disableOriginalConstructor()
+            ->setMethods(array())
+            ->getMock();
+
+        $configMock = $this->getMockBuilder('PlentyConfig')->getMock();
+
+        $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
+            ->setConstructorArgs(array($configMock, $logMock))
             ->setMethods($methods)
             ->getMock();
 
