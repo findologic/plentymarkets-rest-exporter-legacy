@@ -12,20 +12,6 @@ class Client
     const RETRY_COUNT = 5;
 
     /**
-     * Rest login username
-     *
-     * @var string
-     */
-    protected $username;
-
-    /**
-     * Rest login password
-     *
-     * @var string
-     */
-    protected $password;
-
-    /**
      * Rest api url
      *
      * @var string
@@ -86,21 +72,39 @@ class Client
      */
     protected $page = false;
 
+
     /**
-     * @param string $username
-     * @param string $password
-     * @param string $url
+     * @var \PlentyConfig
+     */
+    protected $config;
+
+    /**
+     * @param \PlentyConfig $config
      * @param Log $log
      * @param bool $debug
      */
-    public function __construct($username, $password, $url, Log $log, $debug = false)
+    public function __construct(\PlentyConfig $config, Log $log, $debug = false)
     {
-        $this->username = $username;
-        $this->password = $password;
-        $url = rtrim($url, '/') . '/rest/';
+        $url = rtrim($config->getDomain(), '/') . '/rest/';
         $this->url = $url;
         $this->log = $log;
         $this->debug = $debug;
+        $this->config = $config;
+    }
+
+    public function getConfig()
+    {
+        return $this->config;
+    }
+
+    public function getUrl()
+    {
+        return $this->url;
+    }
+
+    public function getLanguageCode()
+    {
+        return $this->config->getLanguage();
     }
 
     /**
@@ -172,8 +176,8 @@ class Client
         $this->loginFlag = true;
 
         $response = $this->call('POST', $this->getEndpoint('login'), array(
-                'username' => $this->username,
-                'password' => $this->password
+                'username' => $this->config->getUsername(),
+                'password' => $this->config->getPassword()
             )
         );
 
@@ -183,8 +187,8 @@ class Client
             $this->protocol = 'http://';
             $this->getLog()->info('Api client requests protocol changed to http://)');
             $response = $this->call('POST', $this->getEndpoint('login'), array(
-                    'username' => $this->username,
-                    'password' => $this->password
+                    'username' => $this->config->getUsername(),
+                    'password' => $this->config->getPassword()
                 )
             );
         }
@@ -445,7 +449,7 @@ class Client
             }
         }
 
-        return $this->protocol . $this->url . $method . $query;
+        return $this->protocol . $this->getUrl() . $method . $query;
     }
 
     /**
@@ -534,7 +538,7 @@ class Client
      */
     protected function createRequest($method, $uri, $params = null)
     {
-        $request = new HTTP_Request2($uri, $method);
+        $request = new HTTP_Request2($uri, $method, array('ssl_verify_peer' => false, 'ssl_verify_host' => false));
         $request->setAdapter('curl');
 
         // Ignore setting default params for login method as it not required

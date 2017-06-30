@@ -18,7 +18,7 @@ class Categories extends ParserAbstract implements ParserInterface
 
         foreach ($data['entries'] as $category) {
             foreach ($category['details'] as $details) {
-                if (strtoupper($details['lang']) != $this->getConfigLanguageCode()) {
+                if (strtoupper($details['lang']) != $this->getLanguageCode()) {
                     continue;
                 }
 

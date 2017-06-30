@@ -75,6 +75,15 @@ class Product extends ParserAbstract
      */
     protected $swapPropertyValuesFlag = false;
 
+    protected $availabilityIds;
+
+    public function setAvailabilityIds($ids)
+    {
+        $this->availabilityIds = $ids ? array($ids) : null;
+
+        return $this;
+    }
+
     /**
      * Item id used for identification
      *
@@ -189,7 +198,7 @@ class Product extends ParserAbstract
         $path = '/' . ltrim($path, '/');
         $path = rtrim($path, '/');
 
-        return $this->protocol . $this->getConfigStoreUrl() . $path . '/' . 'a-' . $this->getItemId();
+        return $this->protocol . $this->getStoreUrl() . $path . '/' . 'a-' . $this->getItemId();
     }
 
     /**
@@ -442,7 +451,7 @@ class Product extends ParserAbstract
                 // For some specific shops the structure of text property is different and do not have 'names' field
                 if (isset($property['valueTexts'])) {
                     foreach ($property['valueTexts'] as $name) {
-                        if (strtoupper($name['lang']) != $this->getConfigLanguageCode()) {
+                        if (strtoupper($name['lang']) != $this->getLanguageCode()) {
                             continue;
                         }
 
@@ -458,7 +467,7 @@ class Product extends ParserAbstract
                 break;
             case 'selection':
                 foreach ($property['propertySelection'] as $selection) {
-                    if (strtoupper($selection['lang']) != $this->getConfigLanguageCode()) {
+                    if (strtoupper($selection['lang']) != $this->getLanguageCode()) {
                         continue;
                     }
 
@@ -499,7 +508,7 @@ class Product extends ParserAbstract
      */
     protected function shouldProcessVariation($data)
     {
-        if (!$this->getIncludeInactiveProductsFlag() && $data['isActive'] == false) {
+        if ($data['isActive'] == false) {
             return false;
         }
 
@@ -518,9 +527,7 @@ class Product extends ParserAbstract
      */
     protected function isProductAvailable($itemAvailabilityId)
     {
-        $availabilityIds = $this->getConfigAvailabilityIds();
-
-        if (!empty($availabilityIds) && in_array($itemAvailabilityId, $availabilityIds)) {
+        if (!empty($this->availabilityIds) && in_array($itemAvailabilityId, $this->availabilityIds)) {
             return false;
         }
 
@@ -689,7 +696,7 @@ class Product extends ParserAbstract
         }
 
         foreach ($data['texts'] as $texts) {
-            if (strtoupper($texts['lang']) != $this->getConfigLanguageCode()) {
+            if (strtoupper($texts['lang']) != $this->getLanguageCode()) {
                 continue;
             }
 

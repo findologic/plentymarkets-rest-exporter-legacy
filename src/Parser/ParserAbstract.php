@@ -19,6 +19,12 @@ abstract class ParserAbstract
      */
     protected $results = array();
 
+    protected $storeUrl = '';
+
+    protected $languageCode = '';
+
+    protected $countryCode = '';
+
     public function __construct(Registry $registry)
     {
         $this->registry = $registry;
@@ -56,7 +62,8 @@ abstract class ParserAbstract
     protected function handleEmptyData($additionalInfo = '')
     {
         if ($this->registry && ($log = $this->registry->get('log'))) {
-            $method = debug_backtrace()[1]['function'];
+            $method = debug_backtrace();
+            $method = $method[1]['function'];
             $message = 'Class ' . get_class($this) . ' method: ' . $method . ' is missing some data .';
 
             if ($additionalInfo) {
@@ -69,30 +76,49 @@ abstract class ParserAbstract
         return $this;
     }
 
+    public function setLanguageCode($lang)
+    {
+        $this->languageCode = strtoupper($lang);
+
+        return $this;
+    }
+
     /**
      * @codeCoverageIgnore - Ignore this method as it used for better mocking
      */
-    public function getConfigLanguageCode()
+    public function getLanguageCode()
     {
-        return strtoupper(Config::TEXT_LANGUAGE_CODE);
+        return $this->languageCode;
     }
 
+    public function setTaxRateCountryCode($country)
+    {
+        $this->countryCode = strtoupper($country);
+
+        return $this;
+    }
 
     /**
      * @codeCoverageIgnore - Ignore this method as it used for better mocking
      */
     public function getConfigTaxRateCountryCode()
     {
-        return strtoupper(Config::TAXRATE_COUNTRY_CODE);
+        return $this->countryCode;
     }
 
+    public function setStoreUrl($url)
+    {
+        $this->storeUrl = rtrim($url, '/');
+
+        return $this;
+    }
 
     /**
      * @codeCoverageIgnore - Ignore this method as it used for better mocking
      */
-    public function getConfigStoreUrl()
+    public function getStoreUrl()
     {
-        return rtrim(Config::URL, '/');
+        return $this->storeUrl;
     }
 
     /**
@@ -100,29 +126,6 @@ abstract class ParserAbstract
      */
     public function getDefaultEmptyValue()
     {
-        return Config::DEFAULT_EMPTY_VALUE;
+        return '';
     }
-
-    /**
-     * @codeCoverageIgnore - Ignore this method as it used for better mocking
-     */
-    public function getIncludeInactiveProductsFlag()
-    {
-        return Config::INCLUDE_INACTIVE_PRODUCTS_FLAG;
-    }
-
-    /**
-     * @codeCoverageIgnore - Ignore this method as it used for better mocking
-     */
-    public function getConfigAvailabilityIds()
-    {
-        $ids = array();
-
-        if (Config::AVAILABILITY_ID !== null) {
-            $ids[] = Config::AVAILABILITY_ID;
-        }
-
-        return $ids;
-    }
-
 }

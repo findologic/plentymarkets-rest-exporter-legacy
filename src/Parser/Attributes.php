@@ -2,8 +2,6 @@
 
 namespace Findologic\Plentymarkets\Parser;
 
-use Findologic\Plentymarkets\Config;
-
 class Attributes extends ParserAbstract implements ParserInterface
 {
     /**
@@ -47,7 +45,7 @@ class Attributes extends ParserAbstract implements ParserInterface
         }
 
         foreach ($data as $attributeName) {
-            if (strtoupper($attributeName['lang']) == $this->getConfigLanguageCode()) {
+            if (strtoupper($attributeName['lang']) == $this->getLanguageCode()) {
                 $name = $attributeName['name'];
                 break;
             }
@@ -93,7 +91,7 @@ class Attributes extends ParserAbstract implements ParserInterface
         }
 
         foreach ($data as $value) {
-            if (strtoupper($value['lang']) == $this->getConfigLanguageCode()) {
+            if (strtoupper($value['lang']) == $this->getLanguageCode()) {
                 $name = $value['name'];
             }
         }

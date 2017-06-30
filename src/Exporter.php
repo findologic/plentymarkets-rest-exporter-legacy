@@ -10,6 +10,8 @@ use Findologic\Plentymarkets\Wrapper\WrapperInterface;
 
 class Exporter
 {
+    const NUMBER_OF_ITEMS_PER_PAGE = 50;
+
     /**
      * @var \Findologic\Plentymarkets\Client $client
      */
@@ -45,6 +47,8 @@ class Exporter
      */
     protected $skippedProductsCount = 0;
 
+    protected $config;
+
     /**
      * @param \Findologic\Plentymarkets\Client $client
      * @param \Findologic\Plentymarkets\Wrapper\WrapperInterface $wrapper
@@ -57,6 +61,7 @@ class Exporter
         $this->wrapper = $wrapper;
         $this->log = $log;
         $this->registry = $registry;
+        $this->config = $client->getConfig();
     }
 
     /**
@@ -141,12 +146,16 @@ class Exporter
     /**
      * Get all products
      *
-     * @param int $numberOfItemsPerPage
+     * @param int|null $itemsPerPage
      * @param int $page
      * @return mixed
      */
     public function getProducts($itemsPerPage = null, $page = 1)
     {
+        if ($itemsPerPage === null) {
+            $itemsPerPage = self::NUMBER_OF_ITEMS_PER_PAGE;
+        }
+
         try {
             $continue = true;
 
@@ -196,8 +205,13 @@ class Exporter
     public function createProductItem($productData)
     {
         $product = new Product($this->getRegistry());
-        $product->setProtocol($this->getClient()->getProtocol());
-        $product->processInitialData($productData);
+        $product
+            ->setProtocol($this->getClient()->getProtocol())
+            ->setStoreUrl($this->config->getDomain())
+            ->setLanguageCode($this->config->getLanguage())
+            ->setTaxRateCountryCode($this->config->getCountry())
+            ->setAvailabilityIds($this->config->getAvailabilityId())
+            ->processInitialData($productData);
 
         return $product;
     }
@@ -220,11 +234,10 @@ class Exporter
         }
 
         $continue = true;
-        $itemsPerPage = Config::NUMBER_OF_ITEMS_PER_PAGE;
         $page = 1;
 
         while ($continue) {
-            $this->getClient()->setItemsPerPage($itemsPerPage)->setPage($page);
+            $this->getClient()->setItemsPerPage(self::NUMBER_OF_ITEMS_PER_PAGE)->setPage($page);
             $variations = $this->getClient()->getProductVariations($product->getItemId());
 
             if (isset($variations['entries'])) {
@@ -296,12 +309,12 @@ class Exporter
 
             if (!$this->getRegistry()->get($type)) {
                 $parser = ParserFactory::create($type, $this->getRegistry());
+                $parser->setLanguageCode($this->config->getLanguage());
                 $this->getRegistry()->set($type, $parser);
                 $continue = true;
-                $itemsPerPage = Config::NUMBER_OF_ITEMS_PER_PAGE;
                 $page = 1;
                 while ($continue) {
-                    $this->getClient()->setItemsPerPage($itemsPerPage)->setPage($page);
+                    $this->getClient()->setItemsPerPage(self::NUMBER_OF_ITEMS_PER_PAGE)->setPage($page);
                     $results = $this->getClient()->$methodName();
                     $parser->parse($results);
                     $page++;
