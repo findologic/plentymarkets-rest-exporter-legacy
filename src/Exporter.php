@@ -283,10 +283,9 @@ class Exporter
     protected function initCategoriesFullUrls()
     {
         $continue = true;
-        $itemsPerPage = Config::NUMBER_OF_ITEMS_PER_PAGE;
         $page = 1;
         while ($continue) {
-            $this->getClient()->setItemsPerPage($itemsPerPage)->setPage($page);
+            $this->getClient()->setItemsPerPage(self::NUMBER_OF_ITEMS_PER_PAGE)->setPage($page);
             $results = $this->getClient()->getCategoriesBranches();
             $this->getRegistry()->get('categories')->parseCategoryFullUrls($results);
             $page++;
