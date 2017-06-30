@@ -9,7 +9,7 @@
   ],
   "require": {
     "php": ">=5.3.10",
-    "pear/http_request2": "^2.3",
+    "pear/http_request2": "^2.2",
     "apache/log4php": "2.1.0"
   },
   "require-dev": {
