@@ -520,7 +520,7 @@ class Product extends ParserAbstract
     {
         $availabilityIds = $this->getConfigAvailabilityIds();
 
-        if (!empty($availabilityIds) && !in_array($itemAvailabilityId, $availabilityIds)) {
+        if (!empty($availabilityIds) && in_array($itemAvailabilityId, $availabilityIds)) {
             return false;
         }
 
