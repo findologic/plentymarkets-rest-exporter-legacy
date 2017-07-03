@@ -101,7 +101,7 @@ abstract class ParserAbstract
     /**
      * @codeCoverageIgnore - Ignore this method as it used for better mocking
      */
-    public function getConfigTaxRateCountryCode()
+    public function getTaxRateCountryCode()
     {
         return $this->countryCode;
     }

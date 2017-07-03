@@ -323,7 +323,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 array('Test Number', 'Test Model', 'Test Id'),
                 array('price' => 0.00, 'maxprice' => 0.00, 'instead' => 0.00, 'base_unit' => 'C62', 'taxrate' => '19.00')
             ),
-            // Variation prices provided with multiple prices set so the lowest should be used for 'price' field
+            // Variation prices includes price with configurated sales price id and configurated rrp price id
             // Variation has duplicate identifier id => 'Test Id' so it should be ignored when adding to 'ordernumber' field
             array(
                 array(
@@ -339,19 +339,11 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'variationSalesPrices' => array(
                                 array(
                                     'price' => 15,
-                                    'salesPriceId' => 'default'
+                                    'salesPriceId' => 1 // Sales price id
                                 ),
                                 array(
                                     'price' => 14,
-                                    'salesPriceId' => 'default'
-                                ),
-                                array(
-                                    'price' => 18,
-                                    'salesPriceId' => 'default'
-                                ),
-                                array(
-                                    'price' => 17,
-                                    'salesPriceId' => SalesPrices::RRP_TYPE
+                                    'salesPriceId' => 2
                                 )
                             ),
                             'variationAttributeValues' => array(),
@@ -367,20 +359,12 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'variationSalesPrices' => array(
                                 array(
                                     'price' => 0,
-                                    'salesPriceId' => '1'
-                                ),
-                                array(
-                                    'price' => 15,
-                                    'salesPriceId' => '1'
-                                ),
-                                array(
-                                    'price' => 18,
-                                    'salesPriceId' => '1'
+                                    'salesPriceId' => 3
                                 ),
                                 array(
                                     'price' => 17,
-                                    'salesPriceId' => '2'
-                                )
+                                    'salesPriceId' => 4 // Rrp price id
+                                ),
                             ),
                             'variationAttributeValues' => array(),
                             'variationBarcodes' => array(
@@ -393,7 +377,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 ),
                 '',
                 array('Test Number', 'Test Model', 'Test Id', 'Test Number 2', 'Test Model 2', 'Barcode'),
-                array('price' => 14, 'maxprice' => 18, 'instead' => 17)
+                array('price' => 15, 'maxprice' => 0.00, 'instead' => 17)
 
             )
         );
@@ -413,13 +397,6 @@ class ProductTest extends PHPUnit_Framework_TestCase
         $attributesMock->expects($this->any())->method('getAttributeName')->willReturn('Test');
         $attributesMock->expects($this->any())->method('getAttributeValueName')->willReturn('Test');
 
-        $salesPricesMock = $this->getMockBuilder('Findologic\Plentymarkets\Parser\SalesPrices')
-            ->disableOriginalConstructor()
-            ->setMethods(array('getRRP'))
-            ->getMock();
-
-        $salesPricesMock->expects($this->any())->method('getRRP')->willReturn(array('2'));
-
         $vatMock = $this->getMockBuilder('Findologic\Plentymarkets\Parser\Vat')
             ->disableOriginalConstructor()
             ->setMethods(array('getVatRateByVatId'))
@@ -429,11 +406,11 @@ class ProductTest extends PHPUnit_Framework_TestCase
 
         $registry = $this->getRegistryMock();
         $registry->set('Attributes', $attributesMock);
-        $registry->set('SalesPrices', $salesPricesMock);
         $registry->set('Vat', $vatMock);
 
         $productMock = $this->getProductMock(array('getItemId', 'getLanguageCode'), array($registry));
-
+        $productMock->setPriceId(1);
+        $productMock->setRrpPriceId(4);
         $productMock->processVariations($data);
 
         $this->assertSame($expectedAttributes, $productMock->getField('attributes'));
@@ -456,8 +433,6 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         )
                     )
                 ),
-                false,
-                true,
                 array()
             ),
             // Variation is not active and config is set to include inactive variations but availability ids config
@@ -466,14 +441,12 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 array(
                     'entries' => array(
                         array(
-                            'isActive' => false,
-                            'availability' => 1,
+                            'isActive' => true,
+                            'availability' => 2,
                         )
                     )
                 ),
-                true,
-                true,
-                array(2, 3)
+                2
             )
         );
     }
@@ -483,21 +456,16 @@ class ProductTest extends PHPUnit_Framework_TestCase
      *
      * @dataProvider processVariationsWhenVariationIsNotActiveProvider
      */
-    public function testProcessVariationsWhenVariationIsNotActive($data, $inactiveProductsFlag, $unavailableProductsFlag, $availabilityIds)
+    public function testProcessVariationsWhenVariationIsNotActive($data, $availabilityId)
     {
         $productMock = $this->getProductMock(
             array(
-                'getIncludeInactiveProductsFlag',
-                'getIncludeUnavailableProductsFlag',
-                'getConfigAvailabilityIds',
                 'processVariationIdentifiers',
                 'proccessVariationCategories'
             )
         );
 
-        $productMock->expects($this->any())->method('getIncludeInactiveProductsFlag')->willReturn($inactiveProductsFlag);
-        $productMock->expects($this->any())->method('getIncludeUnavailableProductsFlag')->willReturn($unavailableProductsFlag);
-        $productMock->expects($this->any())->method('getConfigAvailabilityIds')->willReturn($availabilityIds);
+        $productMock->setAvailabilityIds($availabilityId);
 
         // Further processing methods should not be called if variation do not pass visibility filtering so it could be
         // used to indicate whether it passes or not

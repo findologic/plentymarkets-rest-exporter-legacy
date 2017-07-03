@@ -49,7 +49,7 @@ class StoresTest extends PHPUnit_Framework_TestCase
     {
         $storesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Stores')
             ->disableOriginalConstructor()
-            ->setMethods(array('getConfigLanguageCode'))
+            ->setMethods(array('getLanguageCode'))
             ->getMock();
 
         $storesMock->parse($data);

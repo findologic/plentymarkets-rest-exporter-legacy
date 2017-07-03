@@ -219,6 +219,8 @@ class Exporter
             ->setLanguageCode($this->getConfig()->getLanguage())
             ->setTaxRateCountryCode($this->getConfig()->getCountry())
             ->setAvailabilityIds($this->getConfig()->getAvailabilityId())
+            ->setPriceId($this->getConfig()->getPriceId())
+            ->setRrpPriceId($this->getConfig()->getRrpId())
             ->processInitialData($productData);
 
         return $product;

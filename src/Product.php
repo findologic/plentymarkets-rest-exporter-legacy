@@ -75,13 +75,72 @@ class Product extends ParserAbstract
      */
     protected $swapPropertyValuesFlag = false;
 
+    /**
+     * @var mixed
+     */
     protected $availabilityIds;
 
+    /**
+     * @var int
+     */
+    protected $priceId;
+
+    /**
+     * @var int
+     */
+    protected $rrpPriceId;
+
+    /**
+     * @param mixed $ids
+     * @return $this
+     */
     public function setAvailabilityIds($ids)
     {
-        $this->availabilityIds = $ids ? array($ids) : null;
+        if (!empty($ids) && !is_array($ids)) {
+            $ids = array($ids);
+        }
+
+        $this->availabilityIds = $ids ? $ids : null;
 
         return $this;
+    }
+
+    /**
+     * @param int $priceId
+     * @return $this
+     */
+    public function setPriceId($priceId)
+    {
+        $this->priceId = $priceId;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getPriceId()
+    {
+        return $this->priceId;
+    }
+
+    /**
+     * @param int $rrpPriceId
+     * @return $this
+     */
+    public function setRrpPriceId($rrpPriceId)
+    {
+        $this->rrpPriceId = $rrpPriceId;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getRrpPriceId()
+    {
+        return $this->rrpPriceId;
     }
 
     /**
@@ -402,21 +461,6 @@ class Product extends ParserAbstract
     }
 
     /**
-     * Get rrp prices ids array
-     *
-     * @return array
-     */
-    protected function getRRP()
-    {
-        $prices = $this->getRegistry()->get('SalesPrices');
-        if (!$prices) {
-            return array();
-        }
-
-        return $prices->getRRP();
-    }
-
-    /**
      * Wrap getting data from array to allow returning default empty field value if given key do not exist
      *
      * @param array $array
@@ -610,21 +654,12 @@ class Product extends ParserAbstract
                 continue;
             }
 
-            if (!$this->getField('price')) {
+            if ($price['salesPriceId'] == $this->getPriceId()) {
                 $this->setField('price', $price['price']);
                 $this->setField('price_id', $price['salesPriceId']);
-            } else {
-                if ($this->getField('price') > $price['price']) {
-                    $this->setField('price', $price['price']);
-                    $this->setField('price_id', $price['salesPriceId']);
-                }
             }
 
-            if ($this->getField('maxprice') < $price['price']) {
-                $this->setField('maxprice', $price['price']);
-            }
-
-            if (in_array($price['salesPriceId'], $this->getRRP())) {
+            if ($price['salesPriceId'] == $this->getRrpPriceId()) {
                 $this->setField('instead', $price['price']);
             }
         }

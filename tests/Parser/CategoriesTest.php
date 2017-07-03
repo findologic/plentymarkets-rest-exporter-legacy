@@ -170,9 +170,9 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
      */
     public function testGetCategoryName($parsedCategories, $categoryId, $expectedResult)
     {
-        $categoriesMock = $this->getCategoriesMock(array('getConfigLanguageCode'));
+        $categoriesMock = $this->getCategoriesMock(array('getLanguageCode'));
 
-        $categoriesMock->expects($this->any())->method('getConfigLanguageCode')->willReturn('EN');
+        $categoriesMock->expects($this->any())->method('getLanguageCode')->willReturn('EN');
 
         $categoriesMock->setResults($parsedCategories);
         $this->assertSame($expectedResult, $categoriesMock->getCategoryName($categoryId));

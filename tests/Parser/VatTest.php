@@ -63,10 +63,10 @@ class VatTest extends PHPUnit_Framework_TestCase
     {
         $vatMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Vat')
             ->disableOriginalConstructor()
-            ->setMethods(array('getConfigLanguageCode'))
+            ->setMethods(array('getLanguageCode'))
             ->getMock();
 
-        $vatMock->expects($this->any())->method('getConfigLanguageCode')->willReturn('GB');
+        $vatMock->expects($this->any())->method('getLanguageCode')->willReturn('GB');
 
         $vatMock->parse($data);
         $this->assertSame($expectedResult, $vatMock->getResults());

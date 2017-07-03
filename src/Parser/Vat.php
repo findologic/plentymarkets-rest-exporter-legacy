@@ -20,7 +20,7 @@ class Vat extends ParserAbstract implements ParserInterface
         parent::__construct($registry);
 
         // Get country id to know which country vat should be applied
-        $countryId = Countries::getCountryByIsoCode($this->getConfigTaxRateCountryCode());
+        $countryId = Countries::getCountryByIsoCode($this->getTaxRateCountryCode());
 
         if ($countryId) {
             $this->countryId = $countryId;
