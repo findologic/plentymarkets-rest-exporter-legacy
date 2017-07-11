@@ -15,10 +15,20 @@ if (Config::DEBUG) {
     $debug = new \Findologic\Plentymarkets\Debugger($log);
 }
 
+$config = new PlentyConfig();
+
+$config->setUsername('username')
+    ->setPassword('password')
+    ->setDomain('www.store.com')
+    ->setPriceId(1)
+    ->setRrpId(2) // price id for 'instead' field
+    ->setCountry('GB') // Country code for tax rates
+    ->setLanguage('EN'); // Language code for texts
+
 $registry = new \Findologic\Plentymarkets\Registry($log);
-$client = new \Findologic\Plentymarkets\Client(Config::USERNAME, Config::PASSWORD, Config::URL, $log, $debug);
+$client = new \Findologic\Plentymarkets\Client($config, $log, $debug);
 $wrapper = new \Findologic\Plentymarkets\Wrapper\Csv();
 $exporter = new \Findologic\Plentymarkets\Exporter($client, $wrapper, $log, $registry);
 $exporter->init();
 
-echo $exporter->getProducts(Config::NUMBER_OF_ITEMS_PER_PAGE);
+echo $exporter->getProducts(Config::NUMBER_OF_ITEMS_PER_PAGE, 5);

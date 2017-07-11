@@ -8,7 +8,7 @@
     "findologic"
   ],
   "require": {
-    "php": ">=5.3.10",
+    "php": ">=5.5.0",
     "pear/http_request2": "^2.2",
     "apache/log4php": "2.1.0"
   },

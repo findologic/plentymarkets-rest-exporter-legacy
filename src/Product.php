@@ -655,8 +655,15 @@ class Product extends ParserAbstract
             }
 
             if ($price['salesPriceId'] == $this->getPriceId()) {
-                $this->setField('price', $price['price']);
-                $this->setField('price_id', $price['salesPriceId']);
+                if (!$this->getField('price')) {
+                    $this->setField('price', $price['price']);
+                    $this->setField('price_id', $price['salesPriceId']);
+                } else {
+                    if ($this->getField('price') > $price['price']) {
+                        $this->setField('price', $price['price']);
+                        $this->setField('price_id', $price['salesPriceId']);
+                    }
+                }
             }
 
             if ($price['salesPriceId'] == $this->getRrpPriceId()) {
