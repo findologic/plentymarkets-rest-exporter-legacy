@@ -31,4 +31,4 @@ $wrapper = new \Findologic\Plentymarkets\Wrapper\Csv();
 $exporter = new \Findologic\Plentymarkets\Exporter($client, $wrapper, $log, $registry);
 $exporter->init();
 
-echo $exporter->getProducts(Config::NUMBER_OF_ITEMS_PER_PAGE, 5);
+echo $exporter->getProducts(Config::NUMBER_OF_ITEMS_PER_PAGE);
