@@ -266,4 +266,17 @@ class Countries
 
         return '';
     }
+
+    /**
+     * @param string $id
+     * @return mixed|string
+     */
+    public static function getCountryIsoCode($id)
+    {
+        if ($key = array_search($id, static::$countries)) {
+            return $key;
+        }
+
+        return '';
+    }
 }

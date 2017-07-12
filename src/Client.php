@@ -213,6 +213,19 @@ class Client
      * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
      * @return array
      */
+    public function getStandardVat($shopId)
+    {
+        $params = array('plentyId' => $shopId);
+
+        $response = $this->call('GET', $this->getEndpoint('vat/standard', $params));
+
+        return $this->returnResult($response);
+    }
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
+     * @return array
+     */
     public function getCategories()
     {
         $params = array('type' => 'item', 'with' => 'details');

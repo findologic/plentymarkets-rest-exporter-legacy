@@ -44,11 +44,8 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $exporterMock->setMethods(array('initAdditionalData', 'initAttributeValues'));
         $exporterMock = $exporterMock->getMock();
 
-        /**
-         * @var $exporterMock \PHPUnit_Framework_MockObject_MockObject
-         */
-        $exporterMock->expects($this->once())->method('initAdditionalData')
-            ->will($this->throwException(new \Findologic\Plentymarkets\Exception\CustomerException()));
+        $exporterMock->expects($this->once())->method('initAdditionalData')->will($this->throwException(new CustomerException()));
+
         $exporterMock->init();
     }
 
@@ -99,17 +96,11 @@ class ExporterTest extends PHPUnit_Framework_TestCase
             ->disableOriginalConstructor()
             ->setMethods(array('getResults', 'parseValues'))
             ->getMock();
-        $attributesMock->expects($this->once())
-            ->method('getResults')
-            ->will($this->returnValue(array('1' => 'Test Attribute')));
-        $attributesMock->expects($this->once())
-            ->method('parseValues')
-            ->will($this->returnValue(array('1' => 'Test Value', '2' => 'Test Value')));
+        $attributesMock->expects($this->once())->method('getResults')->willReturn(array('1' => 'Test Attribute'));
+        $attributesMock->expects($this->once())->method('parseValues')->willReturn(array('1' => 'Test Value', '2' => 'Test Value'));
 
         $registryMock = $this->getRegistryMock(array('get'));
-        $registryMock->expects($this->any())
-            ->method('get')
-            ->will($this->returnValue($attributesMock));
+        $registryMock->expects($this->any())->method('get')->willReturn($attributesMock);
 
         $exporterMock = $this->getExporterMockBuilder(array('registry' => $registryMock));
         $exporterMock->setMethods(array('initAdditionalData', 'initCategoriesFullUrls', 'handleException'));
@@ -135,13 +126,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
             ->setMethods(array('getProducts'))
             ->getMock();
 
-        $clientMock->expects($this->any())
-            ->method('getProducts')
-            ->will(
-                $this->returnValue(
-                    array('entries' => array(array()))
-                )
-            );
+        $clientMock->expects($this->any())->method('getProducts')->willReturn(array('entries' => array(array())));
 
         $exporterMock = $this->getExporterMockBuilder(array('client' => $clientMock));
         $exporterMock->setMethods(array('processProductData'));
@@ -323,6 +308,40 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $exporterMock->expects($this->once())->method('createProductItem')->will($this->returnValue($productMock));
 
         $exporterMock->processProductData(array());
+    }
+
+    public function getStandartVatProvider()
+    {
+        return array(
+            array(false, 'GB', 2, 'GB'),
+            array(1, 'GB', 2, 'AT')
+        );
+    }
+
+    /**
+     * @dataProvider getStandartVatProvider
+     */
+    public function testGetStandartVat($configMultishopId, $configCountry, $apiCountryId, $expectedResult)
+    {
+        $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getStandardVat'))
+            ->getMock();
+
+        $configMock = $this->getMockBuilder('\PlentyConfig')->setMethods(array())->getMock();
+        $configMock->expects($this->any())->method('getMultishopId')->willReturn($configMultishopId);
+        $configMock->expects($this->any())->method('getCountry')->willReturn($configCountry);
+
+        $clientMock->expects($this->any())->method('getStandardVat')->willReturn(array('countryId' => $apiCountryId));
+
+        $exporterMock = $this->getExporterMockBuilder();
+        $exporterMock->setMethods(array('getConfig', 'getClient'));
+        $exporterMock = $exporterMock->getMock();
+
+        $exporterMock->expects($this->any())->method('getClient')->willReturn($clientMock);
+        $exporterMock->expects($this->any())->method('getConfig')->willReturn($configMock);
+
+        $this->assertEquals($expectedResult, $exporterMock->getStandardVatCountry());
     }
 
     /* ------ helper functions ------ */

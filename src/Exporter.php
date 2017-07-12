@@ -2,6 +2,7 @@
 
 namespace Findologic\Plentymarkets;
 
+use Findologic\Plentymarkets\Data\Countries;
 use Findologic\Plentymarkets\Exception\CriticalException;
 use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Parser\ParserFactory;
@@ -47,6 +48,16 @@ class Exporter
      */
     protected $skippedProductsCount = 0;
 
+    /**
+     * Standard vat value from rest
+     *
+     * @var bool
+     */
+    protected $standardVat = false;
+
+    /**
+     * @var \PlentyConfig
+     */
     protected $config;
 
     /**
@@ -217,7 +228,6 @@ class Exporter
             ->setProtocol($this->getClient()->getProtocol())
             ->setStoreUrl($this->getConfig()->getDomain())
             ->setLanguageCode($this->getConfig()->getLanguage())
-            ->setTaxRateCountryCode($this->getConfig()->getCountry())
             ->setAvailabilityIds($this->getConfig()->getAvailabilityId())
             ->setPriceId($this->getConfig()->getPriceId())
             ->setRrpPriceId($this->getConfig()->getRrpId())
@@ -280,6 +290,25 @@ class Exporter
     }
 
     /**
+     * Get standard vat country, if there is no configured country call api
+     *
+     * @return bool|mixed|string
+     */
+    public function getStandardVatCountry()
+    {
+        if (!$this->getConfig()->getMultishopId()) {
+            return $this->getConfig()->getCountry();
+        }
+
+        if (!$this->standardVat) {
+            $data = $this->getClient()->getStandardVat($this->getConfig()->getMultishopId());
+            $this->standardVat = Countries::getCountryIsoCode($data['countryId']);
+        }
+
+        return $this->standardVat;
+    }
+
+    /**
      * Call categories tree parser for handling data
      */
     protected function initCategoriesFullUrls()
@@ -319,6 +348,7 @@ class Exporter
             if (!$this->getRegistry()->get($type)) {
                 $parser = ParserFactory::create($type, $this->getRegistry());
                 $parser->setLanguageCode($this->getConfig()->getLanguage());
+                $parser->setTaxRateCountryCode($this->getStandardVatCountry());
                 $this->getRegistry()->set($type, $parser);
                 $continue = true;
                 $page = 1;
