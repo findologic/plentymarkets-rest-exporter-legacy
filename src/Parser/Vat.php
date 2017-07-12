@@ -15,18 +15,6 @@ class Vat extends ParserAbstract implements ParserInterface
      */
     protected $countryId = 1;
 
-    public function __construct(Registry $registry)
-    {
-        parent::__construct($registry);
-
-        // Get country id to know which country vat should be applied
-        $countryId = Countries::getCountryByIsoCode($this->getTaxRateCountryCode());
-
-        if ($countryId) {
-            $this->countryId = $countryId;
-        }
-    }
-
     /**
      * @inheritdoc
      */
@@ -53,12 +41,21 @@ class Vat extends ParserAbstract implements ParserInterface
      * @param int $vatId
      * @return string
      */
-    public function getVatRateByVatId($vatId)
+    public function getVatRateByVatId($vatId, $countryId = null)
     {
         if (isset($this->results[$this->countryId][$vatId])) {
             return $this->results[$this->countryId][$vatId];
         }
 
         return $this->getDefaultEmptyValue();
+    }
+
+    public function setTaxRateCountryCode($country)
+    {
+        parent::setTaxRateCountryCode($country);
+
+        $this->countryId = Countries::getCountryByIsoCode($country);
+
+        return $this;
     }
 }
