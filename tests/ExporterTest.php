@@ -313,19 +313,19 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     public function getStandartVatProvider()
     {
         return array(
-            array(false, 'GB', 2, 'GB'),
-            array(1, 'GB', 2, 'AT')
+            array(array(), false, 'GB', 2, 'GB'),
+            array(array(array('id' => 1, 'storeIdentifier' => 2)), 1, 'GB', 2, 'AT')
         );
     }
 
     /**
      * @dataProvider getStandartVatProvider
      */
-    public function testGetStandartVat($configMultishopId, $configCountry, $apiCountryId, $expectedResult)
+    public function testGetStandartVat($webstores, $configMultishopId, $configCountry, $apiCountryId, $expectedResult)
     {
         $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
             ->disableOriginalConstructor()
-            ->setMethods(array('getStandardVat'))
+            ->setMethods(array('getStandardVat', 'getWebstores'))
             ->getMock();
 
         $configMock = $this->getMockBuilder('\PlentyConfig')->setMethods(array())->getMock();
@@ -333,6 +333,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $configMock->expects($this->any())->method('getCountry')->willReturn($configCountry);
 
         $clientMock->expects($this->any())->method('getStandardVat')->willReturn(array('countryId' => $apiCountryId));
+        $clientMock->expects($this->any())->method('getWebstores')->willReturn($webstores);
 
         $exporterMock = $this->getExporterMockBuilder();
         $exporterMock->setMethods(array('getConfig', 'getClient'));

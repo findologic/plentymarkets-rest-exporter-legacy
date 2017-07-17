@@ -301,8 +301,14 @@ class Exporter
         }
 
         if (!$this->standardVat) {
-            $data = $this->getClient()->getStandardVat($this->getConfig()->getMultishopId());
-            $this->standardVat = Countries::getCountryIsoCode($data['countryId']);
+            $stores = $this->getClient()->getWebstores();
+            foreach ($stores as $store) {
+                if ($store['id'] == $this->getConfig()->getMultishopId()) {
+                    $data = $this->getClient()->getStandardVat($store['storeIdentifier']);
+                    $this->standardVat = Countries::getCountryIsoCode($data['countryId']);
+                    break;
+                }
+            }
         }
 
         return $this->standardVat;
