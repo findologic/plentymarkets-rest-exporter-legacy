@@ -296,7 +296,7 @@ class Exporter
      */
     public function getStandardVatCountry()
     {
-        if (!$this->getConfig()->getMultishopId()) {
+        if ($this->getConfig()->getMultishopId() === null || !$this->getConfig()->getMultishopId() === false) {
             return $this->getConfig()->getCountry();
         }
 

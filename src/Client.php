@@ -228,7 +228,7 @@ class Client
      */
     public function getWebstores()
     {
-        $response = $this->call('GET', $this->getEndpoint('vat/webstores'));
+        $response = $this->call('GET', $this->getEndpoint('webstores'));
 
         return $this->returnResult($response);
     }
