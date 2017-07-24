@@ -226,7 +226,10 @@ class ClientTest extends PHPUnit_Framework_TestCase
             ->setMethods(array())
             ->getMock();
 
-        $configMock = $this->getMockBuilder('PlentyConfig')->getMock();
+        $configMock = $this->getMockBuilder('PlentyConfig')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getDomain', 'getUsername', 'getPassword', 'getWsdlUrl', 'getLanguage', 'getMultishopId', 'getAvailabilityId', 'getPriceId', 'getRrpId', 'getCountry'))
+            ->getMock();
 
         $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
             ->setConstructorArgs(array($configMock, $logMock))

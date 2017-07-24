@@ -226,6 +226,17 @@ class Client
      * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
      * @return array
      */
+    public function getWebstores()
+    {
+        $response = $this->call('GET', $this->getEndpoint('webstores'));
+
+        return $this->returnResult($response);
+    }
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
+     * @return array
+     */
     public function getCategories()
     {
         $params = array('type' => 'item', 'with' => 'details');

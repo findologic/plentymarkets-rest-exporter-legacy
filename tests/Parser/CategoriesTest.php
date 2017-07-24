@@ -3,7 +3,6 @@
 namespace Findologic\PlentymarketsTest\Parser;
 
 use Findologic\Plentymarkets\Config;
-use function foo\func;
 use PHPUnit_Framework_TestCase;
 
 class CategoriesTest extends PHPUnit_Framework_TestCase
