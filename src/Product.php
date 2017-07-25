@@ -44,7 +44,7 @@ class Product extends ParserAbstract
         'description' => '',
         'price' => 0.00,
         'instead' => 0.00,
-        'maxprice' => 0.00,
+        'maxprice' => null,
         'taxrate' => '',
         'url' => '',
         'image' => '',
