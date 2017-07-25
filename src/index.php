@@ -17,22 +17,13 @@ if (Config::DEBUG) {
 
 $config = new PlentyConfig();
 
-$config->setUsername('restuser')
-    ->setPassword('Testas123456')
-    ->setDomain('adeo.plentymarkets-cloud01.com')
-    ->setPriceId(1)
-    ->setRrpId(2)
-    ->setCountry('GB')
-    ->setLanguage('EN')
-    ->setMultishopId(2);
-
-/*$config->setUsername('username')
+$config->setUsername('username')
     ->setPassword('password')
     ->setDomain('www.store.com')
     ->setPriceId(1)
     ->setRrpId(2) // price id for 'instead' field
     ->setCountry('GB') // Country code for tax rates
-    ->setLanguage('EN'); // Language code for texts*/
+    ->setLanguage('EN'); // Language code for texts
 
 $registry = new \Findologic\Plentymarkets\Registry($log);
 $client = new \Findologic\Plentymarkets\Client($config, $log, $debug);

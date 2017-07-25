@@ -390,9 +390,14 @@ class Client
     /**
      * @return array
      */
-    public function getProducts()
+    public function getProducts($language = null)
     {
         $params = array('with' => 'itemProperties');
+
+        if ($language) {
+            $params['lang'] = $language;
+        }
+
         $response = $this->call('GET', $this->getEndpoint('items/', $params));
 
         return $this->returnResult($response);

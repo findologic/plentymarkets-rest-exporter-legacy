@@ -258,7 +258,7 @@ class Exporter
 
         while ($continue) {
             $this->getClient()->setItemsPerPage(self::NUMBER_OF_ITEMS_PER_PAGE)->setPage($page);
-            $variations = $this->getClient()->getProductVariations($product->getItemId());
+            $variations = $this->getClient()->getProductVariations($product->getItemId(), $this->getConfig()->getLanguage());
 
             if (isset($variations['entries'])) {
                 $product->processVariations($variations);
@@ -296,7 +296,7 @@ class Exporter
      */
     public function getStandardVatCountry()
     {
-        if ($this->getConfig()->getMultishopId() === null || !$this->getConfig()->getMultishopId() === false) {
+        if ($this->getConfig()->getMultishopId() === null || $this->getConfig()->getMultishopId() === false) {
             return $this->getConfig()->getCountry();
         }
 
