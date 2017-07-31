@@ -418,7 +418,8 @@ class Client
                     'variationAttributeValues',
                     'variationClients',
                     'unit'
-                )
+                ),
+            'isActive' => true
         );
 
         $response = $this->call('GET', $this->getEndpoint('items/' . $productId . '/variations', $params));

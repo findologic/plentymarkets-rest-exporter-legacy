@@ -386,8 +386,6 @@ class Product extends ParserAbstract
 
         $groups = '';
 
-        //TODO: find a way to get customer classes per item as current api do not provide this info
-
         foreach ($variationStores as $store) {
             $storeId = $this->getRegistry()->get('stores')->getStoreInternalIdByIdentifier($store['plentyId']);
             if ($storeId !== $this->getDefaultEmptyValue()) {
