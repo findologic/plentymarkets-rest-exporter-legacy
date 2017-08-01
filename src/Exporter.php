@@ -56,6 +56,13 @@ class Exporter
     protected $standardVat = false;
 
     /**
+     * Store plenty id
+     *
+     * @var bool|int
+     */
+    protected $storePlentyId = false;
+
+    /**
      * @var \PlentyConfig
      */
     protected $config;
@@ -304,7 +311,8 @@ class Exporter
             $stores = $this->getClient()->getWebstores();
             foreach ($stores as $store) {
                 if ($store['id'] == $this->getConfig()->getMultishopId()) {
-                    $data = $this->getClient()->getStandardVat($store['storeIdentifier']);
+                    $this->storePlentyId = $store['storeIdentifier'];
+                    $data = $this->getClient()->getStandardVat($this->storePlentyId);
                     $this->standardVat = Countries::getCountryIsoCode($data['countryId']);
                     break;
                 }
@@ -360,7 +368,7 @@ class Exporter
                 $page = 1;
                 while ($continue) {
                     $this->getClient()->setItemsPerPage(self::NUMBER_OF_ITEMS_PER_PAGE)->setPage($page);
-                    $results = $this->getClient()->$methodName();
+                    $results = $this->getClient()->$methodName($this->storePlentyId);
                     $parser->parse($results);
                     $page++;
                     if (!$results || !isset($results['isLastPage']) ||$results['isLastPage']) {

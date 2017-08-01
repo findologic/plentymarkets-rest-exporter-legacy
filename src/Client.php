@@ -237,9 +237,14 @@ class Client
      * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
      * @return array
      */
-    public function getCategories()
+    public function getCategories($storeId = null)
     {
         $params = array('type' => 'item', 'with' => 'details');
+
+        if ($storeId) {
+            $params['plentyId'] = $storeId;
+        }
+
         $response = $this->call('GET', $this->getEndpoint('categories/', $params));
 
         return $this->returnResult($response);
@@ -533,7 +538,6 @@ class Client
 
         return $response;
     }
-
 
     /**
      * Check response for appropriate statuses to validate if it was successful
