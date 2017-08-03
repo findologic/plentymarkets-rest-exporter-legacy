@@ -484,6 +484,14 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 false,
                 ''
             ),
+            // Variations belongs to category, but category values is empty so attributes should also be empty
+            array(
+                array(array('categoryId' => 1)),
+                array(
+                    array('urlKey' => '', 'fullNamePath' => ''),
+                ),
+                ''
+            ),
             // Variations belongs to two categories, categories names is saved in attributes field
             array(
                 array(array('categoryId' => 1), array('categoryId' => 2)),
