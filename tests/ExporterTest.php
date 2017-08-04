@@ -232,10 +232,10 @@ class ExporterTest extends PHPUnit_Framework_TestCase
 
         $productMock = $this->getMockBuilder('\Findologic\Plentymarkets\Product')
             ->disableOriginalConstructor()
-            ->setMethods(array('processVariations', 'processImages', 'getItemId', 'hasData'))
+            ->setMethods(array('processVariation', 'processImages', 'getItemId', 'hasData'))
             ->getMock();
 
-        $productMock->expects($this->once())->method('processVariations');
+        $productMock->expects($this->once())->method('processVariation')->willReturn(true);
         $productMock->expects($this->once())->method('processImages');
         $productMock->expects($this->once())->method('hasData')->willReturn(true);
         $productMock->expects($this->atLeast(4))->method('getItemId')->willReturn(1);
@@ -270,10 +270,10 @@ class ExporterTest extends PHPUnit_Framework_TestCase
 
         $productMock = $this->getMockBuilder('\Findologic\Plentymarkets\Product')
             ->disableOriginalConstructor()
-            ->setMethods(array('processVariations', 'processImages', 'getItemId', 'hasData'))
+            ->setMethods(array('processVariation', 'processImages', 'getItemId', 'hasData'))
             ->getMock();
 
-        $productMock->expects($this->once())->method('processVariations');
+        $productMock->expects($this->once())->method('processVariation');
         $productMock->expects($this->never())->method('processImages');
         $productMock->expects($this->once())->method('hasData')->willReturn(false);
         $productMock->expects($this->any())->method('getItemId')->willReturn(1);
@@ -295,11 +295,11 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $exporterMock = $exporterMock->getMock();
         $productMock = $this->getMockBuilder('\Findologic\Plentymarkets\Product')
             ->disableOriginalConstructor()
-            ->setMethods(array('getItemId', 'processVariations', 'processImages'))
+            ->setMethods(array('getItemId', 'processVariation', 'processImages'))
             ->getMock();
 
         $productMock->expects($this->once())->method('getItemId')->will($this->returnValue(false));
-        $productMock->expects($this->never())->method('processVariations');
+        $productMock->expects($this->never())->method('processVariation');
         $productMock->expects($this->never())->method('processImages');
 
         $exporterMock->expects($this->once())->method('createProductItem')->will($this->returnValue($productMock));
