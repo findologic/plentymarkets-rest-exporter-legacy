@@ -351,10 +351,14 @@ class Product extends ParserAbstract
 
         foreach ($data as $category) {
             $categoryId = $this->getFromArray($category, 'categoryId');
-            if ($categoryName =  $this->getRegistry()->get('categories')->getCategoryFullNamePath($categoryId)) {
+            $categoryName = $this->getRegistry()->get('categories')->getCategoryFullNamePath($categoryId);
+            $categoryUrl = $this->getRegistry()->get('categories')->getCategoryFullPath($categoryId);
+
+            if ($categoryName != $this->getDefaultEmptyValue()) {
                 $this->setAttributeField(self::CATEGORY_ATTRIBUTE_FIELD, $categoryName);
             }
-            if ($categoryUrl =  $this->getRegistry()->get('categories')->getCategoryFullPath($categoryId)) {
+
+            if ($categoryUrl != $this->getDefaultEmptyValue()) {
                 $this->setAttributeField(self::CATEGORY_URLS_ATTRIBUTE_FIELD, $categoryUrl);
             }
         }
