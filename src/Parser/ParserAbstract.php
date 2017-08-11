@@ -25,6 +25,8 @@ abstract class ParserAbstract
 
     protected $countryCode = '';
 
+    protected $storePlentyId;
+
     public function __construct(Registry $registry)
     {
         $this->registry = $registry;
@@ -119,6 +121,21 @@ abstract class ParserAbstract
     public function getStoreUrl()
     {
         return $this->storeUrl;
+    }
+
+    public function setStorePlentyId($storePlentyId)
+    {
+        $this->storePlentyId = $storePlentyId;
+
+        return $this;
+    }
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as it used for better mocking
+     */
+    public function getStorePlentyId()
+    {
+        return $this->storePlentyId;
     }
 
     /**

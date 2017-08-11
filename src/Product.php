@@ -157,6 +157,7 @@ class Product extends ParserAbstract
      * Return a false value if there was no variations which was active or passed other
      * configurated visibility filtering
      *
+     * @codeCoverageIgnore
      * @return bool
      */
     public function hasData()
@@ -311,35 +312,28 @@ class Product extends ParserAbstract
     /**
      * Process product variations
      *
-     * @param array $data
-     * @return $this
+     * @param array $variation
+     * @return bool
      */
-    public function processVariations($data)
+    public function processVariation($variation)
     {
-        if (!isset($data['entries'])) {
-            $this->handleEmptyData();
-            return $this;
+        if (!$this->shouldProcessVariation($variation)) {
+            return false;
         }
 
-        foreach ($data['entries'] as $variation) {
-            if (!$this->shouldProcessVariation($variation)) {
-                continue;
-            }
+        $this->setField(
+            'taxrate',
+            $this->getRegistry()->get('vat')->getVatRateByVatId($this->getFromArray($variation, 'vatId'))
+        );
 
-            $this->setField(
-                'taxrate',
-                $this->getRegistry()->get('vat')->getVatRateByVatId($this->getFromArray($variation, 'vatId'))
-            );
+        $this->processVariationIdentifiers($variation)
+            ->processVariationCategories($this->getFromArray($variation, 'variationCategories'))
+            ->processVariationGroups($this->getFromArray($variation, 'variationClients'))
+            ->processVariationPrices($this->getFromArray($variation, 'variationSalesPrices'))
+            ->processVariationAttributes($this->getFromArray($variation, 'variationAttributeValues'))
+            ->processUnits($this->getFromArray($variation, 'unit'));
 
-            $this->processVariationIdentifiers($variation)
-                ->processVariationCategories($this->getFromArray($variation, 'variationCategories'))
-                ->processVariationGroups($this->getFromArray($variation, 'variationClients'))
-                ->processVariationPrices($this->getFromArray($variation, 'variationSalesPrices'))
-                ->processVariationAttributes($this->getFromArray($variation, 'variationAttributeValues'))
-                ->processUnits($this->getFromArray($variation, 'unit'));
-        }
-
-        return $this;
+        return true;
     }
 
     /**
@@ -357,14 +351,16 @@ class Product extends ParserAbstract
 
         foreach ($data as $category) {
             $categoryId = $this->getFromArray($category, 'categoryId');
-            $this->setAttributeField(
-                self::CATEGORY_ATTRIBUTE_FIELD,
-                $this->getRegistry()->get('categories')->getCategoryFullNamePath($categoryId)
-            );
-            $this->setAttributeField(
-                self::CATEGORY_URLS_ATTRIBUTE_FIELD,
-                $this->getRegistry()->get('categories')->getCategoryFullPath($categoryId)
-            );
+            $categoryName = $this->getRegistry()->get('categories')->getCategoryFullNamePath($categoryId);
+            $categoryUrl = $this->getRegistry()->get('categories')->getCategoryFullPath($categoryId);
+
+            if ($categoryName != $this->getDefaultEmptyValue()) {
+                $this->setAttributeField(self::CATEGORY_ATTRIBUTE_FIELD, $categoryName);
+            }
+
+            if ($categoryUrl != $this->getDefaultEmptyValue()) {
+                $this->setAttributeField(self::CATEGORY_URLS_ATTRIBUTE_FIELD, $categoryUrl);
+            }
         }
 
         return $this;
@@ -545,16 +541,31 @@ class Product extends ParserAbstract
     /**
      * Check if product variation should be added to import or skipped
      *
-     * @param array $data
+     * @param array $variation
      * @return bool
      */
-    protected function shouldProcessVariation($data)
+    protected function shouldProcessVariation($variation)
     {
-        if ($data['isActive'] == false) {
+        if ($variation['isActive'] == false) {
             return false;
         }
 
-        if (!$this->isProductAvailable($data['availability'])) {
+        $variationClients = $this->getFromArray($variation, 'variationClients');
+
+        if (is_array($variationClients) && $this->getStorePlentyId()) {
+            $belongsToShop = false;
+            foreach ($variationClients as $client) {
+                if ($client['plentyId'] == $this->getStorePlentyId()) {
+                    $belongsToShop = true;
+                }
+            }
+
+            if (!$belongsToShop) {
+                return false;
+            }
+        }
+
+        if (!$this->isProductAvailable($variation['availability'])) {
             return false;
         }
 

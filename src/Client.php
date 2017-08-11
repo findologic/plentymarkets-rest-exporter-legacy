@@ -92,16 +92,28 @@ class Client
         $this->config = $config;
     }
 
+    /**
+     * @codeCoverageIgnore
+     * @return \PlentyConfig
+     */
     public function getConfig()
     {
         return $this->config;
     }
 
+    /**
+     * @codeCoverageIgnore
+     * @return string
+     */
     public function getUrl()
     {
         return $this->url;
     }
 
+    /**
+     * @codeCoverageIgnore
+     * @return string
+     */
     public function getLanguageCode()
     {
         return $this->config->getLanguage();
@@ -127,6 +139,7 @@ class Client
     }
 
     /**
+     * @codeCoverageIgnore
      * @return \Findologic\Plentymarkets\Log
      */
     public function getLog()

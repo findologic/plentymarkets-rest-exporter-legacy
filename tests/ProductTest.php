@@ -282,7 +282,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
         $this->assertSame($productMock->getField('attributes'), $expectedResult);
     }
 
-    public function processVariationsProvider()
+    public function processVariationProvider()
     {
         return array(
             // No variation data provided, item fields should be empty
@@ -292,29 +292,59 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 '',
                 array()
             ),
-            // Variation attributes, units and identifiers (barcodes not included) data provided but the prices is missing
+            // Variation attributes, units and identifiers (barcodes not included) data provided but the prices is missing,
+            // second variation will be ignored as it do not belong to provided shop (plenty store id do not match config)
             array(
                 array(
-                    'entries' => array(
-                        array(
-                            'position' => '1',
-                            'number' => 'Test Number',
-                            'model' => 'Test Model',
-                            'isActive' => true,
-                            'availability' => 1,
-                            'id' => 'Test Id',
-                            'variationSalesPrices' => array(),
-                            'vatId' => 2,
-                            'variationAttributeValues' => array(
-                                array(
-                                    'attributeId' => '1',
-                                    'valueId' => '2'
-                                ),
+                    array(
+                        'position' => '1',
+                        'number' => 'Test Number',
+                        'model' => 'Test Model',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'id' => 'Test Id',
+                        'variationSalesPrices' => array(),
+                        'vatId' => 2,
+                        'variationAttributeValues' => array(
+                            array(
+                                'attributeId' => '1',
+                                'valueId' => '2'
                             ),
-                            'variationBarcodes' => array(),
-                            'unit' => array(
-                                "unitId"=> 1,
-                                "content" => 2
+                        ),
+                        'variationBarcodes' => array(),
+                        'unit' => array(
+                            "unitId"=> 1,
+                            "content" => 2
+                        ),
+                        'variationClients' => array(
+                            array(
+                                'plentyId' => 1
+                            )
+                        )
+                    ),
+                    array(
+                        'position' => '2',
+                        'number' => 'Test Number 2',
+                        'model' => 'Test Model 2',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'id' => 'Test Id 2',
+                        'variationSalesPrices' => array(),
+                        'vatId' => 2,
+                        'variationAttributeValues' => array(
+                            array(
+                                'attributeId' => '3',
+                                'valueId' => '5'
+                            ),
+                        ),
+                        'variationBarcodes' => array(),
+                        'unit' => array(
+                            "unitId"=> 1,
+                            "content" => 2
+                        ),
+                        'variationClients' => array(
+                            array(
+                                'plentyId' => 5
                             )
                         )
                     )
@@ -327,66 +357,68 @@ class ProductTest extends PHPUnit_Framework_TestCase
             // Variation has duplicate identifier id => 'Test Id' so it should be ignored when adding to 'ordernumber' field
             array(
                 array(
-                    'entries' => array(
-                        array(
-                            'position' => '1',
-                            'number' => 'Test Number',
-                            'model' => 'Test Model',
-                            'isActive' => true,
-                            'availability' => 1,
-                            'id' => 'Test Id',
-                            'vatId' => 2,
-                            'variationSalesPrices' => array(
-                                array(
-                                    'price' => 15,
-                                    'salesPriceId' => 1 // Sales price id
-                                ),
-                                array(
-                                    'price' => 14,
-                                    'salesPriceId' => 2
-                                )
+                    array(
+                        'position' => '1',
+                        'number' => 'Test Number',
+                        'model' => 'Test Model',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'id' => 'Test Id',
+                        'vatId' => 2,
+                        'variationSalesPrices' => array(
+                            array(
+                                'price' => 15,
+                                'salesPriceId' => 1 // Sales price id
                             ),
-                            'variationAttributeValues' => array(),
-                            'variationBarcodes' => array()
+                            array(
+                                'price' => 14,
+                                'salesPriceId' => 2
+                            )
                         ),
-                        array(
-                            'position' => '2',
-                            'number' => 'Test Number 2',
-                            'model' => 'Test Model 2',
-                            'isActive' => true,
-                            'availability' => 1,
-                            'id' => 'Test Id',
-                            'variationSalesPrices' => array(
-                                array(
-                                    'price' => 0,
-                                    'salesPriceId' => 3
-                                ),
-                                array(
-                                    'price' => 17,
-                                    'salesPriceId' => 4 // Rrp price id
-                                ),
+                        'variationAttributeValues' => array(),
+                        'variationBarcodes' => array()
+                    ),
+                    array(
+                        'position' => '2',
+                        'number' => 'Test Number 2',
+                        'model' => 'Test Model 2',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'id' => 'Test Id',
+                        'variationSalesPrices' => array(
+                            array(
+                                'price' => 14,
+                                'salesPriceId' => 1 // Sales price id
                             ),
-                            'variationAttributeValues' => array(),
-                            'variationBarcodes' => array(
-                                array(
-                                    'code' => 'Barcode'
-                                )
+                            array(
+                                'price' => 0,
+                                'salesPriceId' => 3
+                            ),
+                            array(
+                                'price' => 17,
+                                'salesPriceId' => 4 // Rrp price id
+                            ),
+                        ),
+                        'variationAttributeValues' => array(),
+                        'variationBarcodes' => array(
+                            array(
+                                'code' => 'Barcode'
                             )
                         )
                     )
                 ),
                 '',
                 array('Test Number', 'Test Model', 'Test Id', 'Test Number 2', 'Test Model 2', 'Barcode'),
-                array('price' => 15, 'maxprice' => '', 'instead' => 17)
+                array('price' => 14, 'maxprice' => '', 'instead' => 17)
 
             )
         );
     }
 
     /**
-     * @dataProvider processVariationsProvider
+     * @dataProvider processVariationProvider
      */
-    public function testProcessVariations($data, $expectedAttributes, $expectedIdentifiers, $expectedFields)
+    public function testProcessVariation($data, $expectedAttributes, $expectedIdentifiers, $expectedFields)
     {
         $attributesMock = $this->getMockBuilder('Findologic\Plentymarkets\Parser\Attributes')
             ->disableOriginalConstructor()
@@ -408,10 +440,15 @@ class ProductTest extends PHPUnit_Framework_TestCase
         $registry->set('Attributes', $attributesMock);
         $registry->set('Vat', $vatMock);
 
-        $productMock = $this->getProductMock(array('getItemId', 'getLanguageCode'), array($registry));
+        $productMock = $this->getProductMock(array('getItemId', 'getLanguageCode', 'getStorePlentyId', 'processVariationGroups'), array($registry));
+        $productMock->expects($this->any())->method('processVariationGroups')->willReturn($productMock);
+        $productMock->expects($this->any())->method('getStorePlentyId')->willReturn(1);
         $productMock->setPriceId(1);
         $productMock->setRrpPriceId(4);
-        $productMock->processVariations($data);
+
+        foreach ($data as $variation) {
+            $productMock->processVariation($variation);
+        }
 
         $this->assertSame($expectedAttributes, $productMock->getField('attributes'));
         $this->assertSame($expectedIdentifiers, $productMock->getField('ordernumber'));
@@ -420,18 +457,14 @@ class ProductTest extends PHPUnit_Framework_TestCase
         }
     }
 
-    public function processVariationsWhenVariationIsNotActiveProvider()
+    public function processVariationWhenVariationIsNotActiveProvider()
     {
         return array(
             // Variation is not active and config is set to not include inactive variations
             array(
                 array(
-                    'entries' => array(
-                        array(
-                            'isActive' => false,
-                            'availability' => 1,
-                        )
-                    )
+                    'isActive' => false,
+                    'availability' => 1,
                 ),
                 array()
             ),
@@ -439,12 +472,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
             // is set and variation availability id is not in config
             array(
                 array(
-                    'entries' => array(
-                        array(
-                            'isActive' => true,
-                            'availability' => 2,
-                        )
-                    )
+                    'isActive' => true,
+                    'availability' => 2,
                 ),
                 2
             )
@@ -454,9 +483,9 @@ class ProductTest extends PHPUnit_Framework_TestCase
     /**
      * Variation should be skipped if product is not active or availability ids is not in config array
      *
-     * @dataProvider processVariationsWhenVariationIsNotActiveProvider
+     * @dataProvider processVariationWhenVariationIsNotActiveProvider
      */
-    public function testProcessVariationsWhenVariationIsNotActive($data, $availabilityId)
+    public function testProcessVariationWhenVariationIsNotActive($data, $availabilityId)
     {
         $productMock = $this->getProductMock(
             array(
@@ -472,7 +501,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
         $productMock->expects($this->never())->method('processVariationIdentifiers');
         $productMock->expects($this->never())->method('proccessVariationCategories');
 
-        $productMock->processVariations($data);
+        $productMock->processVariation($data);
     }
 
     public function processVariationCategoriesProvider()
@@ -482,6 +511,14 @@ class ProductTest extends PHPUnit_Framework_TestCase
             array(
                 array(),
                 false,
+                ''
+            ),
+            // Variations belongs to category, but category values is empty so attributes should also be empty
+            array(
+                array(array('categoryId' => 1)),
+                array(
+                    array('urlKey' => '', 'fullNamePath' => ''),
+                ),
                 ''
             ),
             // Variations belongs to two categories, categories names is saved in attributes field

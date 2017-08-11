@@ -231,7 +231,7 @@ class Exporter
     public function createProductItem($productData)
     {
         $product = new Product($this->getRegistry());
-        $product
+        $product->setStorePlentyId($this->storePlentyId)
             ->setProtocol($this->getClient()->getProtocol())
             ->setStoreUrl($this->getConfig()->getDomain())
             ->setLanguageCode($this->getConfig()->getLanguage())
@@ -268,8 +268,13 @@ class Exporter
             $variations = $this->getClient()->getProductVariations($product->getItemId(), $this->getConfig()->getLanguage());
 
             if (isset($variations['entries'])) {
-                $product->processVariations($variations);
                 foreach ($variations['entries'] as $variation) {
+                    $continueProcess = $product->processVariation($variation);
+
+                    if (!$continueProcess) {
+                        continue;
+                    }
+
                     $product->processVariationsProperties(
                         $this->getClient()->getVariationProperties($product->getItemId(), $variation['id'])
                     );
@@ -361,8 +366,9 @@ class Exporter
 
             if (!$this->getRegistry()->get($type)) {
                 $parser = ParserFactory::create($type, $this->getRegistry());
-                $parser->setLanguageCode($this->getConfig()->getLanguage());
-                $parser->setTaxRateCountryCode($this->getStandardVatCountry());
+                $parser->setLanguageCode($this->getConfig()->getLanguage())
+                    ->setTaxRateCountryCode($this->getStandardVatCountry())
+                    ->setStorePlentyId($this->storePlentyId);
                 $this->getRegistry()->set($type, $parser);
                 $continue = true;
                 $page = 1;
