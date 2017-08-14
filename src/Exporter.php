@@ -197,7 +197,12 @@ class Exporter
                     throw new CustomerException('Could not find any results!');
                 }
 
-                $this->getLog()->info('Processing items from ' . (($page - 1) * $itemsPerPage) . ' to ' . ($page * $itemsPerPage));
+                $start = (($page - 1) * $itemsPerPage);
+                $this->getLog()->info(
+                    'Processing items from ' . $start .
+                    ' to ' . ($start + count($results['entries'])) .
+                    ' out of ' . $results['totalsCount']
+                );
 
                 foreach ($results['entries'] as $product) {
                     $this->processProductData($product);

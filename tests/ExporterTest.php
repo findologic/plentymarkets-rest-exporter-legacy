@@ -127,7 +127,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
             ->setMethods(array('getProducts'))
             ->getMock();
 
-        $clientMock->expects($this->any())->method('getProducts')->willReturn(array('entries' => array(array())));
+        $clientMock->expects($this->any())->method('getProducts')->willReturn(array('totalsCount' => '0', 'entries' => array(array())));
 
         $exporterMock = $this->getExporterMockBuilder(array('client' => $clientMock));
         $exporterMock->setMethods(array('processProductData'));
