@@ -43,7 +43,7 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
                     'entries' => array(
                         array(
                             'details' => array(
-                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'lt', 'nameUrl' => 'test')
+                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'lt', 'nameUrl' => 'test', 'previewUrl' => 'http://example.com/test/')
                             )
                         )
                     )
@@ -56,12 +56,12 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
                     'entries' => array(
                         array(
                             'details' => array(
-                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'en', 'nameUrl' => 'test')
+                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'en', 'nameUrl' => 'test', 'previewUrl' => 'http://example.com/test/')
                             )
                         )
                     )
                 ),
-                array(1 => array('name' => 'Test', 'urlKey' => 'test'))
+                array(1 => array('name' => 'Test', 'urlKey' => 'test', 'fullPath' => '/test/'))
             )
         );
     }
@@ -89,12 +89,12 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
                     )
                 ),
                 array(
-                    1 => array('name' => 'category', 'urlKey' => 'category'),
-                    2 => array('name' => 'category1', 'urlKey' => 'category1'),
+                    1 => array('name' => 'category'),
+                    2 => array('name' => 'category1'),
                 ),
                 array(
-                    1 => array('name' => 'category', 'urlKey' => 'category'),
-                    2 => array('name' => 'category1', 'urlKey' => 'category1', 'fullPath' => '/category1/', 'fullNamePath' => 'category1')
+                    1 => array('name' => 'category'),
+                    2 => array('name' => 'category1', 'fullNamePath' => 'category1')
                 )
             ),
             // Categories paths successfully parsed
@@ -105,17 +105,15 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
                     )
                 ),
                 array(
-                    1 => array('name' => 'category', 'urlKey' => 'category'),
-                    2 => array('name' => 'category1', 'urlKey' => 'category1'),
-                    3 => array('name' => 'category2', 'urlKey' => 'category2'),
+                    1 => array('name' => 'category'),
+                    2 => array('name' => 'category1'),
+                    3 => array('name' => 'category2'),
                 ),
                 array(
-                    1 => array('name' => 'category', 'urlKey' => 'category'),
-                    2 => array('name' => 'category1', 'urlKey' => 'category1'),
+                    1 => array('name' => 'category'),
+                    2 => array('name' => 'category1'),
                     3 => array(
                         'name' => 'category2',
-                        'urlKey' => 'category2',
-                        'fullPath' => '/category/category1/category2/',
                         'fullNamePath' => 'category_category1_category2'
                     )
                 )

@@ -22,11 +22,11 @@ class Categories extends ParserAbstract implements ParserInterface
                     continue;
                 }
 
-                $this->results[$details['categoryId']] =
-                    array(
-                        'name' => $details['name'],
-                        'urlKey' => $details['nameUrl']
-                    );
+                $this->results[$details['categoryId']] = array(
+                    'name' => $details['name'],
+                    'urlKey' => $details['nameUrl'],
+                    'fullPath' => parse_url($details['previewUrl'], PHP_URL_PATH)
+                );
             }
         }
 
@@ -58,10 +58,6 @@ class Categories extends ParserAbstract implements ParserInterface
             foreach ($branch as $level => $categoryId) {
                 if (!$categoryId || $total == $i) {
                     // If it is last category insert the data
-                    if ($fullPath != '/') {
-                        $this->results[$lastCategoryId]['fullPath'] = $fullPath;
-                    }
-
                     if ($fullNamePath != '') {
                         $fullNamePath = rtrim($fullNamePath, '_');
                         $this->results[$lastCategoryId]['fullNamePath'] = $fullNamePath;
@@ -69,12 +65,9 @@ class Categories extends ParserAbstract implements ParserInterface
                     break;
                 }
 
-                if ($categoryPath = $this->getCategoryUrlKey($categoryId)) {
-                    $fullPath .= $categoryPath . '/';
-                    $fullNamePath .= $this->getCategoryName($categoryId) . '_';
+                if ($categoryNamePath = $this->getCategoryName($categoryId)) {
+                    $fullNamePath .= $categoryNamePath . '_';
                     $lastCategoryId = $categoryId;
-                } else {
-                    $this->handleEmptyData('Could not find the url path from parsed data key for category with id ' . $categoryId);
                 }
 
                 $i++;
