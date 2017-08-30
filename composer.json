@@ -1,7 +1,7 @@
 {
   "name": "findologic-plentymarkets",
   "type": "application",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Findologic plugin for Plentymarkets",
   "keywords": [
     "plentymarkets",
@@ -9,7 +9,7 @@
   ],
   "require": {
     "php": ">=5.5.0",
-    "pear/http_request2": "^2.2",
+    "findologic/http_request2": "2.3.1",
     "apache/log4php": "2.1.0"
   },
   "require-dev": {
