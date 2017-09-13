@@ -208,6 +208,29 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $this->assertSame('http://test.com/rest/method', $request->getUrl()->getURL());
     }
 
+    /**
+     * Very basic test to make sure that REST call timing is stored.
+     */
+    public function testTiming()
+    {
+        $requestMock = $this->getMockBuilder('\HTTP_Request2')
+            ->disableOriginalConstructor()
+            ->setMethods(array('send'))
+            ->getMock();
+
+        $successResponse = $this->getResponseMock('{"Test": "Test"}', 200);
+        $clientMock = $this->getClientMock(array('createRequest'));
+        $requestMock->expects($this->once())->method('send')->will($this->returnValue($successResponse));
+        $clientMock->expects($this->once())->method('createRequest')->will($this->returnValue($requestMock));
+
+        $clientMock->getCategories();
+
+        $expected = 'URL;count;time;avg
+https:///rest/categories/?type=item&with=details;1;0.00;0.00
+';
+        $this->assertEquals($expected, $clientMock->getTiming());
+    }
+
     /* ------ helper functions ------ */
 
     protected function getClientMock($methods)

@@ -11,6 +11,10 @@ class Client
 {
     const RETRY_COUNT = 5;
 
+    const TIMING_COUNT = 'count';
+    const TIMING_TOTAL_TIME = 'time';
+    const TIMING_AVERAGE_TIME = 'average_time';
+
     /**
      * Rest api url
      *
@@ -82,6 +86,11 @@ class Client
      * @var \PlentyConfig
      */
     protected $config;
+
+    /**
+     * @var array Store timing info on REST calls.
+     */
+    protected $timing = array();
 
     /**
      * @param \PlentyConfig $config
@@ -527,6 +536,8 @@ class Client
      */
     protected function call($method, $uri, $params = null)
     {
+        $begin = microtime(true);
+
         $response = false;
         $continue = true;
         $count = 0;
@@ -564,6 +575,9 @@ class Client
         // take the actions for setting them again
         $this->itemsPerPage = false;
         $this->page = false;
+
+        $end = microtime(true);
+        $this->logCallTiming($uri, $begin, $end);
 
         return $response;
     }
@@ -633,5 +647,50 @@ class Client
         $request->setHeader('Authorization', 'Bearer ' . $this->getToken());
 
         return $this;
+    }
+
+    /**
+     * Get timing information on REST calls.
+     *
+     * @return string Timing information suitable for use in a CSV file.
+     */
+    public function getTiming()
+    {
+        $output = "URL;count;time;avg\n";
+
+        foreach ($this->timing as $url => $stats) {
+            $output .= sprintf("%s;%d;%.2f;%.2f\n", $url,
+                $stats[self::TIMING_COUNT], $stats[self::TIMING_TOTAL_TIME], $stats[self::TIMING_AVERAGE_TIME]);
+        }
+
+        return $output;
+    }
+
+    /**
+     * Log the timing of a REST call.
+     *
+     * @param $uri The URI that was used.
+     * @param $begin Timestamp when the request was started.
+     * @param $end Timestamp when the request finished.
+     */
+    protected function logCallTiming($uri, $begin, $end)
+    {
+        $diff = $end - $begin;
+
+        // Replace numbers with 'x' in order to aggregate calls that contain an item ID, eg.
+        // eg. /rest/items/123/images -> /rest/items/x/images
+        $uriWithoutNumbers = preg_replace('/\d+/', 'x', $uri);
+
+        // Initiate the data structure
+        if (!isset($this->timing[$uriWithoutNumbers])) {
+            $this->timing[$uriWithoutNumbers] = array(
+                self::TIMING_COUNT => 0,
+                self::TIMING_TOTAL_TIME => 0,
+            );
+        }
+        $this->timing[$uriWithoutNumbers][self::TIMING_COUNT]++;
+        $this->timing[$uriWithoutNumbers][self::TIMING_TOTAL_TIME] += $diff;
+        $this->timing[$uriWithoutNumbers][self::TIMING_AVERAGE_TIME] =
+            $this->timing[$uriWithoutNumbers][self::TIMING_TOTAL_TIME] / $this->timing[$uriWithoutNumbers][self::TIMING_COUNT];
     }
 }
