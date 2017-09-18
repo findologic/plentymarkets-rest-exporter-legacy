@@ -669,9 +669,9 @@ class Client
     /**
      * Log the timing of a REST call.
      *
-     * @param $uri The URI that was used.
-     * @param $begin Timestamp when the request was started.
-     * @param $end Timestamp when the request finished.
+     * @param $uri string The URI that was used.
+     * @param $begin float Timestamp when the request was started.
+     * @param $end float Timestamp when the request finished.
      */
     protected function logCallTiming($uri, $begin, $end)
     {

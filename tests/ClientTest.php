@@ -225,10 +225,10 @@ class ClientTest extends PHPUnit_Framework_TestCase
 
         $clientMock->getCategories();
 
-        $expected = 'URL;count;time;avg
-https:///rest/categories/?type=item&with=details;1;0.00;0.00
-';
-        $this->assertEquals($expected, $clientMock->getTiming());
+        $expected = "URL;count;time;avg\nhttps:///rest/categories/?type=item&with=details;1;0.00;0.00";
+        $actual = trim($clientMock->getTiming());
+        $this->assertEquals($expected, $actual,
+            "The timing output should contain timing info about the REST calls");
     }
 
     /* ------ helper functions ------ */
