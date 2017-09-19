@@ -79,7 +79,7 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
         $this->assertSame($expectedResult, $categoriesMock->getResults());
     }
 
-    public function parseCategoryFullUrlsProvider()
+    public function parseCategoryFullNamesProvider()
     {
         return array(
             array(
@@ -122,15 +122,15 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @dataProvider parseCategoryFullUrlsProvider
+     * @dataProvider parseCategoryFullNamesProvider
      */
-    public function testParseCategoryFullUrls($data, $parsedCategories, $expectedResult)
+    public function testParseCategoryFullNames($data, $parsedCategories, $expectedResult)
     {
         $categoriesMock = $this->getCategoriesMock(array('parse'));
 
         $categoriesMock->setResults($parsedCategories);
 
-        $this->assertSame($expectedResult, $categoriesMock->parseCategoryFullUrls($data));
+        $this->assertSame($expectedResult, $categoriesMock->parseCategoryFullNames($data));
     }
 
 

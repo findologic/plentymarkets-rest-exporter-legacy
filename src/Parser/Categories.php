@@ -37,7 +37,7 @@ class Categories extends ParserAbstract implements ParserInterface
      * @param array $data
      * @return array
      */
-    public function parseCategoryFullUrls($data)
+    public function parseCategoryFullNames($data)
     {
         if (!is_array($data) || !isset($data['entries'])) {
             $this->handleEmptyData('No data provided for parsing categories urls.');
@@ -45,7 +45,6 @@ class Categories extends ParserAbstract implements ParserInterface
         }
 
         foreach ($data['entries'] as $branch) {
-            $fullPath = '/';
             $fullNamePath = '';
             $lastCategoryId = false;
             $i = 0;

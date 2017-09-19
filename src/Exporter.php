@@ -342,7 +342,7 @@ class Exporter
         while ($continue) {
             $this->getClient()->setItemsPerPage(self::NUMBER_OF_ITEMS_PER_PAGE)->setPage($page);
             $results = $this->getClient()->getCategoriesBranches();
-            $this->getRegistry()->get('categories')->parseCategoryFullUrls($results);
+            $this->getRegistry()->get('categories')->parseCategoryFullNames($results);
             $page++;
             if (!$results || !isset($results['isLastPage']) ||$results['isLastPage']) {
                 $continue = false;
