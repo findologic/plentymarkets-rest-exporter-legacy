@@ -305,6 +305,10 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'id' => 'Test Id',
                         'variationSalesPrices' => array(),
                         'vatId' => 2,
+                        'isVisibleIfNetStockIsPositive' => true,
+                        'isInvisibleIfNetStockIsNotPositive' => false,
+                        'isAvailableIfNetStockIsPositive' => true,
+                        'isUnavailableIfNetStockIsNotPositive' => false,
                         'variationAttributeValues' => array(
                             array(
                                 'attributeId' => '1',
@@ -320,6 +324,11 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             array(
                                 'plentyId' => 1
                             )
+                        ),
+                        'stock' => array(
+                            array(
+                                'netStock' => 1
+                            )
                         )
                     ),
                     array(
@@ -331,6 +340,10 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'id' => 'Test Id 2',
                         'variationSalesPrices' => array(),
                         'vatId' => 2,
+                        'isVisibleIfNetStockIsPositive' => true,
+                        'isInvisibleIfNetStockIsNotPositive' => false,
+                        'isAvailableIfNetStockIsPositive' => true,
+                        'isUnavailableIfNetStockIsNotPositive' => false,
                         'variationAttributeValues' => array(
                             array(
                                 'attributeId' => '3',
@@ -345,6 +358,11 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'variationClients' => array(
                             array(
                                 'plentyId' => 5
+                            )
+                        ),
+                        'stock' => array(
+                            array(
+                                'netStock' => 1
                             )
                         )
                     )
@@ -365,6 +383,10 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'availability' => 1,
                         'id' => 'Test Id',
                         'vatId' => 2,
+                        'isVisibleIfNetStockIsPositive' => true,
+                        'isInvisibleIfNetStockIsNotPositive' => false,
+                        'isAvailableIfNetStockIsPositive' => true,
+                        'isUnavailableIfNetStockIsNotPositive' => false,
                         'variationSalesPrices' => array(
                             array(
                                 'price' => 15,
@@ -376,7 +398,12 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             )
                         ),
                         'variationAttributeValues' => array(),
-                        'variationBarcodes' => array()
+                        'variationBarcodes' => array(),
+                        'stock' => array(
+                            array(
+                                'netStock' => 1
+                            )
+                        )
                     ),
                     array(
                         'position' => '2',
@@ -385,6 +412,10 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'isActive' => true,
                         'availability' => 1,
                         'id' => 'Test Id',
+                        'isVisibleIfNetStockIsPositive' => true,
+                        'isInvisibleIfNetStockIsNotPositive' => false,
+                        'isAvailableIfNetStockIsPositive' => true,
+                        'isUnavailableIfNetStockIsNotPositive' => false,
                         'variationSalesPrices' => array(
                             array(
                                 'price' => 14,
@@ -404,13 +435,94 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             array(
                                 'code' => 'Barcode'
                             )
+                        ),
+                        'stock' => array(
+                            array(
+                                'netStock' => 1
+                            )
                         )
                     )
                 ),
                 '',
                 array('Test Number', 'Test Model', 'Test Id', 'Test Number 2', 'Test Model 2', 'Barcode'),
                 array('price' => 14, 'maxprice' => '', 'instead' => 17)
-
+            ),
+            // All variations does not pass stock validation
+            array(
+                array(
+                    array(
+                        'position' => '1',
+                        'number' => 'Test Number',
+                        'model' => 'Test Model',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'id' => 'Test Id',
+                        'vatId' => 2,
+                        'isVisibleIfNetStockIsPositive' => false,
+                        'isInvisibleIfNetStockIsNotPositive' => false,
+                        'isAvailableIfNetStockIsPositive' => true,
+                        'isUnavailableIfNetStockIsNotPositive' => false,
+                        'stock' => array(
+                            array(
+                                'netStock' => 1
+                            )
+                        )
+                    ),
+                    array(
+                        'position' => '2',
+                        'number' => 'Test Number 2',
+                        'model' => 'Test Model 2',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'id' => 'Test Id',
+                        'isVisibleIfNetStockIsPositive' => true,
+                        'isInvisibleIfNetStockIsNotPositive' => true,
+                        'isAvailableIfNetStockIsPositive' => true,
+                        'isUnavailableIfNetStockIsNotPositive' => false,
+                        'stock' => array(
+                            array(
+                                'netStock' => 0
+                            )
+                        )
+                    ),
+                    array(
+                        'position' => '2',
+                        'number' => 'Test Number 2',
+                        'model' => 'Test Model 2',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'id' => 'Test Id',
+                        'isVisibleIfNetStockIsPositive' => true,
+                        'isInvisibleIfNetStockIsNotPositive' => false,
+                        'isAvailableIfNetStockIsPositive' => false,
+                        'isUnavailableIfNetStockIsNotPositive' => false,
+                        'stock' => array(
+                            array(
+                                'netStock' => 1
+                            )
+                        )
+                    ),
+                    array(
+                        'position' => '2',
+                        'number' => 'Test Number 2',
+                        'model' => 'Test Model 2',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'id' => 'Test Id',
+                        'isVisibleIfNetStockIsPositive' => true,
+                        'isInvisibleIfNetStockIsNotPositive' => false,
+                        'isAvailableIfNetStockIsPositive' => true,
+                        'isUnavailableIfNetStockIsNotPositive' => true,
+                        'stock' => array(
+                            array(
+                                'netStock' => 0
+                            )
+                        )
+                    )
+                ),
+                '',
+                '',
+                array()
             )
         );
     }

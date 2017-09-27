@@ -435,7 +435,8 @@ class Client
                     'variationCategories',
                     'variationAttributeValues',
                     'variationClients',
-                    'unit'
+                    'unit',
+                    'stock'
                 ),
             'isActive' => true
         );
