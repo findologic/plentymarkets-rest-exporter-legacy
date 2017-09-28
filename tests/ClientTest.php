@@ -2,6 +2,8 @@
 
 namespace Findologic\PlentymarketsTest;
 
+use Findologic\Plentymarkets\Exception\CriticalException;
+use Findologic\Plentymarkets\Exception\CustomerException;
 use PHPUnit_Framework_TestCase;
 
 class ClientTest extends PHPUnit_Framework_TestCase
@@ -124,19 +126,8 @@ class ClientTest extends PHPUnit_Framework_TestCase
             ->setMethods(array('send'))
             ->getMock();
 
-        $debugMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
-            ->disableOriginalConstructor()
-            ->getMock();
-
-        $failedResponse = $this->getResponseMock('Failed', 404);
-        $requestMock->expects($this->any())->method('send')->will($this->returnValue($failedResponse));
-
-        $logMock = $this->getMockBuilder('\Findologic\Plentymarkets\Log')
-            ->disableOriginalConstructor()
-            ->setMethods(array('handleException'))
-            ->getMock();
-        $logMock->expects($this->once())->method('handleException');
-
+        $debugMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')->disableOriginalConstructor()->getMock();
+        $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
         $configMock = $this->getMockBuilder('PlentyConfig')->getMock();
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
@@ -144,12 +135,17 @@ class ClientTest extends PHPUnit_Framework_TestCase
             ->setMethods(array('createRequest'))
             ->getMock();
 
+        $failedResponse = $this->getResponseMock('Failed', 404);
+        $requestMock->expects($this->any())->method('send')->will($this->returnValue($failedResponse));
         $clientMock->expects($this->once())->method('createRequest')->will($this->returnValue($requestMock));
+
+        $this->setExpectedException(CustomerException::class);
+
         $clientMock->getProductVariations('1');
     }
 
     /**
-     * Test if debugger is called and critical exception should be handled if response return 401
+     * Test if debugger is called and critical exception should be thrown if response return 401
      */
     public function testCallInvalidLogin()
     {
@@ -164,18 +160,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
 
         // Check if debugger is called
         $debugMock->expects($this->atMost(5))->method('debugCall');
-
-        $failedResponse = $this->getResponseMock('Failed', 401);
-        $failedResponse->expects($this->any())->method('getReasonPhrase')->willReturn('Unauthorized');
-        $requestMock->expects($this->any())->method('send')->will($this->returnValue($failedResponse));
-
-        $logMock = $this->getMockBuilder('\Findologic\Plentymarkets\Log')
-            ->disableOriginalConstructor()
-            ->setMethods(array('handleException'))
-            ->getMock();
-
-        $logMock->expects($this->once())->method('handleException');
-
+        $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
         $configMock = $this->getMockBuilder('PlentyConfig')->getMock();
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
@@ -183,7 +168,13 @@ class ClientTest extends PHPUnit_Framework_TestCase
             ->setMethods(array('createRequest'))
             ->getMock();
 
+        $failedResponse = $this->getResponseMock('Failed', 401);
+        $failedResponse->expects($this->any())->method('getReasonPhrase')->willReturn('Unauthorized');
+        $requestMock->expects($this->any())->method('send')->will($this->returnValue($failedResponse));
         $clientMock->expects($this->once())->method('createRequest')->will($this->returnValue($requestMock));
+
+        $this->setExpectedException(CriticalException::class);
+
         $clientMock->getProductVariations('1');
     }
 
@@ -221,7 +212,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
 
     protected function getClientMock($methods)
     {
-        $logMock = $this->getMockBuilder('\Findologic\Plentymarkets\Log')
+        $logMock = $this->getMockBuilder('\Logger')
             ->disableOriginalConstructor()
             ->setMethods(array())
             ->getMock();

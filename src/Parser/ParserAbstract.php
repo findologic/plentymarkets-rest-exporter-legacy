@@ -3,7 +3,6 @@
 namespace Findologic\Plentymarkets\Parser;
 
 use Findologic\Plentymarkets\Registry;
-use Findologic\Plentymarkets\Config;
 
 abstract class ParserAbstract
 {
@@ -63,6 +62,9 @@ abstract class ParserAbstract
      */
     protected function handleEmptyData($additionalInfo = '')
     {
+        /**
+         * @var \Logger $log
+         */
         if ($this->registry && ($log = $this->registry->get('log'))) {
             $method = debug_backtrace();
             $method = $method[1]['function'];
@@ -72,7 +74,7 @@ abstract class ParserAbstract
                 $message .= ' Class message: ' . $additionalInfo;
             }
 
-            $log->handleEmptyData($message);
+            $log->trace($message);
         }
 
         return $this;

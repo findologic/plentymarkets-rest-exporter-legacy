@@ -14,7 +14,7 @@ class Registry
      * Require log class for constructor to make sure it exists at all times.
      *
      * @codeCoverageIgnore
-     * @param Log $log
+     * @param \Logger $log
      */
     public function __construct($log)
     {

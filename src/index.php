@@ -7,8 +7,10 @@ require_once '../vendor/autoload.php';
 use Findologic\Plentymarkets\Config;
 
 $debug = false;
-$logger = Logger::getLogger("main");
-$log = new Findologic\Plentymarkets\Log($logger);
+
+Logger::configure('Logger/import.xml');
+Logger::initialize();
+$log = Logger::getLogger('import.php');
 
 if (Config::DEBUG) {
     $log->info('Initialising the plugin with DEBUG mode ON.', false);

@@ -117,16 +117,12 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Check if exception handling was called when file could not be opened
+     * Check if exception was thrown when file could not be opened
      */
     public function testDebugCallFileCreationException()
     {
         $requestMock = $this->getRequestMock('/rest/items');
-
-        // If exception is thrown the log handle method should be called
-        $logMock = $this->getLogMock(array('handleException'));
-        $logMock->expects($this->once())->method('handleException');
-
+        $logMock = $this->getLogMock();
         $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
             ->setConstructorArgs(array($logMock, $this->fileSystemMock->url(), array('items')))
             ->setMethods(array('getApiCallDirectoryPath', 'createDirectory', 'getFilePrefix', 'debugResponse'))
@@ -139,6 +135,8 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
         $fileMock->setContent('Test');
         $fileMock->chmod(0);
         $this->fileSystemMock->addChild($fileMock);
+
+        $this->setExpectedException(InternalException::class);
 
         // Silence fopen warnings for tests
         @$debuggerMock->debugCall($requestMock, false);
@@ -190,7 +188,7 @@ Headers :
      */
     protected function getLogMock($methods = array())
     {
-        $logMock = $this->getMockBuilder('\Findologic\Plentymarkets\Log')
+        $logMock = $this->getMockBuilder('\Logger')
             ->disableOriginalConstructor()
             ->setMethods($methods)
             ->getMock();

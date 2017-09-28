@@ -2,10 +2,10 @@
 
 namespace Findologic\Plentymarkets;
 
-use Findologic\Plentymarkets\Log;
 use Findologic\Plentymarkets\Exception\CriticalException;
 use Findologic\Plentymarkets\Exception\CustomerException;
-use HTTP_Request2;
+use \HTTP_Request2;
+use \Logger;
 
 class Client
 {
@@ -33,7 +33,7 @@ class Client
     protected $refreshToken;
 
     /**
-     * @var Log
+     * @var Logger
      */
     protected $log;
 
@@ -80,10 +80,10 @@ class Client
 
     /**
      * @param \PlentyConfig $config
-     * @param Log $log
+     * @param \Logger $log
      * @param bool $debug
      */
-    public function __construct(\PlentyConfig $config, Log $log, $debug = false)
+    public function __construct(\PlentyConfig $config, Logger $log, $debug = false)
     {
         $url = rtrim($config->getDomain(), '/') . '/rest/';
         $this->url = $url;
@@ -140,7 +140,7 @@ class Client
 
     /**
      * @codeCoverageIgnore
-     * @return \Findologic\Plentymarkets\Log
+     * @return \Logger
      */
     public function getLog()
     {
@@ -537,8 +537,7 @@ class Client
             } catch (\Exception $e) {
                 // If call to api was not successful check if retry limit was reached to stop retry cycle
                 if ($count >= self::RETRY_COUNT) {
-                    $continue = false;
-                    $this->getLog()->handleException($e);
+                    throw $e;
                 } else {
                     usleep(100000);
                 }

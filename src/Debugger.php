@@ -2,9 +2,10 @@
 
 namespace Findologic\Plentymarkets;
 
+use \Findologic\Plentymarkets\Exception\InternalException;
 use \HTTP_Request2;
 use \HTTP_Request2_Response;
-use \Findologic\Plentymarkets\Exception\InternalException;
+use \Logger;
 
 class Debugger
 {
@@ -26,12 +27,12 @@ class Debugger
     protected $pathsToDebug = array();
 
     /**
-     * @var \Findologic\Plentymarkets\Log $log
+     * @var \Logger $log
      */
     protected $log;
 
     /**
-     * @param \Findologic\Plentymarkets\Log $log
+     * @param \Logger $log
      * @param string|bool $directory
      * @param array $pathsToDebug
      */
@@ -57,17 +58,13 @@ class Debugger
             return false;
         }
 
-        try {
-            $path = $this->getApiCallDirectoryPath($request->getUrl()->getPath());
-            $filePrefix = $this->getFilePrefix();
-            $this->createDirectory($path);
-            $fileHandle = $this->createFile($path, $filePrefix . 'Request.txt');
-            $this->debugRequest($request, $fileHandle);
-            $this->debugResponse($response, $fileHandle);
-            fclose($fileHandle);
-        } catch (\Exception $e) {
-            $this->log->handleException($e);
-        }
+        $path = $this->getApiCallDirectoryPath($request->getUrl()->getPath());
+        $filePrefix = $this->getFilePrefix();
+        $this->createDirectory($path);
+        $fileHandle = $this->createFile($path, $filePrefix . 'Request.txt');
+        $this->debugRequest($request, $fileHandle);
+        $this->debugResponse($response, $fileHandle);
+        fclose($fileHandle);
 
         return true;
     }

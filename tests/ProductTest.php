@@ -881,7 +881,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
 
         $registryMock->expects($this->any())->method('get')->willReturn($propertyGroupsMock);
 
-        $productMock = $this->getProductMock(array(), array('registry' => $registryMock));
+        $productMock = $this->getProductMock(array('handleEmptyData'), array('registry' => $registryMock));
         $productMock->processVariationsProperties($data);
 
         $this->assertSame($expectedResult, $productMock->getField('attributes'));

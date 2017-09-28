@@ -30,21 +30,16 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test if exception was handled
+     * Test if exception was thrown
      */
     public function testInitException()
     {
-        $logMock = $this->getMockBuilder('\Findologic\Plentymarkets\Log')
-            ->disableOriginalConstructor()
-            ->setMethods(array())
-            ->getMock();
-        $logMock->expects($this->once())->method('handleException');
-
-        $exporterMock = $this->getExporterMockBuilder(array('log' => $logMock));
+        $exporterMock = $this->getExporterMockBuilder();
         $exporterMock->setMethods(array('initAdditionalData', 'initAttributeValues'));
         $exporterMock = $exporterMock->getMock();
-
         $exporterMock->expects($this->once())->method('initAdditionalData')->will($this->throwException(new CustomerException()));
+
+        $this->setExpectedException(CustomerException::class);
 
         $exporterMock->init();
     }
@@ -56,7 +51,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     {
         $configMock = $this->getMockBuilder('PlentyConfig')->getMock();
 
-        $logMock = $this->getMockBuilder('\Findologic\Plentymarkets\Log')
+        $logMock = $this->getMockBuilder('\Logger')
             ->disableOriginalConstructor()
             ->setMethods(array('handleException'))
             ->getMock();
@@ -74,7 +69,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
             array('registry' => $this->getRegistryMock(), 'client' => $clientMock)
         );
 
-        $exporterMock->setMethods(array('initAttributeValues', 'handleException', 'getConfig', 'getStandardVatCountry'));
+        $exporterMock->setMethods(array('initAttributeValues', 'getConfig', 'getStandardVatCountry'));
         $exporterMock = $exporterMock->getMock();
         $exporterMock->expects($this->any())->method('getConfig')->willReturn($configMock);
         $exporterMock->expects($this->any())->method('getStandardVatCountry')->willReturn('DE');
@@ -116,12 +111,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     public function testGetProducts()
     {
         $configMock = $this->getMockBuilder('PlentyConfig')->getMock();
-
-        $logMock = $this->getMockBuilder('\Findologic\Plentymarkets\Log')
-            ->disableOriginalConstructor()
-            ->setMethods(array('handleException'))
-            ->getMock();
-
+        $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
         $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
             ->setConstructorArgs(array($configMock, $logMock))
             ->setMethods(array('getProducts'))
@@ -139,16 +129,11 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * If api returns no result an exception should be thrown and log class handleException method should be called
+     * If api returns no result an exception should be thrown
      */
     public function testGetProductsException()
     {
-        $logMock = $this->getMockBuilder('\Findologic\Plentymarkets\Log')
-            ->disableOriginalConstructor()
-            ->setMethods(array())
-            ->getMock();
-        $logMock->expects($this->once())->method('handleException');
-
+        $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
         $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
             ->disableOriginalConstructor()
             ->setMethods(array('getProducts'))
@@ -159,6 +144,8 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $exporterMock = $this->getExporterMockBuilder(array('log' => $logMock, 'client' => $clientMock))
             ->setMethods(array('init'))
             ->getMock();
+
+        $this->setExpectedException(CustomerException::class);
 
         $exporterMock->getProducts();
     }
@@ -357,7 +344,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $defaultMocks = array(
             'client' => $clientMock,
             'wrapper' => $this->getMockBuilder('Findologic\Plentymarkets\Wrapper\Csv')->getMock(),
-            'log' => $this->getMockBuilder('Findologic\Plentymarkets\Log')->disableOriginalConstructor()->getMock(),
+            'log' => $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock(),
             'registry' => $this->getMockBuilder('Findologic\Plentymarkets\Registry')->disableOriginalConstructor()->getMock(),
         );
 

@@ -8,6 +8,7 @@ use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Parser\ParserFactory;
 use Findologic\Plentymarkets\Parser\Attributes;
 use Findologic\Plentymarkets\Wrapper\WrapperInterface;
+use \Logger;
 
 class Exporter
 {
@@ -24,7 +25,7 @@ class Exporter
     protected $wrapper;
 
     /**
-     * @var Log $log
+     * @var \Logger $log
      */
     protected $log;
 
@@ -70,10 +71,10 @@ class Exporter
     /**
      * @param \Findologic\Plentymarkets\Client $client
      * @param \Findologic\Plentymarkets\Wrapper\WrapperInterface $wrapper
-     * @param \Findologic\Plentymarkets\Log $log
+     * @param \Logger $log
      * @param \Findologic\Plentymarkets\Registry $registry
      */
-    public function __construct(Client $client, WrapperInterface $wrapper, Log $log, Registry $registry)
+    public function __construct(Client $client, WrapperInterface $wrapper, Logger $log, Registry $registry)
     {
         $this->client = $client;
         $this->wrapper = $wrapper;
@@ -89,16 +90,12 @@ class Exporter
      */
     public function init()
     {
-        try {
-            $this->getLog()->info('Starting to initialise necessary data (categories, attributes, etc.)');
-            $this->getClient()->login();
-            $this->initAdditionalData();
-            $this->initCategoriesFullUrls();
-            $this->initAttributeValues();
-            $this->getLog()->info('Finished initialising necessary data');
-        } catch (\Exception $e) {
-            $this->getLog()->handleException($e);
-        }
+        $this->getLog()->info('Starting to initialise necessary data (categories, attributes, etc.)');
+        $this->getClient()->login();
+        $this->initAdditionalData();
+        $this->initCategoriesFullUrls();
+        $this->initAttributeValues();
+        $this->getLog()->info('Finished initialising necessary data');
 
         return $this;
     }
@@ -120,7 +117,7 @@ class Exporter
     }
 
     /**
-     * @return Log
+     * @return Logger
      */
     public function getLog()
     {
@@ -182,46 +179,40 @@ class Exporter
             $itemsPerPage = self::NUMBER_OF_ITEMS_PER_PAGE;
         }
 
-        try {
-            $continue = true;
+        $continue = true;
 
-            $this->getLog()->info('Starting product processing.');
+        $this->getLog()->info('Starting product processing.');
 
-            // Cycle the call for products to api until all we have all products
-            while ($continue) {
-                $this->getClient()->setItemsPerPage($itemsPerPage)->setPage($page);
-                $results = $this->getClient()->getProducts();
+        // Cycle the call for products to api until all we have all products
+        while ($continue) {
+            $this->getClient()->setItemsPerPage($itemsPerPage)->setPage($page);
+            $results = $this->getClient()->getProducts();
 
-                // Check if there is any results. Products is contained is 'entries' value of response array
-                if (!$results || !isset($results['entries'])) {
-                    throw new CustomerException('Could not find any results!');
-                }
-
-                $start = (($page - 1) * $itemsPerPage);
-                $this->getLog()->info(
-                    'Processing items from ' . $start .
-                    ' to ' . ($start + count($results['entries'])) .
-                    ' out of ' . $results['totalsCount']
-                );
-
-                foreach ($results['entries'] as $product) {
-                    $this->processProductData($product);
-                }
-
-                if (!$results || !isset($results['isLastPage']) || $results['isLastPage'] == true) {
-                    $continue = false;
-                }
-
-                $page++;
+            // Check if there is any results. Products is contained is 'entries' value of response array
+            if (!$results || !isset($results['entries'])) {
+                throw new CustomerException('Could not find any results!');
             }
 
-            $this->getLog()->info('Products processing finished. ' . $this->skippedProductsCount . ' products where skipped.');
-            $this->getWrapper()->allItemsHasBeenProcessed();
+            $start = (($page - 1) * $itemsPerPage);
+            $this->getLog()->info(
+                'Processing items from ' . $start .
+                ' to ' . ($start + count($results['entries'])) .
+                ' out of ' . $results['totalsCount']
+            );
 
-        } catch (\Exception $e) {
-            $this->getLog()->handleException($e);
+            foreach ($results['entries'] as $product) {
+                $this->processProductData($product);
+            }
+
+            if (!$results || !isset($results['isLastPage']) || $results['isLastPage'] == true) {
+                $continue = false;
+            }
+
+            $page++;
         }
 
+        $this->getLog()->info('Products processing finished. ' . $this->skippedProductsCount . ' products where skipped.');
+        $this->getWrapper()->allItemsHasBeenProcessed();
         $this->getLog()->info('Data processing finished.');
 
         return $this->getWrapper()->getResults();
@@ -276,7 +267,7 @@ class Exporter
                 foreach ($variations['entries'] as $variation) {
                     $continueProcess = $product->processVariation($variation);
 
-                    if (!$continueProcess) {
+                     if (!$continueProcess) {
                         continue;
                     }
 
