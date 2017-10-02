@@ -603,19 +603,19 @@ class Product extends ParserAbstract
             $netStock += $stock['netStock'];
         }
 
-        if (!$variation['isVisibleIfNetStockIsPositive'] && $netStock > 0) {
+        if ($variation['isVisibleIfNetStockIsPositive'] && $netStock < 1) {
             return false;
         }
 
-        if ($variation['isInvisibleIfNetStockIsNotPositive'] && $netStock < 1) {
+        if (!$variation['isVisibleIfNetStockIsPositive'] && $variation['isInvisibleIfNetStockIsNotPositive'] && $netStock < 1) {
             return false;
         }
 
-        if (!$variation['isAvailableIfNetStockIsPositive'] && $netStock > 0) {
+        if ($variation['isAvailableIfNetStockIsPositive'] && $netStock < 1) {
             return false;
         }
 
-        if ($variation['isUnavailableIfNetStockIsNotPositive'] && $netStock < 1) {
+        if (!$variation['isAvailableIfNetStockIsPositive'] && $variation['isUnavailableIfNetStockIsNotPositive'] && $netStock < 1) {
             return false;
         }
 

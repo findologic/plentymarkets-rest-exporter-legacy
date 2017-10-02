@@ -305,9 +305,9 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'id' => 'Test Id',
                         'variationSalesPrices' => array(),
                         'vatId' => 2,
-                        'isVisibleIfNetStockIsPositive' => true,
+                        'isVisibleIfNetStockIsPositive' => false,
                         'isInvisibleIfNetStockIsNotPositive' => false,
-                        'isAvailableIfNetStockIsPositive' => true,
+                        'isAvailableIfNetStockIsPositive' => false,
                         'isUnavailableIfNetStockIsNotPositive' => false,
                         'variationAttributeValues' => array(
                             array(
@@ -340,9 +340,9 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'id' => 'Test Id 2',
                         'variationSalesPrices' => array(),
                         'vatId' => 2,
-                        'isVisibleIfNetStockIsPositive' => true,
+                        'isVisibleIfNetStockIsPositive' => false,
                         'isInvisibleIfNetStockIsNotPositive' => false,
-                        'isAvailableIfNetStockIsPositive' => true,
+                        'isAvailableIfNetStockIsPositive' => false,
                         'isUnavailableIfNetStockIsNotPositive' => false,
                         'variationAttributeValues' => array(
                             array(
@@ -383,9 +383,9 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'availability' => 1,
                         'id' => 'Test Id',
                         'vatId' => 2,
-                        'isVisibleIfNetStockIsPositive' => true,
+                        'isVisibleIfNetStockIsPositive' => false,
                         'isInvisibleIfNetStockIsNotPositive' => false,
-                        'isAvailableIfNetStockIsPositive' => true,
+                        'isAvailableIfNetStockIsPositive' => false,
                         'isUnavailableIfNetStockIsNotPositive' => false,
                         'variationSalesPrices' => array(
                             array(
@@ -412,9 +412,9 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'isActive' => true,
                         'availability' => 1,
                         'id' => 'Test Id',
-                        'isVisibleIfNetStockIsPositive' => true,
+                        'isVisibleIfNetStockIsPositive' => false,
                         'isInvisibleIfNetStockIsNotPositive' => false,
-                        'isAvailableIfNetStockIsPositive' => true,
+                        'isAvailableIfNetStockIsPositive' => false,
                         'isUnavailableIfNetStockIsNotPositive' => false,
                         'variationSalesPrices' => array(
                             array(
@@ -458,27 +458,11 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'availability' => 1,
                         'id' => 'Test Id',
                         'vatId' => 2,
-                        'isVisibleIfNetStockIsPositive' => false,
-                        'isInvisibleIfNetStockIsNotPositive' => false,
-                        'isAvailableIfNetStockIsPositive' => true,
-                        'isUnavailableIfNetStockIsNotPositive' => false,
-                        'stock' => array(
-                            array(
-                                'netStock' => 1
-                            )
-                        )
-                    ),
-                    array(
-                        'position' => '2',
-                        'number' => 'Test Number 2',
-                        'model' => 'Test Model 2',
-                        'isActive' => true,
-                        'availability' => 1,
-                        'id' => 'Test Id',
                         'isVisibleIfNetStockIsPositive' => true,
-                        'isInvisibleIfNetStockIsNotPositive' => true,
-                        'isAvailableIfNetStockIsPositive' => true,
+                        'isInvisibleIfNetStockIsNotPositive' => false,
+                        'isAvailableIfNetStockIsPositive' => false,
                         'isUnavailableIfNetStockIsNotPositive' => false,
+                        'variationAttributeValues' => array(),
                         'stock' => array(
                             array(
                                 'netStock' => 0
@@ -492,13 +476,14 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'isActive' => true,
                         'availability' => 1,
                         'id' => 'Test Id',
-                        'isVisibleIfNetStockIsPositive' => true,
-                        'isInvisibleIfNetStockIsNotPositive' => false,
+                        'isVisibleIfNetStockIsPositive' => false,
+                        'isInvisibleIfNetStockIsNotPositive' => true,
                         'isAvailableIfNetStockIsPositive' => false,
                         'isUnavailableIfNetStockIsNotPositive' => false,
+                        'variationAttributeValues' => array(),
                         'stock' => array(
                             array(
-                                'netStock' => 1
+                                'netStock' => 0
                             )
                         )
                     ),
@@ -509,10 +494,29 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'isActive' => true,
                         'availability' => 1,
                         'id' => 'Test Id',
-                        'isVisibleIfNetStockIsPositive' => true,
+                        'isVisibleIfNetStockIsPositive' => false,
                         'isInvisibleIfNetStockIsNotPositive' => false,
                         'isAvailableIfNetStockIsPositive' => true,
+                        'isUnavailableIfNetStockIsNotPositive' => false,
+                        'variationAttributeValues' => array(),
+                        'stock' => array(
+                            array(
+                                'netStock' => 0
+                            )
+                        )
+                    ),
+                    array(
+                        'position' => '2',
+                        'number' => 'Test Number 2',
+                        'model' => 'Test Model 2',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'id' => 'Test Id',
+                        'isVisibleIfNetStockIsPositive' => false,
+                        'isInvisibleIfNetStockIsNotPositive' => false,
+                        'isAvailableIfNetStockIsPositive' => false,
                         'isUnavailableIfNetStockIsNotPositive' => true,
+                        'variationAttributeValues' => array(),
                         'stock' => array(
                             array(
                                 'netStock' => 0
