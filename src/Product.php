@@ -2,9 +2,7 @@
 
 namespace Findologic\Plentymarkets;
 
-use Findologic\Plentymarkets\Config;
 use Findologic\Plentymarkets\Parser\ParserAbstract;
-use Findologic\Plentymarkets\Registry;
 use Findologic\Plentymarkets\Data\Units;
 use Findologic\Plentymarkets\Parser\Attributes;
 
@@ -27,11 +25,6 @@ class Product extends ParserAbstract
      * @var bool
      */
     protected $hasData = false;
-
-    /**
-     * @var \Findologic\Plentymarkets\Registry
-     */
-    protected $registry;
 
     /**
      * @var array

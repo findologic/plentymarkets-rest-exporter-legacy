@@ -16,9 +16,10 @@ class Registry
      * @codeCoverageIgnore
      * @param \Logger $log
      */
-    public function __construct($log)
+    public function __construct($logger, $customerLogger)
     {
-        $this->set('log', $log);
+        $this->set('log', $logger);
+        $this->set('customerLogger', $customerLogger);
     }
 
     /**

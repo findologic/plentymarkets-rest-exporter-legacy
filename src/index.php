@@ -11,6 +11,7 @@ $debug = false;
 Logger::configure('Logger/import.xml');
 Logger::initialize();
 $log = Logger::getLogger('import.php');
+$customerLogger = Logger::getLogger('import.php');
 
 if (Config::DEBUG) {
     $log->info('Initialising the plugin with DEBUG mode ON.', false);
@@ -27,10 +28,10 @@ $config->setUsername('username')
     ->setCountry('GB') // Country code for tax rates
     ->setLanguage('EN'); // Language code for texts
 
-$registry = new \Findologic\Plentymarkets\Registry($log);
-$client = new \Findologic\Plentymarkets\Client($config, $log, $debug);
+$registry = new \Findologic\Plentymarkets\Registry($log, $customerLogger);
+$client = new \Findologic\Plentymarkets\Client($config, $log, $customerLogger, $debug);
 $wrapper = new \Findologic\Plentymarkets\Wrapper\Csv();
-$exporter = new \Findologic\Plentymarkets\Exporter($client, $wrapper, $log, $registry);
+$exporter = new \Findologic\Plentymarkets\Exporter($client, $wrapper, $log, $customerLogger, $registry);
 $exporter->init();
 
 echo $exporter->getProducts(Config::NUMBER_OF_ITEMS_PER_PAGE);

@@ -38,6 +38,11 @@ class Client
     protected $log;
 
     /**
+     * @var Logger
+     */
+    protected $customerLog;
+
+    /**
      * Flag fol login call to api to avoid setting the headers for this call
      *
      * @var bool
@@ -81,13 +86,15 @@ class Client
     /**
      * @param \PlentyConfig $config
      * @param \Logger $log
+     * @param \Logger $customerLog
      * @param bool $debug
      */
-    public function __construct(\PlentyConfig $config, Logger $log, $debug = false)
+    public function __construct(\PlentyConfig $config, Logger $log, Logger $customerLog, $debug = false)
     {
         $url = rtrim($config->getDomain(), '/') . '/rest/';
         $this->url = $url;
         $this->log = $log;
+        $this->customerLog = $log;
         $this->debug = $debug;
         $this->config = $config;
     }
@@ -145,6 +152,15 @@ class Client
     public function getLog()
     {
         return $this->log;
+    }
+
+    /**
+     * @codeCoverageIgnore
+     * @return \Logger
+     */
+    public function getCustomerLog()
+    {
+        return $this->customerLog;
     }
 
     /**

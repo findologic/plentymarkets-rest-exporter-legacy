@@ -25,12 +25,17 @@ class Exporter
     protected $wrapper;
 
     /**
-     * @var \Logger $log
+     * @var \Logger
      */
     protected $log;
 
     /**
-     * @var \Findologic\Plentymarkets\Registry $registry
+     * @var \Logger
+     */
+    protected $customerLog;
+
+    /**
+     * @var \Findologic\Plentymarkets\Registry
      */
     protected $registry;
 
@@ -72,13 +77,15 @@ class Exporter
      * @param \Findologic\Plentymarkets\Client $client
      * @param \Findologic\Plentymarkets\Wrapper\WrapperInterface $wrapper
      * @param \Logger $log
+     * @param \Logger $customerLog
      * @param \Findologic\Plentymarkets\Registry $registry
      */
-    public function __construct(Client $client, WrapperInterface $wrapper, Logger $log, Registry $registry)
+    public function __construct(Client $client, WrapperInterface $wrapper, Logger $log, Logger $customerLog, Registry $registry)
     {
         $this->client = $client;
         $this->wrapper = $wrapper;
         $this->log = $log;
+        $this->customerLog = $customerLog;
         $this->registry = $registry;
         $this->config = $client->getConfig();
     }
@@ -90,12 +97,12 @@ class Exporter
      */
     public function init()
     {
-        $this->getLog()->info('Starting to initialise necessary data (categories, attributes, etc.)');
+        $this->getCustomerLog()->info('Starting to initialise necessary data (categories, attributes, etc.)');
         $this->getClient()->login();
         $this->initAdditionalData();
         $this->initCategoriesFullUrls();
         $this->initAttributeValues();
-        $this->getLog()->info('Finished initialising necessary data');
+        $this->getCustomerLog()->info('Starting to initialise necessary data (categories, attributes, etc.)');
 
         return $this;
     }
@@ -122,6 +129,14 @@ class Exporter
     public function getLog()
     {
         return $this->log;
+    }
+
+    /**
+     * @return Logger
+     */
+    public function getCustomerLog()
+    {
+        return $this->customerLog;
     }
 
     /**
@@ -181,7 +196,7 @@ class Exporter
 
         $continue = true;
 
-        $this->getLog()->info('Starting product processing.');
+        $this->getCustomerLog()->info('Starting product processing.');
 
         // Cycle the call for products to api until all we have all products
         while ($continue) {
@@ -194,7 +209,7 @@ class Exporter
             }
 
             $start = (($page - 1) * $itemsPerPage);
-            $this->getLog()->info(
+            $this->getCustomerLog()->info(
                 'Processing items from ' . $start .
                 ' to ' . ($start + count($results['entries'])) .
                 ' out of ' . $results['totalsCount']
@@ -211,9 +226,9 @@ class Exporter
             $page++;
         }
 
-        $this->getLog()->info('Products processing finished. ' . $this->skippedProductsCount . ' products where skipped.');
+        $this->getCustomerLog()->info('Products processing finished. ' . $this->skippedProductsCount . ' products where skipped.');
         $this->getWrapper()->allItemsHasBeenProcessed();
-        $this->getLog()->info('Data processing finished.');
+        $this->getCustomerLog()->info('Data processing finished.');
 
         return $this->getWrapper()->getResults();
     }
@@ -378,7 +393,7 @@ class Exporter
                     }
                 }
 
-                $this->getLog()->info('- ' . $type . ' data was parsed.');
+                $this->getCustomerLog()->info('- ' . $type . ' data was parsed.');
             }
         }
 

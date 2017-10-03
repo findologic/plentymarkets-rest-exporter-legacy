@@ -131,7 +131,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $configMock = $this->getMockBuilder('PlentyConfig')->getMock();
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
-            ->setConstructorArgs(array($configMock, $logMock, $debugMock))
+            ->setConstructorArgs(array($configMock, $logMock, $logMock, $debugMock))
             ->setMethods(array('createRequest'))
             ->getMock();
 
@@ -164,7 +164,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $configMock = $this->getMockBuilder('PlentyConfig')->getMock();
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
-            ->setConstructorArgs(array($configMock, $logMock, $debugMock))
+            ->setConstructorArgs(array($configMock, $logMock, $logMock, $debugMock))
             ->setMethods(array('createRequest'))
             ->getMock();
 
@@ -223,7 +223,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
             ->getMock();
 
         $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
-            ->setConstructorArgs(array($configMock, $logMock))
+            ->setConstructorArgs(array($configMock, $logMock, $logMock))
             ->setMethods($methods)
             ->getMock();
 
