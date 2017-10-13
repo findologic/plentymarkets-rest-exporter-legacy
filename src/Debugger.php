@@ -9,6 +9,12 @@ use \Logger;
 
 class Debugger
 {
+    const TIMING_COUNT = 'count';
+    const TIMING_TOTAL_TIME = 'time';
+    const TIMING_AVERAGE_TIME = 'average_time';
+    const TIMING_DEFAULT_DIR = 'dump/timing';
+    const TIMING_DEFAULT_FILE = 'timing.txt';
+
     /**
      * Directory where call debug information should be save
      *
@@ -32,6 +38,11 @@ class Debugger
     protected $log;
 
     /**
+     * @var array Store timing info on REST calls.
+     */
+    protected $timing = array();
+
+    /**
      * @param \Logger $log
      * @param string|bool $directory
      * @param array $pathsToDebug
@@ -45,6 +56,23 @@ class Debugger
         }
 
         $this->pathsToDebug = $pathsToDebug;
+    }
+
+    /**
+     * @return array
+     */
+    public function getCallTiming()
+    {
+        return $this->timing;
+    }
+
+    /**
+     * Reset timing array
+     */
+    public function resetCallTiming()
+    {
+        unset($this->timing);
+        $this->timing = [];
     }
 
     /**
@@ -67,6 +95,59 @@ class Debugger
         fclose($fileHandle);
 
         return true;
+    }
+
+    /**
+     * Log the timing of a REST call.
+     *
+     * @param $uri string The URI that was used.
+     * @param $begin float Timestamp when the request was started.
+     * @param $end float Timestamp when the request finished.
+     */
+    public function logCallTiming($uri, $begin, $end)
+    {
+        $diff = $end - $begin;
+
+        // Replace numbers with 'x' in order to aggregate calls that contain an item ID, eg.
+        // eg. /rest/items/123/images -> /rest/items/x/images
+        $uriWithoutNumbers = preg_replace('/\d+/', 'x', $uri);
+
+        // Initiate the data structure
+        if (!isset($this->timing[$uriWithoutNumbers])) {
+            $this->timing[$uriWithoutNumbers] = array(
+                self::TIMING_COUNT => 0,
+                self::TIMING_TOTAL_TIME => 0,
+            );
+        }
+        $this->timing[$uriWithoutNumbers][self::TIMING_COUNT]++;
+        $this->timing[$uriWithoutNumbers][self::TIMING_TOTAL_TIME] += $diff;
+        $this->timing[$uriWithoutNumbers][self::TIMING_AVERAGE_TIME] =
+            $this->timing[$uriWithoutNumbers][self::TIMING_TOTAL_TIME] / $this->timing[$uriWithoutNumbers][self::TIMING_COUNT];
+    }
+
+    /**
+     * Write timing information into file
+     *
+     * @param string|null $customFileName
+     * @param string|null $customDirectory
+     */
+    public function writeCallTimingLog($customFileName = null, $customDirectory = null)
+    {
+        $directory = $customDirectory ? $customDirectory : self::TIMING_DEFAULT_DIR;
+        $fileName = $customFileName ? $customFileName : self::TIMING_DEFAULT_FILE;
+
+        if (empty($this->timing)) {
+            return;
+        }
+
+        $this->createDirectory($directory);
+        $fileHandle = $this->createFile($directory, $fileName);
+
+        foreach ($this->timing as $uri => $timingData) {
+            $this->writeToFile($fileHandle, $uri, $timingData);
+        }
+
+        fclose($fileHandle);
     }
 
     /**

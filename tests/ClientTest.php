@@ -209,7 +209,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Very basic test to make sure that REST call timing is stored.
+     * Very basic test to make sure that REST call timing debug method is called.
      */
     public function testTiming()
     {
@@ -219,16 +219,21 @@ class ClientTest extends PHPUnit_Framework_TestCase
             ->getMock();
 
         $successResponse = $this->getResponseMock('{"Test": "Test"}', 200);
-        $clientMock = $this->getClientMock(array('createRequest'));
+
+        $debugMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')->disableOriginalConstructor()->getMock();
+        $debugMock->expects($this->once())->method('logCallTiming');
+        $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
+        $configMock = $this->getMockBuilder('PlentyConfig')->getMock();
+
+        $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
+            ->setConstructorArgs(array($configMock, $logMock, $logMock, $debugMock))
+            ->setMethods(array('createRequest'))
+            ->getMock();
+
         $requestMock->expects($this->once())->method('send')->will($this->returnValue($successResponse));
         $clientMock->expects($this->once())->method('createRequest')->will($this->returnValue($requestMock));
 
         $clientMock->getCategories();
-
-        $expected = "URL;count;time;avg\nhttps:///rest/categories/?type=item&with=details;1;0.00;0.00";
-        $actual = trim($clientMock->getTiming());
-        $this->assertEquals($expected, $actual,
-            "The timing output should contain timing info about the REST calls");
     }
 
     /* ------ helper functions ------ */
