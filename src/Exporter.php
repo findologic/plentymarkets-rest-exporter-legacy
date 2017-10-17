@@ -286,9 +286,13 @@ class Exporter
                         continue;
                     }
 
-                    $product->processVariationsProperties(
-                        $this->getClient()->getVariationProperties($product->getItemId(), $variation['id'])
-                    );
+                    if (isset($variation['itemImages'])) {
+                        $product->processImages($variation['itemImages']);
+                    }
+
+                    if (isset($variation['variationProperties'])) {
+                        $product->processVariationsProperties($variation['variationProperties']);
+                    }
                 }
             }
 
@@ -300,7 +304,6 @@ class Exporter
         }
 
         if ($product->hasData()) {
-            $product->processImages($this->getClient()->getProductImages($product->getItemId()));
             $this->getWrapper()->wrapItem($product->getResults());
         } else {
             $this->skippedProductsCount++;

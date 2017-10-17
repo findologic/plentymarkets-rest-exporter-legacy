@@ -195,14 +195,14 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     {
         $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
             ->disableOriginalConstructor()
-            ->setMethods(array('getConfig', 'getProductImages', 'getVariationProperties', 'getProductVariations'))
+            ->setMethods(array('getConfig', 'getProductVariations'))
             ->getMock();
         $clientMock->expects($this->any())->method('getConfig')->willReturn($this->getConfigMock());
         $clientMock->expects($this->any())
             ->method('getProductVariations')
             ->willReturn(
                 array(
-                    'entries' => array(array('id' => 'Test')),
+                    'entries' => array(array('id' => 'Test', 'itemImages' => array(), 'variationProperties' => array())),
                     'isLastPage' => true
                 )
             );
@@ -219,7 +219,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $productMock->expects($this->once())->method('processVariation')->willReturn(true);
         $productMock->expects($this->once())->method('processImages');
         $productMock->expects($this->once())->method('hasData')->willReturn(true);
-        $productMock->expects($this->atLeast(4))->method('getItemId')->willReturn(1);
+        $productMock->expects($this->atLeast(2))->method('getItemId')->willReturn(1);
 
         $exporterMock->expects($this->once())->method('createProductItem')->willReturn($productMock);
 

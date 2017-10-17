@@ -451,6 +451,8 @@ class Client
                     'variationCategories',
                     'variationAttributeValues',
                     'variationClients',
+                    'variationProperties',
+                    'itemImages',
                     'unit',
                     'stock'
                 ),
