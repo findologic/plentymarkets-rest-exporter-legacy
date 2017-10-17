@@ -562,10 +562,6 @@ class Product extends ParserAbstract
             return false;
         }
 
-        if (!$this->isInStock($variation)) {
-            return false;
-        }
-
         $this->hasData = true;
 
         return true;
@@ -578,37 +574,6 @@ class Product extends ParserAbstract
     protected function isProductAvailable($itemAvailabilityId)
     {
         if (!empty($this->availabilityIds) && in_array($itemAvailabilityId, $this->availabilityIds)) {
-            return false;
-        }
-
-        return true;
-    }
-
-    /**
-     * @param array $variation
-     * @return bool
-     */
-    protected function isInStock($variation)
-    {
-        $netStock = 0;
-
-        foreach ($variation['stock'] as $stock) {
-            $netStock += $stock['netStock'];
-        }
-
-        if ($variation['isVisibleIfNetStockIsPositive'] && $netStock < 1) {
-            return false;
-        }
-
-        if (!$variation['isVisibleIfNetStockIsPositive'] && $variation['isInvisibleIfNetStockIsNotPositive'] && $netStock < 1) {
-            return false;
-        }
-
-        if ($variation['isAvailableIfNetStockIsPositive'] && $netStock < 1) {
-            return false;
-        }
-
-        if (!$variation['isAvailableIfNetStockIsPositive'] && $variation['isUnavailableIfNetStockIsNotPositive'] && $netStock < 1) {
             return false;
         }
 
