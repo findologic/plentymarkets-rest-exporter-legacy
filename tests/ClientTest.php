@@ -208,6 +208,34 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $this->assertSame('http://test.com/rest/method', $request->getUrl()->getURL());
     }
 
+    /**
+     * Very basic test to make sure that REST call timing debug method is called.
+     */
+    public function testTiming()
+    {
+        $requestMock = $this->getMockBuilder('\HTTP_Request2')
+            ->disableOriginalConstructor()
+            ->setMethods(array('send'))
+            ->getMock();
+
+        $successResponse = $this->getResponseMock('{"Test": "Test"}', 200);
+
+        $debugMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')->disableOriginalConstructor()->getMock();
+        $debugMock->expects($this->once())->method('logCallTiming');
+        $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
+        $configMock = $this->getMockBuilder('PlentyConfig')->getMock();
+
+        $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
+            ->setConstructorArgs(array($configMock, $logMock, $logMock, $debugMock))
+            ->setMethods(array('createRequest'))
+            ->getMock();
+
+        $requestMock->expects($this->once())->method('send')->will($this->returnValue($successResponse));
+        $clientMock->expects($this->once())->method('createRequest')->will($this->returnValue($requestMock));
+
+        $clientMock->getCategories();
+    }
+
     /* ------ helper functions ------ */
 
     protected function getClientMock($methods)
