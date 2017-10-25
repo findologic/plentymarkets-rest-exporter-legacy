@@ -177,7 +177,12 @@ class Csv implements WrapperInterface
     {
         // Fields which values can not contain html
         $htmlFields = array('ordernumber', 'name', 'summary', 'description', 'keywords');
-        $data['attributes'] = http_build_query($data['attributes']);
+
+        // Check if item has any attributes
+        if (is_array($data['attributes'])) {
+            $data['attributes'] = http_build_query($data['attributes']);
+        }
+
         $data['ordernumber'] = implode(self::ORDERNUMBER_DELIMITER, $data['ordernumber']);
 
         foreach ($htmlFields as $field) {
