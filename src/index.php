@@ -35,3 +35,5 @@ $exporter = new \Findologic\Plentymarkets\Exporter($client, $wrapper, $log, $cus
 $exporter->init();
 
 echo $exporter->getProducts(Config::NUMBER_OF_ITEMS_PER_PAGE);
+
+$debug->writeCallTimingLog();

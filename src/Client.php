@@ -77,7 +77,6 @@ class Client
      */
     protected $page = false;
 
-
     /**
      * @var \PlentyConfig
      */
@@ -94,7 +93,7 @@ class Client
         $url = rtrim($config->getDomain(), '/') . '/rest/';
         $this->url = $url;
         $this->log = $log;
-        $this->customerLog = $log;
+        $this->customerLog = $customerLog;
         $this->debug = $debug;
         $this->config = $config;
     }
@@ -529,6 +528,8 @@ class Client
      */
     protected function call($method, $uri, $params = null)
     {
+        $begin = microtime(true);
+
         $response = false;
         $continue = true;
         $count = 0;
@@ -566,6 +567,12 @@ class Client
         // take the actions for setting them again
         $this->itemsPerPage = false;
         $this->page = false;
+
+        $end = microtime(true);
+
+        if ($this->debug) {
+            $this->debug->logCallTiming($uri, $begin, $end);
+        }
 
         return $response;
     }

@@ -181,6 +181,115 @@ Headers :
         $this->assertEquals($content, $file->getContent());
     }
 
+    public function testResetCallTiming()
+    {
+        /** @var \Findologic\Plentymarkets\Debugger $debuggerMock */
+        $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
+            ->setConstructorArgs(array($this->getLogMock(), $this->fileSystemMock->url(), array()))
+            ->setMethods(null)
+            ->getMock();
+
+        $debuggerMock->logCallTiming('test', 1, 2);
+
+        $this->assertTrue((count($debuggerMock->getCallTiming()) == 1));
+
+        $debuggerMock->resetCallTiming();
+
+        $this->assertTrue(empty($debuggerMock->getCallTiming()));
+    }
+
+    public function providerLogCallTiming()
+    {
+        return array(
+            array(
+                array(
+                    array('uri' => 'test/1', 'begin' => 1, 'end' => 2),
+                    array('uri' => 'test/2', 'begin' => 3, 'end' => 6),
+                    array('uri' => 'testing/1', 'begin' => 6, 'end' => 7)
+                ),
+                array(
+                    'test/x' => array(
+                        Debugger::TIMING_COUNT => 2,
+                        Debugger::TIMING_TOTAL_TIME => 4,
+                        Debugger::TIMING_AVERAGE_TIME => 2
+                    ),
+                    'testing/x' => array(
+                        Debugger::TIMING_COUNT => 1,
+                        Debugger::TIMING_TOTAL_TIME => 1,
+                        Debugger::TIMING_AVERAGE_TIME => 1
+                    ),
+                )
+            )
+        );
+    }
+
+    /**
+     * @dataProvider providerLogCallTiming
+     */
+    public function testLogCallTiming($timingData, $expectedResult)
+    {
+        /** @var \Findologic\Plentymarkets\Debugger $debuggerMock */
+        $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
+            ->setConstructorArgs(array($this->getLogMock(), $this->fileSystemMock->url(), array()))
+            ->setMethods(null)
+            ->getMock();
+
+        foreach ($timingData as $timing) {
+            $debuggerMock->logCallTiming($timing['uri'], $timing['begin'], $timing['end']);
+        }
+
+        $this->assertEquals($expectedResult, $debuggerMock->getCallTiming());
+    }
+
+    /**
+     * If timing information is empty there is no need to create file
+     */
+    public function testWriteCallTimingLogNoTimingInfo()
+    {
+        /** @var \Findologic\Plentymarkets\Debugger|\PHPUnit_Framework_MockObject_MockObject $debuggerMock */
+        $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
+            ->setConstructorArgs(array($this->getLogMock(), $this->fileSystemMock->url(), array()))
+            ->setMethods(['createDirectory', 'createFile'])
+            ->getMock();
+
+        $debuggerMock->expects($this->never())->method('createDirectory');
+        $debuggerMock->expects($this->never())->method('createFile');
+
+        $debuggerMock->writeCallTimingLog(Debugger::TIMING_DEFAULT_FILE, 'test');
+    }
+
+    /**
+     * Test if timing information file is created with specific content
+     */
+    public function testWriteCallTimingLog()
+    {
+        /** @var \Findologic\Plentymarkets\Debugger $debuggerMock */
+        $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
+            ->setConstructorArgs(array($this->getLogMock(), $this->fileSystemMock->url(), array()))
+            ->setMethods(null)
+            ->getMock();
+
+        $dir = 'test';
+        $fullPath = $this->fileSystemMock->url() . DIRECTORY_SEPARATOR . $dir;
+
+        $debuggerMock->logCallTiming('test/1', 1, 2);
+        $debuggerMock->writeCallTimingLog(Debugger::TIMING_DEFAULT_FILE, $fullPath);
+
+        $this->assertTrue($this->fileSystemMock->hasChild($dir));
+
+        $dumpDir = $this->fileSystemMock->getChild($dir);
+
+        //expected file content
+        $content = 'test/x :     
+    count : 1
+    time : 1
+    average_time : 1
+';
+
+        $file = $dumpDir->getChild(Debugger::TIMING_DEFAULT_FILE);
+        $this->assertEquals($content, $file->getContent());
+    }
+
     /* ------ helper functions ------ */
 
     /**
