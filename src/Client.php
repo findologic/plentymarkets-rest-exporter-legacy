@@ -203,15 +203,19 @@ class Client
         // if token is empty
         $this->loginFlag = true;
 
-        $response = $this->call('POST', $this->getEndpoint('login'), array(
-                'username' => $this->config->getUsername(),
-                'password' => $this->config->getPassword()
-            )
-        );
+        try {
+            $response = $this->call('POST', $this->getEndpoint('login'), array(
+                    'username' => $this->config->getUsername(),
+                    'password' => $this->config->getPassword()
+                )
+            );
+        } catch (\Exception $e) {
+            $response = false;
+        }
 
         // If using incorrect protocol the api returns status between 301-404  so it could be used to check if correct
         // protocol is used and make appropriate changes
-        if ($response && ($response->getStatus() >= 301 && $response->getStatus() <= 404)) {
+        if (!$response || ($response && $response->getStatus() >= 301 && $response->getStatus() <= 404)) {
             $this->protocol = 'http://';
             $this->getLog()->info('Api client requests protocol changed to http://)');
             $response = $this->call('POST', $this->getEndpoint('login'), array(
