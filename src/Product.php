@@ -442,7 +442,9 @@ class Product extends ParserAbstract
             $data = $data[0];
         }
 
-        $this->setField('image', $this->getFromArray($data, 'urlMiddle'));
+        if (!$this->getField('image')) {
+            $this->setField('image', $this->getFromArray($data, 'urlMiddle'));
+        }
 
         return $this;
     }
