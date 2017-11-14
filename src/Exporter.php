@@ -69,6 +69,13 @@ class Exporter
     protected $storePlentyId = false;
 
     /**
+     * Flag to know if store supports salesRank
+     *
+     * @var bool
+     */
+    protected $exportSalesFrequency = false;
+
+    /**
      * @var \PlentyConfig
      */
     protected $config;
@@ -249,6 +256,7 @@ class Exporter
             ->setAvailabilityIds($this->getConfig()->getAvailabilityId())
             ->setPriceId($this->getConfig()->getPriceId())
             ->setRrpPriceId($this->getConfig()->getRrpId())
+            ->setExportSalesFrequency($this->exportSalesFrequency)
             ->processInitialData($productData);
 
         return $product;
@@ -331,6 +339,7 @@ class Exporter
             foreach ($stores as $store) {
                 if ($store['id'] == $this->getConfig()->getMultishopId()) {
                     $this->storePlentyId = $store['storeIdentifier'];
+                    $this->exportSalesFrequency = $store['itemSortByMonthlySales'];
                     $data = $this->getClient()->getStandardVat($this->storePlentyId);
                     $this->standardVat = Countries::getCountryIsoCode($data['countryId']);
                     break;

@@ -292,7 +292,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     {
         return array(
             array(array(), false, 'GB', 2, 'GB'),
-            array(array(array('id' => 1, 'storeIdentifier' => 2)), 1, 'GB', 2, 'AT')
+            array(array(array('id' => 1, 'storeIdentifier' => 2, 'itemSortByMonthlySales' => 1)), 1, 'GB', 2, 'AT')
         );
     }
 

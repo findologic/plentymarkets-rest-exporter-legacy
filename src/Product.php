@@ -84,6 +84,13 @@ class Product extends ParserAbstract
     protected $rrpPriceId;
 
     /**
+     * Flag to know if store supports salesRank
+     *
+     * @var bool
+     */
+    protected $exportSalesFrequency = false;
+
+    /**
      * @param mixed $ids
      * @return $this
      */
@@ -134,6 +141,25 @@ class Product extends ParserAbstract
     public function getRrpPriceId()
     {
         return $this->rrpPriceId;
+    }
+
+    /**
+     * @param bool|int $exportSalesFrequency
+     * @return $this
+     */
+    public function setExportSalesFrequency($exportSalesFrequency)
+    {
+        $this->exportSalesFrequency = $exportSalesFrequency;
+
+        return $this;
+    }
+
+    /**
+     * @return bool|int
+     */
+    public function getExportSalesFrequency()
+    {
+        return $this->exportSalesFrequency;
     }
 
     /**
@@ -325,6 +351,10 @@ class Product extends ParserAbstract
             ->processVariationPrices($this->getFromArray($variation, 'variationSalesPrices'))
             ->processVariationAttributes($this->getFromArray($variation, 'variationAttributeValues'))
             ->processUnits($this->getFromArray($variation, 'unit'));
+
+        if ($this->getExportSalesFrequency() && isset($variation['salesRank']) && $this->getField('sales_frequency') < $variation['salesRank']) {
+            $this->setField('sales_frequency', $variation['salesRank']);
+        }
 
         return true;
     }

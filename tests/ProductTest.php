@@ -305,6 +305,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'id' => 'Test Id',
                         'variationSalesPrices' => array(),
                         'vatId' => 2,
+                        'salesRank' => 15,
                         'isVisibleIfNetStockIsPositive' => false,
                         'isInvisibleIfNetStockIsNotPositive' => false,
                         'isAvailableIfNetStockIsPositive' => false,
@@ -369,7 +370,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 ),
                 array('Test' => array('Test')),
                 array('Test Number', 'Test Model', 'Test Id'),
-                array('price' => 0.00, 'maxprice' => '', 'instead' => 0.00, 'base_unit' => 'C62', 'taxrate' => '19.00')
+                array('price' => 0.00, 'maxprice' => '', 'instead' => 0.00, 'base_unit' => 'C62', 'taxrate' => '19.00', 'sales_frequency' => 15)
             ),
             // Variation prices includes price with configurated sales price id and configurated rrp price id
             // Variation has duplicate identifier id => 'Test Id' so it should be ignored when adding to 'ordernumber' field
@@ -478,6 +479,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
         $productMock = $this->getProductMock(array('getItemId', 'getLanguageCode', 'getStorePlentyId', 'processVariationGroups'), array($registry));
         $productMock->expects($this->any())->method('processVariationGroups')->willReturn($productMock);
         $productMock->expects($this->any())->method('getStorePlentyId')->willReturn(1);
+        $productMock->setExportSalesFrequency(true);
         $productMock->setPriceId(1);
         $productMock->setRrpPriceId(4);
 
