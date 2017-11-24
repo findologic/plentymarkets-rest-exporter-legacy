@@ -273,7 +273,7 @@ class Exporter
         $product = $this->createProductItem($productData);
 
         // Ignore product if there is no id
-        if (!$product->getItemId()) {
+        if (!$product->getItemId() || $product->getItemId() < 0) {
             $this->skippedProductsCount++;
             $this->getLog()->trace('Product was skipped as it has no id.');
             return $this;
