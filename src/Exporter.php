@@ -339,7 +339,9 @@ class Exporter
             foreach ($stores as $store) {
                 if ($store['id'] == $this->getConfig()->getMultishopId()) {
                     $this->storePlentyId = $store['storeIdentifier'];
-                    $this->exportSalesFrequency = $store['itemSortByMonthlySales'];
+                    if (isset($store['configuration']['itemSortByMonthlySales'])) {
+                        $this->exportSalesFrequency = $store['configuration']['itemSortByMonthlySales'];
+                    }
                     $data = $this->getClient()->getStandardVat($this->storePlentyId);
                     $this->standardVat = Countries::getCountryIsoCode($data['countryId']);
                     break;
