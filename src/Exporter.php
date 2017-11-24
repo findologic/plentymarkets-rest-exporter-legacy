@@ -171,6 +171,25 @@ class Exporter
     }
 
     /**
+     * @param int|bool $storePlentyId
+     * @return $this
+     */
+    public function setStorePlentyId($storePlentyId)
+    {
+        $this->storePlentyId = $storePlentyId;
+
+        return $this;
+    }
+
+    /**
+     * @return bool|int
+     */
+    public function getStorePlentyId()
+    {
+        return $this->storePlentyId;
+    }
+
+    /**
      * Function for getting the units id with actual values
      *
      * @return array
@@ -249,7 +268,7 @@ class Exporter
     public function createProductItem($productData)
     {
         $product = new Product($this->getRegistry());
-        $product->setStorePlentyId($this->storePlentyId)
+        $product->setStorePlentyId($this->getStorePlentyId())
             ->setProtocol($this->getClient()->getProtocol())
             ->setStoreUrl($this->getConfig()->getDomain())
             ->setLanguageCode($this->getConfig()->getLanguage())
@@ -284,7 +303,7 @@ class Exporter
 
         while ($continue) {
             $this->getClient()->setItemsPerPage(self::NUMBER_OF_ITEMS_PER_PAGE)->setPage($page);
-            $variations = $this->getClient()->getProductVariations($product->getItemId(), $this->getConfig()->getLanguage());
+            $variations = $this->getClient()->getProductVariations($product->getItemId(), $this->getStorePlentyId());
 
             if (isset($variations['entries'])) {
                 foreach ($variations['entries'] as $variation) {
@@ -338,11 +357,11 @@ class Exporter
             $stores = $this->getClient()->getWebstores();
             foreach ($stores as $store) {
                 if ($store['id'] == $this->getConfig()->getMultishopId()) {
-                    $this->storePlentyId = $store['storeIdentifier'];
+                    $this->setStorePlentyId($store['storeIdentifier']);
                     if (isset($store['configuration']['itemSortByMonthlySales'])) {
                         $this->exportSalesFrequency = $store['configuration']['itemSortByMonthlySales'];
                     }
-                    $data = $this->getClient()->getStandardVat($this->storePlentyId);
+                    $data = $this->getClient()->getStandardVat($this->getStorePlentyId());
                     $this->standardVat = Countries::getCountryIsoCode($data['countryId']);
                     break;
                 }
@@ -393,13 +412,13 @@ class Exporter
                 $parser = ParserFactory::create($type, $this->getRegistry());
                 $parser->setLanguageCode($this->getConfig()->getLanguage())
                     ->setTaxRateCountryCode($this->getStandardVatCountry())
-                    ->setStorePlentyId($this->storePlentyId);
+                    ->setStorePlentyId($this->getStorePlentyId());
                 $this->getRegistry()->set($type, $parser);
                 $continue = true;
                 $page = 1;
                 while ($continue) {
                     $this->getClient()->setItemsPerPage(self::NUMBER_OF_ITEMS_PER_PAGE)->setPage($page);
-                    $results = $this->getClient()->$methodName($this->storePlentyId);
+                    $results = $this->getClient()->$methodName($this->getStorePlentyId());
                     $parser->parse($results);
                     $page++;
                     if (!$results || !isset($results['isLastPage']) ||$results['isLastPage']) {

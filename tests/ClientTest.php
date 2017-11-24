@@ -25,7 +25,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test when login request was successful and api returns the token
+     * Test when login request should change the protocol used
      */
     public function testLoginProtocol()
     {
@@ -35,7 +35,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $body = '{"accessToken":"TEST_TOKEN","tokenType":"Bearer","expiresIn":86400,"refreshToken":"REFERSH_TOKEN"}';
         $responseMock = $this->getResponseMock($body, 200);
 
-        $clientMock->expects($this->exactly(2))->method('call')->will($this->onConsecutiveCalls($incorrectResponseMock, $responseMock));
+        $clientMock->expects($this->exactly(2))->method('call')->will($this->onConsecutiveCalls($this->throwException(new \Exception()), $responseMock));
         $clientMock->login();
 
         $this->assertEquals('TEST_TOKEN', $clientMock->getToken());
@@ -86,7 +86,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
 
         $clientMock->expects($this->once())->method('call')->will($this->returnValue($responseMock));
         $clientMock->setItemsPerPage(50)->setpage(1);
-        $this->assertSame(array('Test' => 'Test'), $clientMock->getProducts());
+        $this->assertSame(array('Test' => 'Test'), $clientMock->getProducts('EN'));
     }
 
     /**
@@ -141,7 +141,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
 
         $this->setExpectedException(CustomerException::class);
 
-        $clientMock->getProductVariations('1');
+        $clientMock->getProductVariations('1', '123');
     }
 
     /**

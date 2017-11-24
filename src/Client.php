@@ -444,7 +444,7 @@ class Client
      * @param int $productId
      * @return array
      */
-    public function getProductVariations($productId)
+    public function getProductVariations($productId, $storePlentyId = false)
     {
         $params = array(
             'with' =>
@@ -461,6 +461,10 @@ class Client
                 ),
             'isActive' => true
         );
+
+        if ($storePlentyId) {
+            $params['plentyId'] = $storePlentyId;
+        }
 
         $response = $this->call('GET', $this->getEndpoint('items/' . $productId . '/variations', $params));
 
