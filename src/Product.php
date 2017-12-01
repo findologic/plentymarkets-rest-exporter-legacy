@@ -48,7 +48,7 @@ class Product extends ParserAbstract
         'keywords' => '',
         'groups' => '',
         'bonus' => '',
-        'sales_frequency' => '',
+        'sales_frequency' => null,
         'date_added' => '',
         'sort' => '',
     );
@@ -150,6 +150,10 @@ class Product extends ParserAbstract
     public function setExportSalesFrequency($exportSalesFrequency)
     {
         $this->exportSalesFrequency = $exportSalesFrequency;
+
+        if ($exportSalesFrequency) {
+            $this->setField('sales_frequency', 0);
+        }
 
         return $this;
     }
