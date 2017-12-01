@@ -293,7 +293,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 array()
             ),
             // Variation attributes, units and identifiers (barcodes not included) data provided but the prices is missing,
-            // second variation will be ignored as it do not belong to provided shop (plenty store id do not match config)
+            // second variation will be ignored as it is not active
             array(
                 array(
                     array(
@@ -321,11 +321,6 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             "unitId"=> 1,
                             "content" => 2
                         ),
-                        'variationClients' => array(
-                            array(
-                                'plentyId' => 1
-                            )
-                        ),
                         'stock' => array(
                             array(
                                 'netStock' => 1
@@ -336,7 +331,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'position' => '2',
                         'number' => 'Test Number 2',
                         'model' => 'Test Model 2',
-                        'isActive' => true,
+                        'isActive' => false,
                         'availability' => 1,
                         'id' => 'Test Id 2',
                         'variationSalesPrices' => array(),
@@ -355,11 +350,6 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'unit' => array(
                             "unitId"=> 1,
                             "content" => 2
-                        ),
-                        'variationClients' => array(
-                            array(
-                                'plentyId' => 5
-                            )
                         ),
                         'stock' => array(
                             array(

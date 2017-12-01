@@ -579,21 +579,6 @@ class Product extends ParserAbstract
             return false;
         }
 
-        $variationClients = $this->getFromArray($variation, 'variationClients');
-
-        if (is_array($variationClients) && $this->getStorePlentyId()) {
-            $belongsToShop = false;
-            foreach ($variationClients as $client) {
-                if ($client['plentyId'] == $this->getStorePlentyId()) {
-                    $belongsToShop = true;
-                }
-            }
-
-            if (!$belongsToShop) {
-                return false;
-            }
-        }
-
         if (!$this->isProductAvailable($variation['availability'])) {
             return false;
         }
