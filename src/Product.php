@@ -438,6 +438,10 @@ class Product extends ParserAbstract
         }
 
         foreach ($data as $property) {
+            if (isset($property['isSearchable']) && !$property['isSearchable']) {
+                continue;
+            }
+
             $propertyName = $property['property']['backendName'];
             $value = $this->getPropertyValue($property);
 
