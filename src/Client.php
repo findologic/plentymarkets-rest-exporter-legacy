@@ -4,12 +4,20 @@ namespace Findologic\Plentymarkets;
 
 use Findologic\Plentymarkets\Exception\CriticalException;
 use Findologic\Plentymarkets\Exception\CustomerException;
+use Findologic\Plentymarkets\Exception\ThrottlingException;
 use \HTTP_Request2;
 use \Logger;
 
 class Client
 {
     const RETRY_COUNT = 5;
+    const METHOD_CALLS_LEFT_COUNT = 'x-plenty-route-calls-left';
+    const METHOD_CALLS_WAIT_TIME = 'x-plenty-route-decay';
+    const GLOBAL_SHORT_CALLS_LEFT_COUNT = 'x-plenty-global-short-period-calls-left';
+    const GLOBAL_SHORT_CALLS_WAIT_TIME = 'x-plenty-global-short-period-decay';
+    const GLOBAL_LONG_CALLS_LEFT_COUNT = 'x-plenty-global-long-period-calls-left';
+    const GLOBAL_LONG_CALLS_WAIT_TIME = 'x-plenty-global-long-period-decay';
+    const THROTTLING_LIMIT_REACHED = '--- EMPTY ---';
 
     /**
      * Rest api url
@@ -81,6 +89,20 @@ class Client
      * @var \PlentyConfig
      */
     protected $config;
+
+    /**
+     * Time to wait before another request
+     *
+     * @var bool|int
+     */
+    protected $throttlingTimeout = false;
+
+    /**
+     * Timestamp of last time when the throttling limit was reached
+     *
+     * @var bool|int
+     */
+    protected $lastTimeout = false;
 
     /**
      * @param \PlentyConfig $config
@@ -552,7 +574,9 @@ class Client
             try {
                 $count++;
 
+                $this->handleThrottling();
                 $response = $request->send();
+                $this->checkThrottling($response);
 
                 if ($this->debug) {
                     $this->debug->debugCall($request, $response);
@@ -650,5 +674,55 @@ class Client
         $request->setHeader('Authorization', 'Bearer ' . $this->getToken());
 
         return $this;
+    }
+
+    protected function handleThrottling()
+    {
+        $timeOut = $this->throttlingTimeout;
+
+        if ($timeOut) {
+            // Reduce timeout between requests by the time spent handling the response data
+            if ($this->lastTimeout) {
+                $timeOut = $timeOut - (time() - $this->lastTimeout) + 1;
+            }
+
+            usleep($timeOut * 1000);
+        }
+
+        $this->lastTimeout = false;
+        $this->throttlingTimeout = false;
+    }
+
+    /**
+     * @param $response
+     * @throws ThrottlingException
+     */
+    protected function checkThrottling($response)
+    {
+        if (!$response instanceof \HTTP_Request2_Response) {
+            return;
+        }
+
+        $globalLimit = $response->getHeader(self::GLOBAL_LONG_CALLS_LEFT_COUNT);
+
+        if ($globalLimit <= 1 || $globalLimit == self::THROTTLING_LIMIT_REACHED){
+            //TODO: maybe check if global time out is not so long and wait instead of stopping execution
+            $this->log->fatal('Global throttling limit reached.');
+            throw new ThrottlingException();
+        }
+
+        $methodLimit = $response->getHeader(self::METHOD_CALLS_LEFT_COUNT);
+        $timeOut = $response->getHeader(self::METHOD_CALLS_WAIT_TIME);
+
+        if (!$methodLimit) {
+            $methodLimit = $response->getHeader(self::GLOBAL_SHORT_CALLS_LEFT_COUNT);
+            $timeOut = $response->getHeader(self::GLOBAL_SHORT_CALLS_WAIT_TIME);
+        }
+
+        if ($methodLimit <= 1 || $methodLimit == self::THROTTLING_LIMIT_REACHED) {
+            $this->log->error('Throttling limit reached. Will be waiting for ' . $timeOut . ' seconds.');
+            $this->lastTimeout = time();
+            $this->throttlingTimeout = $timeOut;
+        }
     }
 }
