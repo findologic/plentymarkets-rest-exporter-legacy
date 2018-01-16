@@ -4,6 +4,7 @@ namespace Findologic\PlentymarketsTest;
 
 use Findologic\Plentymarkets\Exception\CriticalException;
 use Findologic\Plentymarkets\Exception\CustomerException;
+use Findologic\Plentymarkets\Exception\ThrottlingException;
 use PHPUnit_Framework_TestCase;
 
 class ClientTest extends PHPUnit_Framework_TestCase
@@ -31,7 +32,6 @@ class ClientTest extends PHPUnit_Framework_TestCase
     {
         $clientMock = $this->getClientMock(array('call'));
 
-        $incorrectResponseMock = $this->getResponseMock('{"Moved permanently !"}', 301);
         $body = '{"accessToken":"TEST_TOKEN","tokenType":"Bearer","expiresIn":86400,"refreshToken":"REFERSH_TOKEN"}';
         $responseMock = $this->getResponseMock($body, 200);
 
@@ -236,8 +236,63 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $clientMock->getCategories();
     }
 
+    /**
+     * Should throw exception if global limit is reached
+     */
+    public function testThrottlingGlobalLimitReached()
+    {
+
+        $requestMock = $this->getMockBuilder('\HTTP_Request2')
+            ->disableOriginalConstructor()
+            ->setMethods(array('send'))
+            ->getMock();
+
+        $response = $this->getResponseMock('Failed', 200, false);
+        $response->expects($this->any())->method('getHeader')->willReturnOnConsecutiveCalls(0);
+        $requestMock->expects($this->any())->method('send')->will($this->returnValue($response));
+
+        $clientMock = $this->getClientMock(['createRequest']);
+        $clientMock->expects($this->once())->method('createRequest')->will($this->returnValue($requestMock));
+
+        $this->setExpectedException(ThrottlingException::class);
+
+        $clientMock->getAttributes();
+    }
+
+    /**
+     * Should throw exception if global limit is reached
+     */
+    public function testThrottlingMethodLimitReached()
+    {
+        $requestMock = $this->getMockBuilder('\HTTP_Request2')
+            ->disableOriginalConstructor()
+            ->setMethods(array('send'))
+            ->getMock();
+
+        $response = $this->getResponseMock('Failed', 200, false);
+        $response->expects($this->any())->method('getHeader')->willReturnOnConsecutiveCalls(50, false, 0, 1, 10);
+        $requestMock->expects($this->any())->method('send')->will($this->returnValue($response));
+
+        $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
+        $logMock->expects($this->once())->method('error')->with('Throttling limit reached. Will be waiting for 10 seconds.');
+        $configMock = $this->getMockBuilder('PlentyConfig')->getMock();
+
+        $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
+            ->setConstructorArgs(array($configMock, $logMock, $logMock, false))
+            ->setMethods(array('createRequest'))
+            ->getMock();
+
+        $clientMock->expects($this->once())->method('createRequest')->will($this->returnValue($requestMock));
+
+        $clientMock->getAttributes();
+    }
+
     /* ------ helper functions ------ */
 
+    /**
+     * @param $methods
+     * @return \Findologic\Plentymarkets\Client|\PHPUnit_Framework_MockObject_MockObject
+     */
     protected function getClientMock($methods)
     {
         $logMock = $this->getMockBuilder('\Logger')
@@ -258,15 +313,25 @@ class ClientTest extends PHPUnit_Framework_TestCase
         return $clientMock;
     }
 
-    protected function getResponseMock($body, $status)
+    /**
+     * @param $body
+     * @param $status
+     * @param bool $defaultHeaders
+     * @return \HTTP_Request2_Response|\PHPUnit_Framework_MockObject_MockObject
+     */
+    protected function getResponseMock($body, $status, $defaultHeaders = true)
     {
         $responseMock = $this->getMockBuilder('\HTTP_Request2_Response')
             ->disableOriginalConstructor()
-            ->setMethods(array('getStatus', 'getBody', 'getReasonPhrase'))
+            ->setMethods(array('getStatus', 'getBody', 'getReasonPhrase', 'getHeader'))
             ->getMock();
 
-        $responseMock->expects($this->any())->method('getBody')->will($this->returnValue($body));
-        $responseMock->expects($this->any())->method('getStatus')->will($this->returnValue($status));
+        $responseMock->expects($this->any())->method('getBody')->willReturn($body);
+        $responseMock->expects($this->any())->method('getStatus')->willReturn($status);
+
+        if ($defaultHeaders) {
+            $responseMock->expects($this->any())->method('getHeader')->willReturn(5);
+        }
 
         return $responseMock;
     }

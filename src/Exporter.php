@@ -3,8 +3,8 @@
 namespace Findologic\Plentymarkets;
 
 use Findologic\Plentymarkets\Data\Countries;
-use Findologic\Plentymarkets\Exception\CriticalException;
 use Findologic\Plentymarkets\Exception\CustomerException;
+use Findologic\Plentymarkets\Exception\ThrottlingException;
 use Findologic\Plentymarkets\Parser\ParserFactory;
 use Findologic\Plentymarkets\Parser\Attributes;
 use Findologic\Plentymarkets\Wrapper\WrapperInterface;
@@ -213,6 +213,7 @@ class Exporter
      * @param int|null $itemsPerPage
      * @param int $page
      * @return mixed
+     * @throws CustomerException
      */
     public function getProducts($itemsPerPage = null, $page = 1)
     {
@@ -224,32 +225,40 @@ class Exporter
 
         $this->getCustomerLog()->info('Starting product processing.');
 
-        // Cycle the call for products to api until all we have all products
-        while ($continue) {
-            $this->getClient()->setItemsPerPage($itemsPerPage)->setPage($page);
-            $results = $this->getClient()->getProducts();
+        try {
+            // Cycle the call for products to api until all we have all products
+            while ($continue) {
+                $this->getClient()->setItemsPerPage($itemsPerPage)->setPage($page);
+                $results = $this->getClient()->getProducts();
 
-            // Check if there is any results. Products is contained is 'entries' value of response array
-            if (!$results || !isset($results['entries'])) {
-                throw new CustomerException('Could not find any results!');
+                // Check if there is any results. Products is contained is 'entries' value of response array
+                if (!$results || !isset($results['entries'])) {
+                    throw new CustomerException('Could not find any results!');
+                }
+
+                $start = (($page - 1) * $itemsPerPage);
+                $this->getCustomerLog()->info(
+                    'Processing items from ' . $start .
+                    ' to ' . ($start + count($results['entries'])) .
+                    ' out of ' . $results['totalsCount']
+                );
+
+                foreach ($results['entries'] as $product) {
+                    $this->processProductData($product);
+                }
+
+                if (!$results || !isset($results['isLastPage']) || $results['isLastPage'] == true) {
+                    $continue = false;
+                }
+
+                $page++;
             }
-
-            $start = (($page - 1) * $itemsPerPage);
-            $this->getCustomerLog()->info(
-                'Processing items from ' . $start .
-                ' to ' . ($start + count($results['entries'])) .
-                ' out of ' . $results['totalsCount']
-            );
-
-            foreach ($results['entries'] as $product) {
-                $this->processProductData($product);
+        } catch (\Exception $e) {
+            if ($e instanceof ThrottlingException) {
+                $this->log->fatal('Stopping products processing becouse of throttling exception.');
+            } else {
+                throw $e;
             }
-
-            if (!$results || !isset($results['isLastPage']) || $results['isLastPage'] == true) {
-                $continue = false;
-            }
-
-            $page++;
         }
 
         $this->getCustomerLog()->info('Products processing finished. ' . $this->skippedProductsCount . ' products where skipped.');
