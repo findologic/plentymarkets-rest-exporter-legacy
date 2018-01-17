@@ -17,7 +17,13 @@ class Manufacturers extends ParserAbstract implements ParserInterface
         }
 
         foreach ($data['entries'] as $manufacturer) {
-            $this->results[$manufacturer['id']] = $manufacturer['name'];
+            $name = $manufacturer['name'];
+
+            if (isset($manufacturer['externalName']) && $manufacturer['externalName']) {
+                $name = $manufacturer['externalName'];
+            }
+
+            $this->results[$manufacturer['id']] = $name;
         }
 
         return $this->results;

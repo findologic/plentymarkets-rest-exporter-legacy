@@ -34,10 +34,11 @@ class ManufacturersTest extends PHPUnit_Framework_TestCase
             array(
                 array(
                     'entries' => array(
-                        array('id' => 1, 'name' => 'Test')
+                        array('id' => 1, 'name' => 'Test'),
+                        array('id' => 2, 'name' => 'Test 2', 'externalName' => 'Test 2 E')
                     )
                 ),
-                array(1 => 'Test')
+                array(1 => 'Test', 2 => 'Test 2 E')
             )
         );
     }
