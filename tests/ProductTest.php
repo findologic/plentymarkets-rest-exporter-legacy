@@ -688,6 +688,17 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 array(),
                 ''
             ),
+            // Variation property is not searchable, results should be empty
+            array(
+                array(
+                    array(
+                        'property' => array(
+                            'isSearchable' => false,
+                        ),
+                    ),
+                ),
+                ''
+            ),
             // Variation has 'text' and 'selection' type properties but the language of those properties is not the same
             // as in export config, results should be empty
             array(

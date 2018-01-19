@@ -438,7 +438,7 @@ class Product extends ParserAbstract
         }
 
         foreach ($data as $property) {
-            if (isset($property['isSearchable']) && !$property['isSearchable']) {
+            if (isset($property['property']['isSearchable']) && !$property['property']['isSearchable']) {
                 continue;
             }
 
