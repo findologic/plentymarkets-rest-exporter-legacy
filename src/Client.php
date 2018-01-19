@@ -576,13 +576,13 @@ class Client
 
                 $this->handleThrottling();
                 $response = $request->send();
-                $this->checkThrottling($response);
 
                 if ($this->debug) {
                     $this->debug->debugCall($request, $response);
                 }
 
                 $this->isResponseValid($response);
+                $this->checkThrottling($response);
 
                 $continue = false;
             } catch (\Exception $e) {
@@ -676,6 +676,9 @@ class Client
         return $this;
     }
 
+    /**
+     * Recalculate time out before next request if throttling limit is reached
+     */
     protected function handleThrottling()
     {
         $timeOut = $this->throttlingTimeout;
@@ -694,6 +697,8 @@ class Client
     }
 
     /**
+     * Check response headers to know if api throttling limit is reached and handle the situation
+     *
      * @param $response
      * @throws ThrottlingException
      */
