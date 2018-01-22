@@ -699,18 +699,14 @@ class Client
     /**
      * Check response headers to know if api throttling limit is reached and handle the situation
      *
-     * @param $response
+     * @param \HTTP_Request2_Response $response
      * @throws ThrottlingException
      */
-    protected function checkThrottling($response)
+    protected function checkThrottling(\HTTP_Request2_Response $response)
     {
-        if (!$response instanceof \HTTP_Request2_Response) {
-            return;
-        }
-
         $globalLimit = $response->getHeader(self::GLOBAL_LONG_CALLS_LEFT_COUNT);
 
-        if ($globalLimit <= 1 || $globalLimit == self::THROTTLING_LIMIT_REACHED){
+        if ($globalLimit !== null && ($globalLimit <= 1 || $globalLimit == self::THROTTLING_LIMIT_REACHED)) {
             //TODO: maybe check if global time out is not so long and wait instead of stopping execution
             $this->log->fatal('Global throttling limit reached.');
             throw new ThrottlingException();
