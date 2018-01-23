@@ -337,9 +337,6 @@ class Exporter
             }
 
             $page++;
-
-            // Wait for 300ms to avoid API request limitations
-            usleep(300000);
         }
 
         if ($product->hasData()) {

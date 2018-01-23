@@ -210,6 +210,43 @@ class Client
         return $this;
     }
 
+    /**
+     * @return bool|int
+     */
+    public function getLastTimeout()
+    {
+        return $this->lastTimeout;
+    }
+
+    /**
+     * @param bool|int $timeout
+     * @return $this
+     */
+    public function setLastTimeout($timeout)
+    {
+        $this->lastTimeout = $timeout;
+
+        return $this;
+    }
+
+    /**
+     * @return bool|int
+     */
+    public function getThrottlingTimeout()
+    {
+        return $this->throttlingTimeout;
+    }
+
+    /**
+     * @param bool|int $timeout
+     * @return $this
+     */
+    public function setThrottlingTimeout($timeout)
+    {
+        $this->throttlingTimeout = $timeout;
+
+        return $this;
+    }
 
     /* Api calls */
 
@@ -586,6 +623,10 @@ class Client
 
                 $continue = false;
             } catch (\Exception $e) {
+                if ($e instanceof ThrottlingException) {
+                    throw $e;
+                }
+
                 // If call to api was not successful check if retry limit was reached to stop retry cycle
                 if ($count >= self::RETRY_COUNT) {
                     throw $e;
@@ -681,19 +722,20 @@ class Client
      */
     protected function handleThrottling()
     {
-        $timeOut = $this->throttlingTimeout;
+        $timeOut = $this->getThrottlingTimeout();
 
         if ($timeOut) {
             // Reduce timeout between requests by the time spent handling the response data
-            if ($this->lastTimeout) {
-                $timeOut = $timeOut - (time() - $this->lastTimeout) + 1;
+            if ($this->getLastTimeout()) {
+                $timeOut = $timeOut - (time() - $this->getLastTimeout()) + 1;
             }
 
-            usleep($timeOut * 1000);
+            $this->log->error('Throttling limit reached. Will be waiting for ' . $timeOut . ' seconds.');
+            usleep($timeOut * 1000000);
         }
 
-        $this->lastTimeout = false;
-        $this->throttlingTimeout = false;
+        $this->setLastTimeout(false);
+        $this->setThrottlingTimeout(false);
     }
 
     /**
@@ -721,9 +763,8 @@ class Client
         }
 
         if ($methodLimit <= 1 || $methodLimit == self::THROTTLING_LIMIT_REACHED) {
-            $this->log->error('Throttling limit reached. Will be waiting for ' . $timeOut . ' seconds.');
-            $this->lastTimeout = time();
-            $this->throttlingTimeout = $timeOut;
+            $this->setLastTimeout(time());
+            $this->setThrottlingTimeout($timeOut);
         }
     }
 }

@@ -279,10 +279,13 @@ class ClientTest extends PHPUnit_Framework_TestCase
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
             ->setConstructorArgs(array($configMock, $logMock, $logMock, false))
-            ->setMethods(array('createRequest'))
+            ->setMethods(array('createRequest', 'setLastTimeout', 'setThrottlingTimeout', 'getThrottlingTimeout'))
             ->getMock();
 
         $clientMock->expects($this->once())->method('createRequest')->will($this->returnValue($requestMock));
+        $clientMock->expects($this->atLeastOnce())->method('setLastTimeout');
+        $clientMock->expects($this->atLeastOnce())->method('setThrottlingTimeout');
+        $clientMock->expects($this->atLeastOnce())->method('getThrottlingTimeout')->willReturn(10);
 
         $clientMock->getAttributes();
     }
