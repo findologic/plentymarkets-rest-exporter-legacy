@@ -623,12 +623,8 @@ class Client
 
                 $continue = false;
             } catch (\Exception $e) {
-                if ($e instanceof ThrottlingException) {
-                    throw $e;
-                }
-
                 // If call to api was not successful check if retry limit was reached to stop retry cycle
-                if ($count >= self::RETRY_COUNT) {
+                if ($e instanceof ThrottlingException || $count >= self::RETRY_COUNT) {
                     throw $e;
                 } else {
                     usleep(100000);
