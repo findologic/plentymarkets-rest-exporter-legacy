@@ -1,7 +1,7 @@
 {
   "name": "findologic-plentymarkets",
   "type": "application",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Findologic plugin for Plentymarkets",
   "keywords": [
     "plentymarkets",
