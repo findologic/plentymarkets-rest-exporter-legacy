@@ -262,7 +262,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
     /**
      * Should throw exception if global limit is reached
      */
-    public function testThrottlingMethodLimitReached()
+    public function testThrottlingRouteCallsLimitReached()
     {
         $requestMock = $this->getMockBuilder('\HTTP_Request2')
             ->disableOriginalConstructor()
@@ -270,11 +270,11 @@ class ClientTest extends PHPUnit_Framework_TestCase
             ->getMock();
 
         $response = $this->getResponseMock('Failed', 200, false);
-        $response->expects($this->any())->method('getHeader')->willReturnOnConsecutiveCalls(50, false, 0, 1, 10);
+        $response->expects($this->any())->method('getHeader')->willReturnOnConsecutiveCalls(50, 2, 5);
         $requestMock->expects($this->any())->method('send')->will($this->returnValue($response));
 
         $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
-        $logMock->expects($this->once())->method('error')->with('Throttling limit reached. Will be waiting for 10 seconds.');
+        $logMock->expects($this->atLeastOnce())->method('error')->with('Throttling limit reached. Will be waiting for 5 seconds.');
         $configMock = $this->getMockBuilder('PlentyConfig')->getMock();
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
@@ -285,7 +285,38 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $clientMock->expects($this->once())->method('createRequest')->will($this->returnValue($requestMock));
         $clientMock->expects($this->atLeastOnce())->method('setLastTimeout');
         $clientMock->expects($this->atLeastOnce())->method('setThrottlingTimeout');
-        $clientMock->expects($this->atLeastOnce())->method('getThrottlingTimeout')->willReturn(10);
+        $clientMock->expects($this->atLeastOnce())->method('getThrottlingTimeout')->willReturn(5);
+
+        $clientMock->getAttributes();
+    }
+
+    /**
+     * Should throw exception if global limit is reached
+     */
+    public function testThrottlingGlobalShortLimitReached()
+    {
+        $requestMock = $this->getMockBuilder('\HTTP_Request2')
+            ->disableOriginalConstructor()
+            ->setMethods(array('send'))
+            ->getMock();
+
+        $response = $this->getResponseMock('Failed', 200, false);
+        $response->expects($this->any())->method('getHeader')->willReturnOnConsecutiveCalls(50, false, 0, 1, 5);
+        $requestMock->expects($this->any())->method('send')->will($this->returnValue($response));
+
+        $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
+        $logMock->expects($this->once())->method('error')->with('Throttling limit reached. Will be waiting for 5 seconds.');
+        $configMock = $this->getMockBuilder('PlentyConfig')->getMock();
+
+        $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
+            ->setConstructorArgs(array($configMock, $logMock, $logMock, false))
+            ->setMethods(array('createRequest', 'setLastTimeout', 'setThrottlingTimeout', 'getThrottlingTimeout'))
+            ->getMock();
+
+        $clientMock->expects($this->once())->method('createRequest')->will($this->returnValue($requestMock));
+        $clientMock->expects($this->atLeastOnce())->method('setLastTimeout');
+        $clientMock->expects($this->atLeastOnce())->method('setThrottlingTimeout');
+        $clientMock->expects($this->atLeastOnce())->method('getThrottlingTimeout')->willReturn(5);
 
         $clientMock->getAttributes();
     }
