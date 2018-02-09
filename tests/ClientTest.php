@@ -274,7 +274,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $requestMock->expects($this->any())->method('send')->will($this->returnValue($response));
 
         $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
-        $logMock->expects($this->atLeastOnce())->method('error')->with('Throttling limit reached. Will be waiting for 5 seconds.');
+        $logMock->expects($this->atLeastOnce())->method('warn')->with('Throttling limit reached. Will be waiting for 5 seconds.');
         $configMock = $this->getMockBuilder('PlentyConfig')->getMock();
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
@@ -305,7 +305,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $requestMock->expects($this->any())->method('send')->will($this->returnValue($response));
 
         $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
-        $logMock->expects($this->once())->method('error')->with('Throttling limit reached. Will be waiting for 5 seconds.');
+        $logMock->expects($this->once())->method('warn')->with('Throttling limit reached. Will be waiting for 5 seconds.');
         $configMock = $this->getMockBuilder('PlentyConfig')->getMock();
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
