@@ -16,6 +16,17 @@ class PropertyGroups extends ParserAbstract implements ParserInterface
 
         foreach ($data['entries'] as $property) {
             $this->results[$property['id']] = $property['backendName'];
+
+            if (!isset($property['names']) || !is_array($property['names'])) {
+                continue;
+            }
+
+            foreach ($property['names'] as $name) {
+                if ($name['lang'] == $this->getLanguageCode()) {
+                    $this->results[$property['id']] = $name['name'];
+                    break;
+                }
+            }
         }
 
         return $this->results;

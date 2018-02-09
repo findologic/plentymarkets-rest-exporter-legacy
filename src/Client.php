@@ -391,8 +391,7 @@ class Client
      */
     public function getAttributes()
     {
-        $params = array('with' => 'names');
-        $response = $this->call('GET', $this->getEndpoint('items/attributes', $params));
+        $response = $this->call('GET', $this->getEndpoint('items/attributes', array('with' => 'names')));
 
         return $this->returnResult($response);
     }
@@ -403,7 +402,7 @@ class Client
      */
     public function getPropertyGroups()
     {
-        $response = $this->call('GET', $this->getEndpoint('items/property_groups'));
+        $response = $this->call('GET', $this->getEndpoint('items/property_groups', array('with' => 'names')));
 
         return $this->returnResult($response);
     }

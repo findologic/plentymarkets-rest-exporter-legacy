@@ -442,7 +442,7 @@ class Product extends ParserAbstract
                 continue;
             }
 
-            $propertyName = $property['property']['backendName'];
+            $propertyName = $this->getPropertyName($property);
             $value = $this->getPropertyValue($property);
 
             if ($this->swapPropertyValuesFlag) {
@@ -501,6 +501,23 @@ class Product extends ParserAbstract
         }
 
         return $this->getDefaultEmptyValue();
+    }
+
+    protected function getPropertyName($property)
+    {
+        $name = $property['property']['backendName'];
+        if (!isset($property['names']) || !is_array($property['names'])) {
+            return $name;
+        }
+
+        foreach ($property['names'] as $propertyName) {
+            if ($propertyName['lang'] == $this->getLanguageCode()) {
+                $name = $propertyName['name'];
+                break;
+            }
+        }
+
+        return $name;
     }
 
     /**
