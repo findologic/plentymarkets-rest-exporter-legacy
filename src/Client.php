@@ -730,7 +730,7 @@ class Client
                 $timeOut = $timeOut - (time() - $this->getLastTimeout()) + 1;
             }
 
-            $this->log->error('Throttling limit reached. Will be waiting for ' . $timeOut . ' seconds.');
+            $this->log->warn('Throttling limit reached. Will be waiting for ' . $timeOut . ' seconds.');
             usleep($timeOut * 1000000);
         }
 
