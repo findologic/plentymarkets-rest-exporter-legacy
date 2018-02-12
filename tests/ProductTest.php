@@ -799,8 +799,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             array('name' => 'Test value en', 'lang' => 'EN'),
                         ),
                         'names' => array(
-                            array('lang' => 'DE', 'name' => 'Test DE'),
-                            array('lang' => 'EN', 'name' => 'Test EN'),
+                            array('lang' => 'DE', 'value' => 'Test DE'),
+                            array('lang' => 'EN', 'value' => 'Test EN'),
                         )
                     ),
                 ),
