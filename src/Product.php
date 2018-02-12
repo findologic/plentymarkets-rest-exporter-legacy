@@ -506,6 +506,7 @@ class Product extends ParserAbstract
     protected function getPropertyName($property)
     {
         $name = $property['property']['backendName'];
+
         if (!isset($property['names']) || !is_array($property['names'])) {
             return $name;
         }
