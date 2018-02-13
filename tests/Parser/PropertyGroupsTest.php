@@ -27,6 +27,22 @@ class PropertyGroupsTest extends PHPUnit_Framework_TestCase
         return array(
             // No property groups data given, results should be empty
             array(array(), array()),
+            // Property groups data given, but name is empty
+            array(
+                array(
+                    'entries' => array(
+                        array(
+                            'id' => 1,
+                            'backendName' => 'Test',
+                            'names' => array(
+                                array('lang' => 'DE', 'name' => 'Test 2 DE'),
+                                array('lang' => 'LT', 'name' => ''),
+                            )
+                        )
+                    )
+                ),
+                array(1 => 'Test')
+            ),
             // Property groups data given, results should contain array with property group id => name
             array(
                 array(

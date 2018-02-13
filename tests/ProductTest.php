@@ -795,6 +795,25 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         ),
                         'valueTexts' => array(),
                         'propertySelection' => array(
+                            array('name' => 'Test value en', 'lang' => 'EN'),
+                        ),
+                        'names' => array(
+                            array('lang' => 'EN', 'value' => ''),
+                        )
+                    ),
+                ),
+                array('Test' => array('Test value en'))
+            ),
+            // Variation property should use name for provided language instead backend name
+            array(
+                array(
+                    array(
+                        'property' => array(
+                            'backendName' => 'Test',
+                            'valueType' => 'selection',
+                        ),
+                        'valueTexts' => array(),
+                        'propertySelection' => array(
                             array('name' => 'Test value de', 'lang' => 'DE'),
                             array('name' => 'Test value en', 'lang' => 'EN'),
                         ),

@@ -512,7 +512,7 @@ class Product extends ParserAbstract
         }
 
         foreach ($property['names'] as $propertyName) {
-            if (strtoupper($propertyName['lang']) == $this->getLanguageCode()) {
+            if (strtoupper($propertyName['lang']) == $this->getLanguageCode() && !empty($propertyName['value'])) {
                 $name = $propertyName['value'];
                 break;
             }

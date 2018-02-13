@@ -22,7 +22,7 @@ class PropertyGroups extends ParserAbstract implements ParserInterface
             }
 
             foreach ($property['names'] as $name) {
-                if (strtoupper($name['lang']) == $this->getLanguageCode()) {
+                if (strtoupper($name['lang']) == $this->getLanguageCode() && !empty($name['name'])) {
                     $this->results[$property['id']] = $name['name'];
                     break;
                 }
