@@ -55,6 +55,13 @@ class Exporter
     protected $skippedProductsCount = 0;
 
     /**
+     * Array for temporary holding skipped products ids for logging
+     *
+     * @var array
+     */
+    protected $skippedProductsIds;
+
+    /**
      * Standard vat value from rest
      *
      * @var bool
@@ -247,6 +254,11 @@ class Exporter
                     $this->processProductData($product);
                 }
 
+                if (!empty($this->skippedProductsIds) && is_array($this->skippedProductsIds)) {
+                    $this->getLog()->debug('Products with ids ' . implode(',', $this->skippedProductsIds) . ' were skipped as it had no correct data (all variations could be inactive or etc.)');
+                    $this->skippedProductsIds = [];
+                }
+
                 if (!$results || !isset($results['isLastPage']) || $results['isLastPage'] == true) {
                     $continue = false;
                 }
@@ -303,6 +315,7 @@ class Exporter
         // Ignore product if there is no id
         if (!$product->getItemId() || $product->getItemId() < 0) {
             $this->skippedProductsCount++;
+            $this->skippedProductsIds[] = $product->getItemId();
             $this->getLog()->trace('Product was skipped as it has no id.');
             return $this;
         }
@@ -343,7 +356,7 @@ class Exporter
             $this->getWrapper()->wrapItem($product->getResults());
         } else {
             $this->skippedProductsCount++;
-            $this->getLog()->debug('Product with id ' . $product->getItemId() . ' was skipped as it has no correct data (all variations could be inactive or etc.)');
+            $this->skippedProductsIds[] = $product->getItemId();
         }
 
         unset($product);

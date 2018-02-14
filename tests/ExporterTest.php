@@ -115,10 +115,11 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $clientMock->expects($this->any())->method('getProducts')->willReturn(array('totalsCount' => '0', 'entries' => array(array())));
 
         $exporterMock = $this->getExporterMockBuilder(array('client' => $clientMock));
-        $exporterMock->setMethods(array('processProductData'));
+        $exporterMock->setMethods(array('createProductItem'));
         $exporterMock = $exporterMock->getMock();
 
-        $exporterMock->expects($this->once())->method('processProductData');
+        $productMock = $this->getMockBuilder('\Findologic\Plentymarkets\Product')->disableOriginalConstructor()->getMock();
+        $exporterMock->expects($this->atLeastOnce())->method('createProductItem')->willReturn($productMock);
 
         $exporterMock->getProducts();
     }
@@ -279,7 +280,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
             ->setMethods(array('getItemId', 'processVariation', 'processImages'))
             ->getMock();
 
-        $productMock->expects($this->once())->method('getItemId')->will($this->returnValue(false));
+        $productMock->expects($this->atLeastOnce())->method('getItemId')->will($this->returnValue(false));
         $productMock->expects($this->never())->method('processVariation');
         $productMock->expects($this->never())->method('processImages');
 
