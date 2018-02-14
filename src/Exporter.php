@@ -59,7 +59,7 @@ class Exporter
      *
      * @var array
      */
-    protected $skippedProductsIds;
+    protected $skippedProductsIds = array();
 
     /**
      * Standard vat value from rest
@@ -254,9 +254,9 @@ class Exporter
                     $this->processProductData($product);
                 }
 
-                if (!empty($this->skippedProductsIds) && is_array($this->skippedProductsIds)) {
-                    $this->getLog()->debug('Products with ids ' . implode(',', $this->skippedProductsIds) . ' were skipped as it had no correct data (all variations could be inactive or etc.)');
-                    $this->skippedProductsIds = [];
+                if (!empty($this->skippedProductsIds)) {
+                    $this->getLog()->debug('Products with ids ' . implode(',', $this->skippedProductsIds) . ' were skipped as they have no correct data (all variations could be inactive or etc.)');
+                    $this->skippedProductsIds = array();
                 }
 
                 if (!$results || !isset($results['isLastPage']) || $results['isLastPage'] == true) {
