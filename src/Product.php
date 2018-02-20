@@ -3,7 +3,7 @@
 namespace Findologic\Plentymarkets;
 
 use Findologic\Plentymarkets\Parser\ParserAbstract;
-use Findologic\Plentymarkets\Data\Units;
+use Findologic\Plentymarkets\Parser\Units;
 use Findologic\Plentymarkets\Parser\Attributes;
 
 class Product extends ParserAbstract
@@ -765,7 +765,14 @@ class Product extends ParserAbstract
         }
 
         $unitId = $this->getFromArray($data, 'unitId');
-        $this->setField('base_unit', Units::getUnitValue($unitId));
+        $unit = $this->getDefaultEmptyValue();
+
+        /** @var Units $units */
+        if ($units = $this->registry->get('Units')) {
+            $unit = $units->getUnitValue($unitId);
+        }
+
+        $this->setField('base_unit', $unit);
         $this->setField('package_size', $this->getFromArray($data, 'content'));
 
         return $this;

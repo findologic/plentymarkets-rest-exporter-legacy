@@ -462,9 +462,17 @@ class ProductTest extends PHPUnit_Framework_TestCase
 
         $vatMock->expects($this->any())->method('getVatRateByVatId')->willReturn('19.00');
 
+        $unitsMock = $this->getMockBuilder('Findologic\Plentymarkets\Parser\Units')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getUnitValue'))
+            ->getMock();
+
+        $unitsMock->expects($this->any())->method('getUnitValue')->willReturn('C62');
+
         $registry = $this->getRegistryMock();
         $registry->set('Attributes', $attributesMock);
         $registry->set('Vat', $vatMock);
+        $registry->set('Units', $unitsMock);
 
         $productMock = $this->getProductMock(array('getItemId', 'getLanguageCode', 'getStorePlentyId', 'processVariationGroups'), array($registry));
         $productMock->expects($this->any())->method('processVariationGroups')->willReturn($productMock);

@@ -71,7 +71,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
 
         $exporterMock->init();
 
-        $items = array('Vat', 'Categories', 'SalesPrices', 'Attributes', 'Stores', 'Manufacturers');
+        $items = array('Vat', 'Categories', 'SalesPrices', 'Attributes', 'Stores', 'Manufacturers', 'Units');
 
         foreach ($items as $item) {
             $this->assertInstanceOf('\Findologic\Plentymarkets\Parser\\' . $item, $exporterMock->getRegistry()->get($item));
@@ -143,34 +143,6 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $this->setExpectedException(CustomerException::class);
 
         $exporterMock->getProducts();
-    }
-
-    /**
-     * Test parsing units data from api
-     */
-    public function testGetUnits()
-    {
-        $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
-            ->disableOriginalConstructor()
-            ->setMethods(array('getUnits'))
-            ->getMock();
-
-        $clientMock->expects($this->any())
-            ->method('getUnits')
-            ->will(
-                $this->returnValue(
-                    array('entries' => array(
-                        array('id' => 1, 'unitOfMeasurement' => 'C62'),
-                        array('id' => 2, 'unitOfMeasurement' => 'KGM'),
-                    ))
-                )
-            );
-
-        $exporterMock = $this->getExporterMockBuilder(array('client' => $clientMock));
-        $exporterMock->setMethods(array('handleException'));
-        $exporterMock = $exporterMock->getMock();
-
-        $this->assertSame(array(1 => 'C62', 2 => 'KGM'), $exporterMock->getUnits());
     }
 
     /**

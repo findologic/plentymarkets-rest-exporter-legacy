@@ -3,7 +3,6 @@
 namespace Findologic\Plentymarkets\Parser;
 
 use Findologic\Plentymarkets\Data\Countries;
-use Findologic\Plentymarkets\Registry;
 
 class Vat extends ParserAbstract implements ParserInterface
 {
