@@ -454,7 +454,7 @@ class Product extends ParserAbstract
                 $this->swapPropertyValuesFlag = false;
             }
 
-            if ($value != null && $value != $this->getDefaultEmptyValue()) {
+            if ($propertyName != null && $value != null && $value != $this->getDefaultEmptyValue()) {
                 $this->setAttributeField($propertyName, $value);
             }
         }
