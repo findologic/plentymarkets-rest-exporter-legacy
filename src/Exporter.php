@@ -422,7 +422,7 @@ class Exporter
             $methodName = 'get' . ucwords($type);
             if (!method_exists($this->getClient(), $methodName)) {
                 $this->getLog()->warn(
-                    'Plugin tried to call method from api client which do not exists when initialising parsers. ' .
+                    'Plugin tried to call method from API client which does not exist when initialising parsers. ' .
                     'Parser type: ' . $type .
                     ' Method called: ' . $methodName,
                     true
@@ -465,7 +465,7 @@ class Exporter
         $attributes = $this->getRegistry()->get('attributes');
 
         if (!$attributes || !$attributes instanceof Attributes) {
-            throw new CustomerException('Could not get the attributes from api!');
+            throw new CustomerException('Could not get the attributes from API!');
         }
 
         foreach ($attributes->getResults() as $id => $attribute) {

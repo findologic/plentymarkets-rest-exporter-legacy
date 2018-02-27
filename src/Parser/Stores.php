@@ -10,7 +10,7 @@ class Stores extends ParserAbstract implements ParserInterface
     public function parse($data)
     {
         if (empty($data)) {
-            $this->handleEmptyData('No data provided for parsing stores data.');
+            $this->handleEmptyData("No data provided for parsing store's data.");
             return $this->results;
         }
 

@@ -276,7 +276,7 @@ class Client
         // protocol is used and make appropriate changes
         if (!$response || ($response && $response->getStatus() >= 301 && $response->getStatus() <= 404)) {
             $this->protocol = 'http://';
-            $this->getLog()->info('Api client requests protocol changed to http://)');
+            $this->getLog()->info('API client request protocol changed to HTTP');
             $response = $this->call('POST', $this->getEndpoint('login'), array(
                     'username' => $this->config->getUsername(),
                     'password' => $this->config->getPassword()
@@ -285,13 +285,13 @@ class Client
         }
 
         if (!$response || $response->getStatus() != 200) {
-            throw new CriticalException('Could not connect to api!');
+            throw new CriticalException('Could not connect to API!');
         }
 
         $data = json_decode($response->getBody());
 
         if (!property_exists($data, 'accessToken')) {
-            throw new CriticalException("Incorrect login to api, response do not have access token!");
+            throw new CriticalException('Incorrect login to API, response does not have an access token!');
         }
 
         $this->token = $data->accessToken;
@@ -661,12 +661,12 @@ class Client
     {
         // Method is not reachable because provided API user do not have appropriate access rights
         if ($response->getStatus() == 401 && $response->getReasonPhrase() == 'Unauthorized') {
-            throw new CriticalException('Provided rest client do not have access rights for method with url: ' . $response->getEffectiveUrl());
+            throw new CriticalException('Provided REST client does not have access rights for method with URL: ' . $response->getEffectiveUrl());
         }
 
         // Method is not reachable, maybe server is down
         if ($response->getStatus() != 200) {
-            throw new CustomerException('Could not reach api method for ' . $response->getEffectiveUrl());
+            throw new CustomerException('Could not reach API method for ' . $response->getEffectiveUrl());
         }
 
         return true;

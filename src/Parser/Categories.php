@@ -40,7 +40,7 @@ class Categories extends ParserAbstract implements ParserInterface
     public function parseCategoryFullNames($data)
     {
         if (!is_array($data) || !isset($data['entries'])) {
-            $this->handleEmptyData('No data provided for parsing categories urls.');
+            $this->handleEmptyData('No data provided for parsing category URLs.');
             return $this->results;
         }
 
