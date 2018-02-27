@@ -23,10 +23,9 @@ class Debugger
     protected $directory = 'dump';
 
     /**
-     * Array for holding specific paths of api calls to debug
+     * Array for holding specific paths of API calls to debug
      * If empty all calls will be logged
      * Example: if you pass array('items') only /rest/items call will be logged
-     *
      *
      * @var array
      */
@@ -177,7 +176,7 @@ class Debugger
     }
 
     /**
-     * Remove api prefix from method path
+     * Remove API prefix from method path
      *
      * @param string $path
      * @return mixed
@@ -200,7 +199,7 @@ class Debugger
     }
 
     /**
-     * Check if this api path should be debugged
+     * Check if this API path should be debugged
      *
      * @param string $path
      * @return bool

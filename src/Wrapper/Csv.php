@@ -26,7 +26,8 @@ class Csv implements WrapperInterface
     const CATEGORY_DELIMITER = '_';
 
     /**
-     * The plentymarkets delimiter for categories
+     * The Plentymarkets delimiter for categories
+     *
      * @var string
      */
     const PLENTY_CATEGORY_DELIMITER = ';';
@@ -38,13 +39,15 @@ class Csv implements WrapperInterface
     const ORDERNUMBER_DELIMITER = '|';
 
     /**
-     * The plentymarkets delimiter for attribute sets
+     * The Plentymarkets delimiter for attribute sets
+     *
      * @var string
      */
     const ATTRIBUTE_SET_DELIMITER = ';';
 
     /**
-     * The plentymarkets delimiter for attribute names and values
+     * The Plentymarkets delimiter for attribute names and values
+     *
      * @var string
      */
     const ATTRIBUTE_DELIMITER = ':';
@@ -68,7 +71,8 @@ class Csv implements WrapperInterface
     const VENDOR_FILTER_KEY = 'vendor';
 
     /**
-     * plentymarkets customer class for all customers
+     * Plentymarkets customer class for all customers
+     *
      * @var integer
      */
     const CUSTOMER_CLASS_ALL_CUSTOMERS = 0;

@@ -5,7 +5,7 @@ namespace Findologic\Plentymarkets\Data;
 class Units
 {
     /**
-     * Unit id => Unit text value in plentymarkets systems
+     * Unit id => Unit text value in Plentymarkets systems
      *
      * @var array
      */

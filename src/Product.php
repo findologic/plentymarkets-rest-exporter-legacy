@@ -54,7 +54,7 @@ class Product extends ParserAbstract
     );
 
     /**
-     * Protocol which should be used when formatting product url
+     * Protocol which should be used when formatting product URL
      *
      * @var string
      */
@@ -177,8 +177,8 @@ class Product extends ParserAbstract
     }
 
     /**
-     * Return a false value if there was no variations which was active or passed other
-     * configurated visibility filtering
+     * Return a false value if there was no variation which was active or passed other
+     * configured visibility filtering
      *
      * @codeCoverageIgnore
      * @return bool
@@ -265,7 +265,7 @@ class Product extends ParserAbstract
     }
 
     /**
-     * Plentymarkets do not return full url so it should be formatted by given information
+     * Plentymarkets do not return full URL so it should be formatted by given information
      *
      * @param string $path
      * @return string
@@ -394,7 +394,7 @@ class Product extends ParserAbstract
     }
 
     /**
-     * Process variation groups, currently plentymarkets only provide data about variation store and the customer groups
+     * Process variation groups, currently Plentymarkets only provide data about variation store and the customer groups
      * information is not provided
      *
      * @param array $variationStores
@@ -751,8 +751,8 @@ class Product extends ParserAbstract
     }
 
     /**
-     * Variation units processing
-     * Map variation 'unitId' with ISO value
+     * Variation units processing.
+     * Map variation 'unitId' with ISO value.
      *
      * @param $data
      * @return $this|Product

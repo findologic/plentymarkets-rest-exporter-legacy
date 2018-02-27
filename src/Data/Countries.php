@@ -5,7 +5,7 @@ namespace Findologic\Plentymarkets\Data;
 class Countries
 {
     /**
-     * Country ISO code => Country id in plentymarkets system
+     * Country ISO code => Country id in Plentymarkets system
      *
      * @var array
      */

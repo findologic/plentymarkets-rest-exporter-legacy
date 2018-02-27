@@ -20,21 +20,21 @@ class Client
     const THROTTLING_LIMIT_REACHED = '--- EMPTY ---';
 
     /**
-     * Rest api url
+     * REST API URL
      *
      * @var string
      */
     protected $url;
 
     /**
-     * Rest login token
+     * REST login token
      *
      * @var
      */
     protected $token;
 
     /**
-     * Rest login refresh token
+     * REST login refresh token
      *
      * @var
      */
@@ -51,7 +51,7 @@ class Client
     protected $customerLog;
 
     /**
-     * Flag fol login call to api to avoid setting the headers for this call
+     * Flag for login call to API to avoid setting the headers for this call
      *
      * @var bool
      */
@@ -63,7 +63,7 @@ class Client
     protected $debug = false;
 
     /**
-     * Connection to api protocol (some websites could use http other https)
+     * Connection to API protocol (some websites could use http other https)
      *
      * @var string
      */
@@ -71,7 +71,7 @@ class Client
 
     /**
      * Variable to allow setting items per page on request without adding this as an property
-     * to every class method responsible for calling the api
+     * to every class method responsible for calling the API
      *
      * @var bool|int
      */
@@ -79,7 +79,7 @@ class Client
 
     /**
      * Variable to allow setting page number without adding this as an property
-     * to every class method responsible for calling the api
+     * to every class method responsible for calling the API
      *
      * @var bool|int
      */
@@ -148,7 +148,7 @@ class Client
     }
 
     /**
-     * Get the token for api call authorization
+     * Get the token for API call authorization
      *
      * @return null|string
      */
@@ -248,10 +248,10 @@ class Client
         return $this;
     }
 
-    /* Api calls */
+    /* API calls */
 
     /**
-     * Call login method and save api token for further calls
+     * Call login method and save API token for further calls
      *
      * @return $this
      * @throws Exception\CriticalException
@@ -272,7 +272,7 @@ class Client
             $response = false;
         }
 
-        // If using incorrect protocol the api returns status between 301-404  so it could be used to check if correct
+        // If using incorrect protocol the API returns status between 301-404  so it could be used to check if correct
         // protocol is used and make appropriate changes
         if (!$response || ($response && $response->getStatus() >= 301 && $response->getStatus() <= 404)) {
             $this->protocol = 'http://';
@@ -301,7 +301,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
+     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
      * @return array
      */
     public function getStandardVat($shopId)
@@ -314,7 +314,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
+     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
      * @return array
      */
     public function getWebstores()
@@ -325,7 +325,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
+     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
      * @return array
      */
     public function getCategories($storeId = null)
@@ -342,7 +342,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
+     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
      * @return array
      */
     public function getCategoriesBranches()
@@ -353,7 +353,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
+     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
      * @return array
      */
     public function getVat()
@@ -364,7 +364,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
+     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
      * @return array
      */
     public function getSalesPrices()
@@ -375,7 +375,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
+     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
      * @return array
      */
     public function getManufacturers()
@@ -386,7 +386,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
+     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
      * @return array
      */
     public function getAttributes()
@@ -397,7 +397,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
+     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
      * @return array
      */
     public function getPropertyGroups()
@@ -408,7 +408,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
+     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
      * @return array
      */
     public function getStores()
@@ -419,7 +419,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
+     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
      * @param int $attributeId
      * @return array
      */
@@ -432,7 +432,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
+     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
      * @return array
      */
     public function getUnits()
@@ -443,7 +443,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
+     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
      * @param int $itemId
      * @param int $variationId
      * @return array
@@ -459,7 +459,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
+     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
      * @param int $productId
      * @return array
      */
@@ -471,7 +471,7 @@ class Client
     }
 
     /**
-     * @codeCoverageIgnore - Ignore this method as actual call to api is not tested
+     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
      * @param int $id
      * @return array
      */
@@ -529,10 +529,10 @@ class Client
         return $this->returnResult($response);
     }
 
-    /* End of api calls */
+    /* End of API calls */
 
     /**
-     * Parse the results from api
+     * Parse the results from API
      *
      * @param $response \HTTP_Request2_Response
      * @return array
@@ -543,7 +543,7 @@ class Client
     }
 
     /**
-     * Format method call with endpoint url and given params
+     * Format method call with endpoint URL and given params
      *
      * @param string $method
      * @return string
@@ -552,7 +552,7 @@ class Client
     {
         $query = '';
 
-        //Set page and itemsPerPage params if they are provided by setters
+        // Set page and itemsPerPage params if they are provided by setters
         if ($this->page) {
             $params['page'] = $this->page;
         }
@@ -561,7 +561,7 @@ class Client
             $params['itemsPerPage'] = $this->itemsPerPage;
         }
 
-        //Process params to url
+        // Process params to URL
         if ($params) {
             $query = '?';
             $count = 0;
@@ -569,7 +569,7 @@ class Client
             foreach ($params as $key => $value) {
                 $count++;
                 if (is_array($value)) {
-                    //if value is array it should be separated by commas in this api
+                    // If value is array it should be separated by commas in this API
                     $query .= $key . '=' . implode(",", $value);
                 } else {
                     $query .= $key . '=' . $value;
@@ -585,7 +585,7 @@ class Client
     }
 
     /**
-     * Call the rest client to get response
+     * Call the REST client to get a response
      *
      * @param string $method
      * @param string $uri
@@ -626,7 +626,7 @@ class Client
                     throw $e;
                 }
 
-                // If call to api was not successful check if retry limit was reached to stop retry cycle
+                // If call to API was not successful check if retry limit was reached to stop retry cycle
                 if ($e instanceof ThrottlingException || $count >= self::RETRY_COUNT) {
                     throw $e;
                 } else {
@@ -659,7 +659,7 @@ class Client
      */
     protected function isResponseValid($response)
     {
-        // Method is not reachable because provided api user do not have appropriate access rights
+        // Method is not reachable because provided API user do not have appropriate access rights
         if ($response->getStatus() == 401 && $response->getReasonPhrase() == 'Unauthorized') {
             throw new CriticalException('Provided rest client do not have access rights for method with url: ' . $response->getEffectiveUrl());
         }
@@ -738,7 +738,7 @@ class Client
     }
 
     /**
-     * Check response headers to know if api throttling limit is reached and handle the situation
+     * Check response headers to know if API throttling limit is reached and handle the situation
      *
      * @param \HTTP_Request2_Response $response
      * @throws ThrottlingException

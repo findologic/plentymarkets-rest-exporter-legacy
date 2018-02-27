@@ -62,7 +62,7 @@ class Exporter
     protected $skippedProductsIds = array();
 
     /**
-     * Standard vat value from rest
+     * Standard vat value from REST
      *
      * @var bool
      */
@@ -233,7 +233,7 @@ class Exporter
         $this->getCustomerLog()->info('Starting product processing.');
 
         try {
-            // Cycle the call for products to api until all we have all products
+            // Cycle the call for products to API until all we have all products
             while ($continue) {
                 $this->getClient()->setItemsPerPage($itemsPerPage)->setPage($page);
                 $results = $this->getClient()->getProducts();
@@ -365,7 +365,7 @@ class Exporter
     }
 
     /**
-     * Get standard vat country, if there is no configured country call api
+     * Get standard vat country, if there is no configured country call API
      *
      * @return bool|mixed|string
      */
@@ -414,7 +414,7 @@ class Exporter
     }
 
     /**
-     * Handle the initiation of all data parsers and call method to parse the result from api
+     * Handle the initiation of all data parsers and call method to parse the result from API
      */
     protected function initAdditionalData()
     {

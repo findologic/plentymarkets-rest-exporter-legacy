@@ -101,7 +101,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test how method handles the product response from api
+     * Test how method handles the product response from API
      */
     public function testGetProducts()
     {
@@ -125,7 +125,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * If api returns no result an exception should be thrown
+     * If API returns no result an exception should be thrown
      */
     public function testGetProductsException()
     {
@@ -146,7 +146,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test parsing units data from api
+     * Test parsing units data from API
      */
     public function testGetUnits()
     {

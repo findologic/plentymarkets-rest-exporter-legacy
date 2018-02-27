@@ -10,7 +10,7 @@ use PHPUnit_Framework_TestCase;
 class ClientTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * Test when login request was successful and api returns the token
+     * Test when login request was successful and API returns the token
      */
     public function testLogin()
     {
@@ -76,7 +76,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Get products api call
+     * Get products API call
      */
     public function testGetProducts()
     {
@@ -90,7 +90,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test call to api when calls fails but last call is successful
+     * Test call to API when calls fails but last call is successful
      */
     public function testCallRetrySuccess()
     {
@@ -117,7 +117,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test handling failed api call when retry max count is reached
+     * Test handling failed API call when retry max count is reached
      */
     public function testCallRetryFailed()
     {
@@ -204,7 +204,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $request =  $method->invokeArgs($clientMock, $parameters);
 
         $this->assertInstanceOf('HTTP_Request2', $request);
-        // Validate if correct url is set
+        // Validate if correct URL is set
         $this->assertSame('http://test.com/rest/method', $request->getUrl()->getURL());
     }
 

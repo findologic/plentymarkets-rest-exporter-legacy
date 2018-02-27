@@ -14,7 +14,7 @@ interface WrapperInterface
 
     /**
      * Function called after all products has been processed so each wrapper
-     * could execute neccessary code for ending the wrapping
+     * could execute necessary code for ending the wrapping
      *
      * @return mixed
      */
