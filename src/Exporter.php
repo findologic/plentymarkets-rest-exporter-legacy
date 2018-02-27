@@ -3,7 +3,6 @@
 namespace Findologic\Plentymarkets;
 
 use Findologic\Plentymarkets\Data\Countries;
-use Findologic\Plentymarkets\Data\Units;
 use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Exception\ThrottlingException;
 use Findologic\Plentymarkets\Parser\ParserFactory;
