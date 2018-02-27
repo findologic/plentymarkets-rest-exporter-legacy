@@ -40,7 +40,7 @@ class Vat extends ParserAbstract implements ParserInterface
      * @param int $vatId
      * @return string
      */
-    public function getVatRateByVatId($vatId, $countryId = null)
+    public function getVatRateByVatId($vatId)
     {
         if (isset($this->results[$this->countryId][$vatId])) {
             return $this->results[$this->countryId][$vatId];
