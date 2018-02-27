@@ -49,7 +49,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
      */
     public function testInitAdditionalData()
     {
-        $configMock = $this->getMockBuilder('PlentyConfig')->getMock();
+        $configMock = $this->getConfigMock();
         $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
         $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
             ->setConstructorArgs(array($configMock, $logMock, $logMock))
@@ -105,14 +105,15 @@ class ExporterTest extends PHPUnit_Framework_TestCase
      */
     public function testGetProducts()
     {
-        $configMock = $this->getMockBuilder('PlentyConfig')->getMock();
+        $configMock = $this->getConfigMock();
         $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
         $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
             ->setConstructorArgs(array($configMock, $logMock, $logMock))
-            ->setMethods(array('getProducts'))
+            ->setMethods(array('getProducts', 'getAttributeValues'))
             ->getMock();
 
         $clientMock->expects($this->any())->method('getProducts')->willReturn(array('totalsCount' => '0', 'entries' => array(array())));
+        $clientMock->expects($this->any())->method('getAttributeValues')->willReturn(array());
 
         $exporterMock = $this->getExporterMockBuilder(array('client' => $clientMock));
         $exporterMock->setMethods(array('createProductItem'));
@@ -178,10 +179,8 @@ class ExporterTest extends PHPUnit_Framework_TestCase
      */
     public function testCreateProductItem()
     {
-        $configMock = $this->getMockBuilder('PlentyConfig')->disableOriginalConstructor()->getMock();
-
         $exporterMock = $this->getExporterMockBuilder()->setMethods(array('getConfig'))->getMock();
-        $exporterMock->expects($this->any())->method('getConfig')->willReturn($configMock);
+        $exporterMock->expects($this->any())->method('getConfig')->willReturn($this->getConfigMock());
 
         $product = $exporterMock->createProductItem(array());
 
@@ -335,6 +334,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')->disableOriginalConstructor()->getMock();
         $clientMock->expects($this->any())->method('setItemsPerPage')->willReturn($clientMock);
         $clientMock->expects($this->any())->method('getConfig')->willReturn($this->getConfigMock());
+        $clientMock->expects($this->any())->method('getAttributeValues')->willReturn(array());
 
         $defaultMocks = array(
             'client' => $clientMock,
