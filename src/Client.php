@@ -5,6 +5,7 @@ namespace Findologic\Plentymarkets;
 use Findologic\Plentymarkets\Exception\CriticalException;
 use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Exception\ThrottlingException;
+use \HTTP_Request2_Response;
 use \HTTP_Request2;
 use \Logger;
 
@@ -29,14 +30,14 @@ class Client
     /**
      * REST login token
      *
-     * @var
+     * @var string
      */
     protected $token;
 
     /**
      * REST login refresh token
      *
-     * @var
+     * @var string
      */
     protected $refreshToken;
 
@@ -302,11 +303,12 @@ class Client
 
     /**
      * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
+     * @param int $plentyId
      * @return array
      */
-    public function getStandardVat($shopId)
+    public function getStandardVat($plentyId)
     {
-        $params = array('plentyId' => $shopId);
+        $params = array('plentyId' => $plentyId);
 
         $response = $this->call('GET', $this->getEndpoint('vat/standard', $params));
 
@@ -326,14 +328,15 @@ class Client
 
     /**
      * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
+     * @param int|null $plentyId
      * @return array
      */
-    public function getCategories($storeId = null)
+    public function getCategories($plentyId = null)
     {
         $params = array('type' => 'item', 'with' => 'details');
 
-        if ($storeId) {
-            $params['plentyId'] = $storeId;
+        if ($plentyId) {
+            $params['plentyId'] = $plentyId;
         }
 
         $response = $this->call('GET', $this->getEndpoint('categories/', $params));
@@ -483,6 +486,7 @@ class Client
     }
 
     /**
+     * @param string|null $language
      * @return array
      */
     public function getProducts($language = null)
@@ -500,6 +504,7 @@ class Client
 
     /**
      * @param int $productId
+     * @param bool|int $storePlentyId
      * @return array
      */
     public function getProductVariations($productId, $storePlentyId = false)
@@ -534,10 +539,10 @@ class Client
     /**
      * Parse the results from API
      *
-     * @param $response \HTTP_Request2_Response
+     * @param HTTP_Request2_Response $response
      * @return array
      */
-    protected function returnResult($response)
+    protected function returnResult(HTTP_Request2_Response $response)
     {
         return json_decode($response->getBody(), true);
     }
@@ -546,6 +551,7 @@ class Client
      * Format method call with endpoint URL and given params
      *
      * @param string $method
+     * @param array|null $params
      * @return string
      */
     protected function getEndpoint($method, $params = null)
@@ -589,8 +595,9 @@ class Client
      *
      * @param string $method
      * @param string $uri
-     * @param array $params
+     * @param array|null $params
      * @return bool|mixed
+     * @throws ThrottlingException
      */
     protected function call($method, $uri, $params = null)
     {
@@ -652,12 +659,12 @@ class Client
     /**
      * Check response for appropriate statuses to validate if it was successful
      *
-     * @param \HTTP_Request2_Response $response
+     * @param HTTP_Request2_Response $response
      * @return bool
      * @throws CriticalException
      * @throws CustomerException
      */
-    protected function isResponseValid($response)
+    protected function isResponseValid(HTTP_Request2_Response $response)
     {
         // Method is not reachable because provided API user do not have appropriate access rights
         if ($response->getStatus() == 401 && $response->getReasonPhrase() == 'Unauthorized') {
@@ -677,7 +684,7 @@ class Client
      *
      * @param string $method - 'GET', 'POST' , etc.
      * @param string $uri - full endpoint path with query (GET) parameters
-     * @param array $params - POST parameters
+     * @param array|null $params - POST parameters
      * @return HTTP_Request2
      */
     protected function createRequest($method, $uri, $params = null)
@@ -702,10 +709,10 @@ class Client
     /**
      * Set default request params for request
      *
-     * @param \HTTP_Request2 $request
+     * @param HTTP_Request2 $request
      * @return $this
      */
-    protected function setDefaultParams($request)
+    protected function setDefaultParams(HTTP_Request2 $request)
     {
         if (!$this->getToken()) {
             $this->login();
@@ -740,10 +747,10 @@ class Client
     /**
      * Check response headers to know if API throttling limit is reached and handle the situation
      *
-     * @param \HTTP_Request2_Response $response
+     * @param HTTP_Request2_Response $response
      * @throws ThrottlingException
      */
-    protected function checkThrottling(\HTTP_Request2_Response $response)
+    protected function checkThrottling(HTTP_Request2_Response $response)
     {
         $globalLimit = $response->getHeader(self::GLOBAL_LONG_CALLS_LEFT_COUNT);
 

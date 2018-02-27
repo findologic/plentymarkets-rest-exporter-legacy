@@ -7,10 +7,10 @@ interface WrapperInterface
     /**
      * Method which writes the data to destination
      *
-     * @param array
+     * @param array $data
      * @return mixed
      */
-    public function wrapItem($data);
+    public function wrapItem(array $data);
 
     /**
      * Function called after all products has been processed so each wrapper

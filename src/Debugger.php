@@ -3,9 +3,8 @@
 namespace Findologic\Plentymarkets;
 
 use \Findologic\Plentymarkets\Exception\InternalException;
-use \HTTP_Request2;
-use \HTTP_Request2_Response;
-use \Logger;
+use HTTP_Request2;
+use Logger;
 
 class Debugger
 {
@@ -42,11 +41,11 @@ class Debugger
     protected $timing = array();
 
     /**
-     * @param \Logger $log
+     * @param Logger $log
      * @param string|bool $directory
      * @param array $pathsToDebug
      */
-    public function __construct($log, $directory = false, $pathsToDebug = array())
+    public function __construct(Logger $log, $directory = false, array $pathsToDebug = array())
     {
         $this->log = $log;
 
@@ -71,15 +70,16 @@ class Debugger
     public function resetCallTiming()
     {
         unset($this->timing);
+
         $this->timing = [];
     }
 
     /**
-     * @param \HTTP_Request2 $request
-     * @param \HTTP_Request2_Response $response
+     * @param HTTP_Request2 $request
+     * @param HTTP_Request2_Response $response
      * @return bool
      */
-    public function debugCall($request, $response)
+    public function debugCall(HTTP_Request2 $request, $response)
     {
         if (!$this->isPathDebuggable($request->getUrl()->getPath())) {
             return false;
@@ -99,9 +99,9 @@ class Debugger
     /**
      * Log the timing of a REST call.
      *
-     * @param $uri string The URI that was used.
-     * @param $begin float Timestamp when the request was started.
-     * @param $end float Timestamp when the request finished.
+     * @param string $uri The URI that was used.
+     * @param float $begin Timestamp when the request was started.
+     * @param float $end Timestamp when the request finished.
      */
     public function logCallTiming($uri, $begin, $end)
     {
@@ -152,7 +152,7 @@ class Debugger
     /**
      * Get full directory path where the request and response should be saved
      *
-     * @param $callPath
+     * @param string $callPath
      * @return mixed
      */
     protected function getApiCallDirectoryPath($callPath)
@@ -235,7 +235,7 @@ class Debugger
     /**
      * Write request data to file
      *
-     * @param \HTTP_Request2 $request
+     * @param HTTP_Request2 $request
      * @param resource $fileHandle
      * @return bool
      */
@@ -257,7 +257,7 @@ class Debugger
     /**
      * Write response data to file
      *
-     * @param \HTTP_Request2_Response $response
+     * @param HTTP_Request2_Response $response
      * @param resource $fileHandle
      * @return bool
      */
@@ -276,9 +276,10 @@ class Debugger
     /**
      * Write debug data to file and add some formatting if needed
      *
-     * @param $fileHandle
+     * @param resource $fileHandle
      * @param string $title
      * @param string|int|array $data
+     * @param int $nestingLevel
      */
     protected function writeToFile($fileHandle, $title, $data, $nestingLevel = 0)
     {

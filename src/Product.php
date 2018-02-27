@@ -4,7 +4,6 @@ namespace Findologic\Plentymarkets;
 
 use Findologic\Plentymarkets\Parser\ParserAbstract;
 use Findologic\Plentymarkets\Data\Units;
-use Findologic\Plentymarkets\Parser\Attributes;
 
 class Product extends ParserAbstract
 {
@@ -300,7 +299,7 @@ class Product extends ParserAbstract
      * @param array $data
      * @return $this
      */
-    public function processInitialData($data)
+    public function processInitialData(array $data)
     {
         $this->itemId = $this->getFromArray($data, 'id');
 
@@ -338,7 +337,7 @@ class Product extends ParserAbstract
      * @param array $variation
      * @return bool
      */
-    public function processVariation($variation)
+    public function processVariation(array $variation)
     {
         if (!$this->shouldProcessVariation($variation)) {
             return false;
@@ -430,7 +429,7 @@ class Product extends ParserAbstract
      * @param array $data
      * @return $this
      */
-    public function processVariationsProperties($data)
+    public function processVariationsProperties(array $data)
     {
         if (!is_array($data) || empty($data)) {
             $this->handleEmptyData();
@@ -465,7 +464,7 @@ class Product extends ParserAbstract
     /**
      * Get the image for item
      *
-     * @param $data
+     * @param array $data
      * @return $this
      */
     public function processImages($data)
@@ -494,7 +493,7 @@ class Product extends ParserAbstract
      * @param string $key
      * @return mixed
      */
-    protected function getFromArray($array, $key)
+    protected function getFromArray(array $array, $key)
     {
         if (isset($array[$key])) {
             return $array[$key];
@@ -503,7 +502,11 @@ class Product extends ParserAbstract
         return $this->getDefaultEmptyValue();
     }
 
-    protected function getPropertyName($property)
+    /**
+     * @param array $property
+     * @return mixed
+     */
+    protected function getPropertyName(array $property)
     {
         $name = $property['property']['backendName'];
 
@@ -527,7 +530,7 @@ class Product extends ParserAbstract
      * @param array $property
      * @return string
      */
-    protected function getPropertyValue($property)
+    protected function getPropertyValue(array $property)
     {
         $propertyType = $property['property']['valueType'];
         $value = $this->getDefaultEmptyValue();
@@ -595,7 +598,7 @@ class Product extends ParserAbstract
      * @param array $variation
      * @return bool
      */
-    protected function shouldProcessVariation($variation)
+    protected function shouldProcessVariation(array $variation)
     {
         if ($variation['isActive'] == false) {
             return false;
@@ -629,7 +632,7 @@ class Product extends ParserAbstract
      * @param array $variation
      * @return $this
      */
-    protected function processVariationIdentifiers($variation)
+    protected function processVariationIdentifiers(array $variation)
     {
         $identificators = array('number', 'model', 'id', 'itemId');
 
@@ -654,7 +657,7 @@ class Product extends ParserAbstract
      * @param array $barcodes
      * @return $this
      */
-    protected function processVariationsBarcodes($barcodes)
+    protected function processVariationsBarcodes(array $barcodes)
     {
         foreach ($barcodes as $barcode) {
             $this->addVariationIdentifier($this->getFromArray($barcode, 'code'));
@@ -754,7 +757,7 @@ class Product extends ParserAbstract
      * Variation units processing.
      * Map variation 'unitId' with ISO value.
      *
-     * @param $data
+     * @param array $data
      * @return $this|Product
      */
     protected function processUnits($data)
@@ -775,7 +778,7 @@ class Product extends ParserAbstract
      * @param array $data
      * @return $this
      */
-    protected function processTexts($data)
+    protected function processTexts(array $data)
     {
         if (!isset($data['texts']) || !count($data['texts'])) {
             $this->handleEmptyData();

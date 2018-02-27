@@ -41,5 +41,4 @@ class Manufacturers extends ParserAbstract implements ParserInterface
 
         return $this->getDefaultEmptyValue();
     }
-
 }

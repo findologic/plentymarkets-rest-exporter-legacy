@@ -18,12 +18,24 @@ abstract class ParserAbstract
      */
     protected $results = array();
 
+    /**
+     * @var string
+     */
     protected $storeUrl = '';
 
+    /**
+     * @var string
+     */
     protected $languageCode = '';
 
+    /**
+     * @var string
+     */
     protected $countryCode = '';
 
+    /**
+     * @var bool|int
+     */
     protected $storePlentyId;
 
     public function __construct(Registry $registry)
@@ -47,7 +59,7 @@ abstract class ParserAbstract
      * @param array $data
      * @return $this
      */
-    public function setResults($data)
+    public function setResults(array $data)
     {
         $this->results = $data;
 
@@ -80,6 +92,10 @@ abstract class ParserAbstract
         return $this;
     }
 
+    /**
+     * @param string $lang
+     * @return $this
+     */
     public function setLanguageCode($lang)
     {
         $this->languageCode = strtoupper($lang);
@@ -95,6 +111,10 @@ abstract class ParserAbstract
         return $this->languageCode;
     }
 
+    /**
+     * @param string $country
+     * @return $this
+     */
     public function setTaxRateCountryCode($country)
     {
         $this->countryCode = strtoupper($country);
@@ -110,6 +130,10 @@ abstract class ParserAbstract
         return $this->countryCode;
     }
 
+    /**
+     * @param string $url
+     * @return $this
+     */
     public function setStoreUrl($url)
     {
         $this->storeUrl = rtrim($url, '/');
@@ -125,6 +149,10 @@ abstract class ParserAbstract
         return $this->storeUrl;
     }
 
+    /**
+     * @param int $storePlentyId
+     * @return $this
+     */
     public function setStorePlentyId($storePlentyId)
     {
         $this->storePlentyId = $storePlentyId;

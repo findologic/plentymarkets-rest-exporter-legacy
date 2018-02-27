@@ -112,6 +112,7 @@ class Categories extends ParserAbstract implements ParserInterface
     /**
      * Return full category name path if category has any
      * Categories not returned in /rest/category_branches method do not have have full category name path so return name
+     *
      * @param int $categoryId
      * @return string
      */
@@ -129,7 +130,7 @@ class Categories extends ParserAbstract implements ParserInterface
     }
 
     /**
-     * @param $categoryId
+     * @param int $categoryId
      * @return string
      */
     protected function getCategoryUrlKey($categoryId)

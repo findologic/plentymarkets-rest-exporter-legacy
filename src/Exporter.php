@@ -221,6 +221,8 @@ class Exporter
      * @param int $page
      * @return mixed
      * @throws CustomerException
+     * @throws ThrottlingException
+     * @throws \Exception
      */
     public function getProducts($itemsPerPage = null, $page = 1)
     {
@@ -415,6 +417,8 @@ class Exporter
 
     /**
      * Handle the initiation of all data parsers and call method to parse the result from API
+     *
+     * @return $this
      */
     protected function initAdditionalData()
     {
@@ -458,6 +462,7 @@ class Exporter
     /**
      * Call all necessary methods to fully get attributes values
      *
+     * @return $this
      * @throws Exception\CustomerException
      */
     protected function initAttributeValues()

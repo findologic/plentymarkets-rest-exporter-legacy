@@ -3,7 +3,6 @@
 namespace Findologic\Plentymarkets\Parser;
 
 use Findologic\Plentymarkets\Data\Countries;
-use Findologic\Plentymarkets\Registry;
 
 class Vat extends ParserAbstract implements ParserInterface
 {
@@ -50,6 +49,10 @@ class Vat extends ParserAbstract implements ParserInterface
         return $this->getDefaultEmptyValue();
     }
 
+    /**
+     * @param string $country
+     * @return $this
+     */
     public function setTaxRateCountryCode($country)
     {
         parent::setTaxRateCountryCode($country);

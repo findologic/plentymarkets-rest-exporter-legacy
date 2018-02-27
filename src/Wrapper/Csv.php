@@ -139,10 +139,10 @@ class Csv implements WrapperInterface
     /**
      * Write item data to file
      *
-     * @param array
+     * @param array $data
      * @return $this
      */
-     public function wrapItem($data)
+     public function wrapItem(array $data)
      {
          // Check if headers already set
          if (!$this->headersSetFlag) {
@@ -177,7 +177,7 @@ class Csv implements WrapperInterface
      * @param array $data
      * @return array
      */
-    public function convertData($data)
+    public function convertData(array $data)
     {
         // Fields which values can not contain html
         $htmlFields = array('ordernumber', 'name', 'summary', 'description', 'keywords');
@@ -201,9 +201,9 @@ class Csv implements WrapperInterface
     /**
      * Set the header line of csv
      *
-     * @param $headersData
+     * @param array $headersData
      */
-    protected function setHeaders($headersData)
+    protected function setHeaders(array $headersData)
     {
         $headers = array_keys($headersData);
         fputcsv($this->getStream(), $headers, self::CSV_DELIMITER, self::CSV_ENCLOSURE);
