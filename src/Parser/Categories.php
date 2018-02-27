@@ -12,7 +12,7 @@ class Categories extends ParserAbstract implements ParserInterface
     public function parse($data)
     {
         if (!isset($data['entries'])) {
-            $this->handleEmptyData('No data provided for parsing categories .');
+            $this->handleEmptyData('No data provided for parsing categories.');
             return $this->results;
         }
 
@@ -40,7 +40,7 @@ class Categories extends ParserAbstract implements ParserInterface
     public function parseCategoryFullNames($data)
     {
         if (!is_array($data) || !isset($data['entries'])) {
-            $this->handleEmptyData('No data provided for parsing categories urls.');
+            $this->handleEmptyData('No data provided for parsing category URLs.');
             return $this->results;
         }
 
@@ -48,7 +48,7 @@ class Categories extends ParserAbstract implements ParserInterface
             $fullNamePath = '';
             $lastCategoryId = false;
             $i = 0;
-            // Unset first category as plentymarkets for some reason inserts last category
+            // Unset first category as Plentymarkets for some reason inserts last category
             unset($branch['categoryId']);
             // IMPORTANT! Insert fake element to array so if category tree has values in all branches the last value
             // also would be processed
@@ -91,7 +91,7 @@ class Categories extends ParserAbstract implements ParserInterface
 
     /**
      * Return full path if category has any
-     * Categories not returned in /rest/category_branches method do not have have full path so return url key
+     * Categories not returned in /rest/category_branches method do not have have full path so return URL key
      *
      * @param int $categoryId
      * @return string
@@ -112,6 +112,7 @@ class Categories extends ParserAbstract implements ParserInterface
     /**
      * Return full category name path if category has any
      * Categories not returned in /rest/category_branches method do not have have full category name path so return name
+     *
      * @param int $categoryId
      * @return string
      */
@@ -129,7 +130,7 @@ class Categories extends ParserAbstract implements ParserInterface
     }
 
     /**
-     * @param $categoryId
+     * @param int $categoryId
      * @return string
      */
     protected function getCategoryUrlKey($categoryId)

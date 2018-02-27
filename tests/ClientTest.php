@@ -10,7 +10,7 @@ use PHPUnit_Framework_TestCase;
 class ClientTest extends PHPUnit_Framework_TestCase
 {
     /**
-     * Test when login request was successful and api returns the token
+     * Test when login request was successful and API returns the token
      */
     public function testLogin()
     {
@@ -76,7 +76,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Get products api call
+     * Get products API call
      */
     public function testGetProducts()
     {
@@ -90,7 +90,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test call to api when calls fails but last call is successful
+     * Test call to API when calls fails but last call is successful
      */
     public function testCallRetrySuccess()
     {
@@ -117,7 +117,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test handling failed api call when retry max count is reached
+     * Test handling failed API call when retry max count is reached
      */
     public function testCallRetryFailed()
     {
@@ -128,7 +128,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
 
         $debugMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')->disableOriginalConstructor()->getMock();
         $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
-        $configMock = $this->getMockBuilder('PlentyConfig')->getMock();
+        $configMock = $this->getMockBuilder('PlentyConfig')->setMethods(array('getDomain'))->getMock();
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
             ->setConstructorArgs(array($configMock, $logMock, $logMock, $debugMock))
@@ -161,7 +161,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
         // Check if debugger is called
         $debugMock->expects($this->atMost(5))->method('debugCall');
         $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
-        $configMock = $this->getMockBuilder('PlentyConfig')->getMock();
+        $configMock = $this->getMockBuilder('PlentyConfig')->setMethods(array('getDomain'))->getMock();
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
             ->setConstructorArgs(array($configMock, $logMock, $logMock, $debugMock))
@@ -204,7 +204,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $request =  $method->invokeArgs($clientMock, $parameters);
 
         $this->assertInstanceOf('HTTP_Request2', $request);
-        // Validate if correct url is set
+        // Validate if correct URL is set
         $this->assertSame('http://test.com/rest/method', $request->getUrl()->getURL());
     }
 
@@ -223,7 +223,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $debugMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')->disableOriginalConstructor()->getMock();
         $debugMock->expects($this->once())->method('logCallTiming');
         $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
-        $configMock = $this->getMockBuilder('PlentyConfig')->getMock();
+        $configMock = $this->getMockBuilder('PlentyConfig')->setMethods(array('getDomain'))->getMock();
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
             ->setConstructorArgs(array($configMock, $logMock, $logMock, $debugMock))
@@ -275,7 +275,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
 
         $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
         $logMock->expects($this->atLeastOnce())->method('warn')->with('Throttling limit reached. Will be waiting for 5 seconds.');
-        $configMock = $this->getMockBuilder('PlentyConfig')->getMock();
+        $configMock = $this->getMockBuilder('PlentyConfig')->setMethods(array('getDomain'))->getMock();
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
             ->setConstructorArgs(array($configMock, $logMock, $logMock, false))
@@ -306,7 +306,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
 
         $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
         $logMock->expects($this->once())->method('warn')->with('Throttling limit reached. Will be waiting for 5 seconds.');
-        $configMock = $this->getMockBuilder('PlentyConfig')->getMock();
+        $configMock = $this->getMockBuilder('PlentyConfig')->setMethods(array('getDomain'))->getMock();
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
             ->setConstructorArgs(array($configMock, $logMock, $logMock, false))

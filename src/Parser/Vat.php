@@ -3,7 +3,6 @@
 namespace Findologic\Plentymarkets\Parser;
 
 use Findologic\Plentymarkets\Data\Countries;
-use Findologic\Plentymarkets\Registry;
 
 class Vat extends ParserAbstract implements ParserInterface
 {
@@ -21,7 +20,7 @@ class Vat extends ParserAbstract implements ParserInterface
     public function parse($data)
     {
         if (!isset($data['entries'])) {
-            $this->handleEmptyData('No data provided for parsing vat.');
+            $this->handleEmptyData('No data provided for parsing VAT.');
             return $this->results;
         }
 
@@ -41,7 +40,7 @@ class Vat extends ParserAbstract implements ParserInterface
      * @param int $vatId
      * @return string
      */
-    public function getVatRateByVatId($vatId, $countryId = null)
+    public function getVatRateByVatId($vatId)
     {
         if (isset($this->results[$this->countryId][$vatId])) {
             return $this->results[$this->countryId][$vatId];
@@ -50,6 +49,10 @@ class Vat extends ParserAbstract implements ParserInterface
         return $this->getDefaultEmptyValue();
     }
 
+    /**
+     * @param string $country
+     * @return $this
+     */
     public function setTaxRateCountryCode($country)
     {
         parent::setTaxRateCountryCode($country);
