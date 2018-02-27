@@ -567,6 +567,11 @@ class Client
             $params['itemsPerPage'] = $this->itemsPerPage;
         }
 
+        // The itemPerPage and page properties should be reset after every call as the caller methods should
+        // take the actions for setting them again
+        $this->itemsPerPage = false;
+        $this->page = false;
+
         // Process params to URL
         if ($params) {
             $query = '?';
@@ -641,11 +646,6 @@ class Client
                 }
             }
         }
-
-        // The itemPerPage and page properties should be reset after every call as the caller methods should
-        // take the actions for setting them again
-        $this->itemsPerPage = false;
-        $this->page = false;
 
         $end = microtime(true);
 
