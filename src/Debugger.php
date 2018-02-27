@@ -226,7 +226,7 @@ class Debugger
     protected function createFile($directory, $file)
     {
         if (($fileHandle = fopen($directory . DIRECTORY_SEPARATOR . $file, 'wb+')) === false ) {
-            throw new InternalException("Could not create or open the file for dumping the request data for debugging!");
+            throw new InternalException('Could not create or open the file for dumping the request data for debugging!');
         }
 
         return $fileHandle;
@@ -290,14 +290,14 @@ class Debugger
 
         // Get initial field nesting level sting
         $nesting = $this->getNestingString($nestingLevel);
-        fwrite($fileHandle, print_r($nesting . $title . " : ", TRUE));
+        fwrite($fileHandle, print_r($nesting . $title . ' : ', TRUE));
 
         // Get field value nesting level sting
         $nesting = $this->getNestingString(++$nestingLevel);
 
         if (is_array($data)) {
             // If data is array call the method again for each array field
-            fwrite($fileHandle, $nesting . print_r( "\n", TRUE));
+            fwrite($fileHandle, $nesting . print_r("\n", TRUE));
             foreach ($data as $key => $value) {
                 $this->writeToFile($fileHandle, $key, $value, $nestingLevel);
             }

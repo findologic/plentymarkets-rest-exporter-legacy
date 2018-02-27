@@ -37,6 +37,7 @@ class Registry
     public function set($key, $object)
     {
         $key = strtolower($key);
+
         if (!array_key_exists($key, $this->registry)) {
             $this->registry[$key] = $object;
         }
@@ -49,6 +50,7 @@ class Registry
     public function get($key)
     {
         $key = strtolower($key);
+
         if (array_key_exists($key, $this->registry)) {
             return $this->registry[$key];
         } else {

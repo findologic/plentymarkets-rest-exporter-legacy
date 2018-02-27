@@ -2,25 +2,27 @@
 
 namespace Findologic\Plentymarkets\Wrapper;
 
-use Findologic\Plentymarkets\Wrapper\WrapperInterface;
 use Findologic\Plentymarkets\Exception\CriticalException;
 
 class Csv implements WrapperInterface
 {
     /**
      * The csv delimiter character
+     *
      * @var string
      */
     const CSV_DELIMITER = "\t";
 
     /**
      * The csv enclosure character
+     *
      * @var string
      */
     const CSV_ENCLOSURE = '"';
 
     /**
      * The FINDOLOGIC delimiter for categories
+     *
      * @var string
      */
     const CATEGORY_DELIMITER = '_';
@@ -34,6 +36,7 @@ class Csv implements WrapperInterface
 
     /**
      * The FINDOLOGIC delimiter for ordernumbers
+     *
      * @var string
      */
     const ORDERNUMBER_DELIMITER = '|';
@@ -54,18 +57,21 @@ class Csv implements WrapperInterface
 
     /**
      * The FINDOLOGIC delimiter for groups
+     *
      * @var string
      */
     const GROUPS_DELIMITER = ',';
 
     /**
      * The key for category filters
+     *
      * @var string
      */
     const CATEGORY_FILTER_KEY = 'cat';
 
     /**
      * The key for vendor filters
+     *
      * @var string
      */
     const VENDOR_FILTER_KEY = 'vendor';
@@ -79,24 +85,28 @@ class Csv implements WrapperInterface
 
     /**
      * Flag for knowing if file header line was set already
+     *
      * @var bool
      */
     protected $headersSetFlag = false;
 
     /**
      * File where the results should be exported
+     *
      * @var null|string
      */
     protected $filename = 'Export.csv';
 
     /**
      * File handle for writing
+     *
      * @var mixed|bool
      */
     protected $stream = false;
 
     /**
      * Change file name if given.
+     *
      * @param string $filename
      */
     public function __construct($filename = null)

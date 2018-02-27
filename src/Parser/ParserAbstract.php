@@ -80,7 +80,7 @@ abstract class ParserAbstract
         if ($this->registry && ($log = $this->registry->get('log'))) {
             $method = debug_backtrace();
             $method = $method[1]['function'];
-            $message = 'Class ' . get_class($this) . ' method: ' . $method . ' is missing some data .';
+            $message = 'Class ' . get_class($this) . ' method: ' . $method . ' is missing some data.';
 
             if ($additionalInfo) {
                 $message .= ' Class message: ' . $additionalInfo;
