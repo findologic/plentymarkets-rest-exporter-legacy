@@ -63,7 +63,7 @@ class Exporter
     protected $skippedProductsIds = array();
 
     /**
-     * Standard vat value from rest
+     * Standard vat value from REST
      *
      * @var bool
      */
@@ -204,6 +204,8 @@ class Exporter
      * @param int $page
      * @return mixed
      * @throws CustomerException
+     * @throws ThrottlingException
+     * @throws \Exception
      */
     public function getProducts($itemsPerPage = null, $page = 1)
     {
@@ -216,7 +218,7 @@ class Exporter
         $this->getCustomerLog()->info('Starting product processing.');
 
         try {
-            // Cycle the call for products to api until all we have all products
+            // Cycle the call for products to API until all we have all products
             while ($continue) {
                 $this->getClient()->setItemsPerPage($itemsPerPage)->setPage($page);
                 $results = $this->getClient()->getProducts();
@@ -348,7 +350,7 @@ class Exporter
     }
 
     /**
-     * Get standard vat country, if there is no configured country call api
+     * Get standard vat country, if there is no configured country call API
      *
      * @return bool|mixed|string
      */
@@ -397,7 +399,9 @@ class Exporter
     }
 
     /**
-     * Handle the initiation of all data parsers and call method to parse the result from api
+     * Handle the initiation of all data parsers and call method to parse the result from API
+     *
+     * @return $this
      */
     protected function initAdditionalData()
     {
@@ -405,7 +409,7 @@ class Exporter
             $methodName = 'get' . ucwords($type);
             if (!method_exists($this->getClient(), $methodName)) {
                 $this->getLog()->warn(
-                    'Plugin tried to call method from api client which do not exists when initialising parsers. ' .
+                    'Plugin tried to call method from API client which does not exist when initialising parsers. ' .
                     'Parser type: ' . $type .
                     ' Method called: ' . $methodName,
                     true
@@ -441,6 +445,7 @@ class Exporter
     /**
      * Call all necessary methods to fully get attributes values
      *
+     * @return $this
      * @throws Exception\CustomerException
      */
     protected function initAttributeValues()
@@ -448,7 +453,7 @@ class Exporter
         $attributes = $this->getRegistry()->get('attributes');
 
         if (!$attributes || !$attributes instanceof Attributes) {
-            throw new CustomerException('Could not get the attributes from api!');
+            throw new CustomerException('Could not get the attributes from API!');
         }
 
         foreach ($attributes->getResults() as $id => $attribute) {

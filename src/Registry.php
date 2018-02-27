@@ -14,9 +14,10 @@ class Registry
      * Require log class for constructor to make sure it exists at all times.
      *
      * @codeCoverageIgnore
-     * @param \Logger $log
+     * @param \Logger $logger
+     * @param \Logger $customerLogger
      */
-    public function __construct($logger, $customerLogger)
+    public function __construct(\Logger $logger, \Logger $customerLogger)
     {
         $this->set('log', $logger);
         $this->set('customerLogger', $customerLogger);
@@ -36,6 +37,7 @@ class Registry
     public function set($key, $object)
     {
         $key = strtolower($key);
+
         if (!array_key_exists($key, $this->registry)) {
             $this->registry[$key] = $object;
         }
@@ -48,6 +50,7 @@ class Registry
     public function get($key)
     {
         $key = strtolower($key);
+
         if (array_key_exists($key, $this->registry)) {
             return $this->registry[$key];
         } else {
