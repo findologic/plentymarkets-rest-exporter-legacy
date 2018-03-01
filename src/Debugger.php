@@ -172,7 +172,7 @@ class Debugger
      */
     protected function getFilePrefix()
     {
-        return time() . '_';
+        return round(microtime(true) * 1000) . '_';
     }
 
     /**

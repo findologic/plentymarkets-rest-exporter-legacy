@@ -13,11 +13,11 @@ use org\bovigo\vfs\vfsStreamWrapper;
 use org\bovigo\vfs\vfsStreamDirectory;
 
 /**
- * Override time function for easier testing
+ * Override microtime function for easier testing
  */
-function time()
+function microtime($get_as_float = null)
 {
-    return DebuggerTest::$now ? DebuggerTest::$now : \time();
+    return DebuggerTest::$now ? DebuggerTest::$now : \microtime($get_as_float);
 }
 
 class DebuggerTest extends PHPUnit_Framework_TestCase
@@ -113,7 +113,7 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
         $this->assertTrue($this->fileSystemMock->getChild('items')->hasChild($dateFolder));
         // Check if request dump file was created
         $dumpDir = $this->fileSystemMock->getChild('items')->getChild($dateFolder);
-        $this->assertTrue($dumpDir->hasChild('1493895229_Request.txt'));
+        $this->assertTrue($dumpDir->hasChild('1493895229000_Request.txt'));
     }
 
     /**
