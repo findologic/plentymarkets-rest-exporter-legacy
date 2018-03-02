@@ -757,15 +757,15 @@ class Client
             throw new ThrottlingException();
         }
 
-        if (!$response->getHeader(self::GLOBAL_SHORT_CALLS_LEFT_COUNT)) {
+        if (!$response->getHeader(self::METHOD_CALLS_LEFT_COUNT)) {
             $this->setLastTimeout(time());
-            $this->setThrottlingTimeout($response->getHeader(self::GLOBAL_SHORT_CALLS_WAIT_TIME));
+            $this->setThrottlingTimeout($response->getHeader(self::METHOD_CALLS_WAIT_TIME));
             return;
         }
 
-        if ($response->getHeader(self::METHOD_CALLS_LEFT_COUNT)) {
+        if (!$response->getHeader(self::GLOBAL_SHORT_CALLS_LEFT_COUNT)) {
             $this->setLastTimeout(time());
-            $this->setThrottlingTimeout($response->getHeader(self::METHOD_CALLS_WAIT_TIME));
+            $this->setThrottlingTimeout($response->getHeader(self::GLOBAL_SHORT_CALLS_WAIT_TIME));
             return;
         }
     }
