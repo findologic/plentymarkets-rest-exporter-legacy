@@ -751,25 +751,22 @@ class Client
      */
     protected function checkThrottling(HTTP_Request2_Response $response)
     {
-        $globalLimit = $response->getHeader(self::GLOBAL_LONG_CALLS_LEFT_COUNT);
-
-        if ($globalLimit === 0) {
+        if (!$response->getHeader(self::GLOBAL_LONG_CALLS_LEFT_COUNT)) {
             //TODO: maybe check if global time out is not so long and wait instead of stopping execution
             $this->log->fatal('Global throttling limit reached.');
             throw new ThrottlingException();
         }
 
-        $methodLimit = $response->getHeader(self::METHOD_CALLS_LEFT_COUNT);
-        $timeOut = $response->getHeader(self::METHOD_CALLS_WAIT_TIME);
-
-        if ($methodLimit !== 0 && !$methodLimit) {
-            $methodLimit = $response->getHeader(self::GLOBAL_SHORT_CALLS_LEFT_COUNT);
-            $timeOut = $response->getHeader(self::GLOBAL_SHORT_CALLS_WAIT_TIME);
+        if (!$response->getHeader(self::GLOBAL_SHORT_CALLS_LEFT_COUNT)) {
+            $this->setLastTimeout(time());
+            $this->setThrottlingTimeout($response->getHeader(self::GLOBAL_SHORT_CALLS_WAIT_TIME));
+            return;
         }
 
-        if ($methodLimit === 0) {
+        if ($response->getHeader(self::METHOD_CALLS_LEFT_COUNT)) {
             $this->setLastTimeout(time());
-            $this->setThrottlingTimeout($timeOut);
+            $this->setThrottlingTimeout($response->getHeader(self::METHOD_CALLS_WAIT_TIME));
+            return;
         }
     }
 }
