@@ -233,7 +233,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     {
         $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
             ->disableOriginalConstructor()
-            ->setMethods(array('getConfig', 'getProductImages', 'getVariationProperties', 'getProductVariations'))
+            ->setMethods(array('getConfig', 'getProductVariations'))
             ->getMock();
         $clientMock->expects($this->any())->method('getConfig')->willReturn($this->getConfigMock());
         $clientMock->expects($this->any())

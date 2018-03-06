@@ -447,34 +447,6 @@ class Client
 
     /**
      * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
-     * @param int $itemId
-     * @param int $variationId
-     * @return array
-     */
-    public function getVariationProperties($itemId, $variationId)
-    {
-        $response = $this->call(
-            'GET',
-            $this->getEndpoint('items/' . $itemId . '/variations/' . $variationId . '/variation_properties')
-        );
-
-        return $this->returnResult($response);
-    }
-
-    /**
-     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
-     * @param int $productId
-     * @return array
-     */
-    public function getProductImages($productId)
-    {
-        $response = $this->call('GET', $this->getEndpoint('items/' . $productId . '/images'));
-
-        return $this->returnResult($response);
-    }
-
-    /**
-     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
      * @param int $id
      * @return array
      */
