@@ -733,8 +733,15 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'backendName' => 'Test Property',
                             'valueType' => 'text'
                         ),
-                        'valueTexts' => array(
+                        'names' => array(
                             array('value' => 'Test Value', 'lang' => 'en')
+                        )
+                    ),
+                    array(
+                        'property' => array(
+                            'backendName' => 'Test Property 2',
+                            'valueType' => 'text',
+                            'propertyGroupId' => 2
                         )
                     ),
                     array(
@@ -745,7 +752,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'valueFloat' => 3.25
                     )
                 ),
-                array('Test Property' => array('Test Value'), 'Test Float' => array(3.25))
+                array('Test Property' => array('Test Value'), 'Test' =>  array('Test Property 2'), 'Test Float' => array(3.25))
             ),
             // Variation has 'selection' and 'int' type properties
             array(
@@ -812,7 +819,6 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'backendName' => 'Test',
                             'valueType' => 'selection',
                         ),
-                        'valueTexts' => array(),
                         'propertySelection' => array(
                             array('name' => 'Test value de', 'lang' => 'DE'),
                             array('name' => 'Test value en', 'lang' => 'EN'),
@@ -822,8 +828,18 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             array('lang' => 'EN', 'value' => 'Test EN'),
                         )
                     ),
+                    array(
+                        'property' => array(
+                            'backendName' => 'Test Value',
+                            'valueType' => 'text',
+                        ),
+                        'names' => array(
+                            array('lang' => 'DE', 'value' => 'Test DE'),
+                            array('lang' => 'EN', 'value' => 'Test'),
+                        )
+                    )
                 ),
-                array('Test EN' => array('Test value en'))
+                array('Test' => array('Test value en'), 'Test Value' => array('Test'))
             )
         );
     }
