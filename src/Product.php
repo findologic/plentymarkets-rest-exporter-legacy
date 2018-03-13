@@ -453,7 +453,7 @@ class Product extends ParserAbstract
                 $this->swapPropertyValuesFlag = false;
             }
 
-            if ($value != null && $value != $this->getDefaultEmptyValue()) {
+            if ($propertyName != null && $value != null && $value != $this->getDefaultEmptyValue()) {
                 $this->setAttributeField($propertyName, $value);
             }
         }
@@ -510,17 +510,6 @@ class Product extends ParserAbstract
     {
         $name = $property['property']['backendName'];
 
-        if (!isset($property['names']) || !is_array($property['names'])) {
-            return $name;
-        }
-
-        foreach ($property['names'] as $propertyName) {
-            if (strtoupper($propertyName['lang']) == $this->getLanguageCode() && !empty($propertyName['value'])) {
-                $name = $propertyName['value'];
-                break;
-            }
-        }
-
         return $name;
     }
 
@@ -541,19 +530,14 @@ class Product extends ParserAbstract
                 break;
             case 'text':
                 // For some specific shops the structure of text property is different and do not have 'names' field
-                if (isset($property['valueTexts'])) {
-                    foreach ($property['valueTexts'] as $name) {
-                        if (strtoupper($name['lang']) != $this->getLanguageCode()) {
-                            continue;
-                        }
-
-                        $value = $name['value'];
-
-                        if (!$value) {
-                            $value = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
+                if (isset($property['names'])) {
+                    foreach ($property['names'] as $name) {
+                        if (strtoupper($name['lang']) == $this->getLanguageCode()) {
+                            $value = $name['value'];
+                            break;
                         }
                     }
-                } else {
+                } else if (isset($property['property']['propertyGroupId']) && !empty($property['property']['propertyGroupId'])) {
                     $value = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
                 }
                 break;
