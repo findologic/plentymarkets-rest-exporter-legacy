@@ -60,14 +60,6 @@ class Product extends ParserAbstract
     protected $protocol = 'http://';
 
     /**
-     * Flag used to identify when the property value should be taken from property name and property name from
-     * property group name
-     *
-     * @var bool
-     */
-    protected $swapPropertyValuesFlag = false;
-
-    /**
      * @var mixed
      */
     protected $availabilityIds;
@@ -444,15 +436,6 @@ class Product extends ParserAbstract
             $propertyName = $this->getPropertyName($property);
             $value = $this->getPropertyValue($property);
 
-            if ($this->swapPropertyValuesFlag) {
-                // This means that property value is saved as property 'backendName'
-                // and actual property name should be taken from property group name
-                $temp = $value;
-                $value = $propertyName;
-                $propertyName = $temp;
-                $this->swapPropertyValuesFlag = false;
-            }
-
             if ($propertyName != null && $value != null && $value != $this->getDefaultEmptyValue()) {
                 $this->setAttributeField($propertyName, $value);
             }
@@ -510,6 +493,13 @@ class Product extends ParserAbstract
     {
         $name = $property['property']['backendName'];
 
+        if (
+            (isset($property['property']['propertyGroupId']) && !empty($property['property']['propertyGroupId'])) ||
+            $property['property']['valueType'] === 'empty'
+        ) {
+            $name = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
+        }
+
         return $name;
     }
 
@@ -526,7 +516,7 @@ class Product extends ParserAbstract
 
         switch ($propertyType) {
             case 'empty':
-                $value = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
+                $value = $property['property']['backendName'];
                 break;
             case 'text':
                 // For some specific shops the structure of text property is different and do not have 'names' field
@@ -537,8 +527,6 @@ class Product extends ParserAbstract
                             break;
                         }
                     }
-                } else if (isset($property['property']['propertyGroupId']) && !empty($property['property']['propertyGroupId'])) {
-                    $value = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
                 }
                 break;
             case 'selection':
@@ -571,7 +559,6 @@ class Product extends ParserAbstract
     protected function getPropertyGroupForPropertyName($propertyGroupId)
     {
         $value = $this->getRegistry()->get('PropertyGroups')->getPropertyGroupName($propertyGroupId);
-        $this->swapPropertyValuesFlag = true;
 
         return $value;
     }

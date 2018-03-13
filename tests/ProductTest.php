@@ -742,6 +742,9 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'backendName' => 'Test Property 2',
                             'valueType' => 'text',
                             'propertyGroupId' => 2
+                        ),
+                        'names' => array(
+                            array('value' => 'Test Value 2', 'lang' => 'en')
                         )
                     ),
                     array(
@@ -752,7 +755,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'valueFloat' => 3.25
                     )
                 ),
-                array('Test Property' => array('Test Value'), 'Test' =>  array('Test Property 2'), 'Test Float' => array(3.25))
+                array('Test Property' => array('Test Value'), 'Test' =>  array('Test Value 2'), 'Test Float' => array(3.25))
             ),
             // Variation has 'selection' and 'int' type properties
             array(
