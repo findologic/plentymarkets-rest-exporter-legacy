@@ -18,7 +18,6 @@ class Client
     const GLOBAL_SHORT_CALLS_WAIT_TIME = 'x-plenty-global-short-period-decay';
     const GLOBAL_LONG_CALLS_LEFT_COUNT = 'x-plenty-global-long-period-calls-left';
     const GLOBAL_LONG_CALLS_WAIT_TIME = 'x-plenty-global-long-period-decay';
-    const THROTTLING_LIMIT_REACHED = '--- EMPTY ---';
 
     /**
      * REST API URL
@@ -724,25 +723,22 @@ class Client
      */
     protected function checkThrottling(HTTP_Request2_Response $response)
     {
-        $globalLimit = $response->getHeader(self::GLOBAL_LONG_CALLS_LEFT_COUNT);
-
-        if ($globalLimit !== null && ($globalLimit <= 1 || $globalLimit == self::THROTTLING_LIMIT_REACHED)) {
+        if ($response->getHeader(self::GLOBAL_LONG_CALLS_LEFT_COUNT) == 1) {
             //TODO: maybe check if global time out is not so long and wait instead of stopping execution
             $this->log->fatal('Global throttling limit reached.');
             throw new ThrottlingException();
         }
 
-        $methodLimit = $response->getHeader(self::METHOD_CALLS_LEFT_COUNT);
-        $timeOut = $response->getHeader(self::METHOD_CALLS_WAIT_TIME);
-
-        if (!$methodLimit) {
-            $methodLimit = $response->getHeader(self::GLOBAL_SHORT_CALLS_LEFT_COUNT);
-            $timeOut = $response->getHeader(self::GLOBAL_SHORT_CALLS_WAIT_TIME);
+        if ($response->getHeader(self::METHOD_CALLS_LEFT_COUNT) == 1) {
+            $this->setLastTimeout(time());
+            $this->setThrottlingTimeout($response->getHeader(self::METHOD_CALLS_WAIT_TIME));
+            return;
         }
 
-        if ($methodLimit <= 1 || $methodLimit == self::THROTTLING_LIMIT_REACHED) {
+        if ($response->getHeader(self::GLOBAL_SHORT_CALLS_LEFT_COUNT) == 1) {
             $this->setLastTimeout(time());
-            $this->setThrottlingTimeout($timeOut);
+            $this->setThrottlingTimeout($response->getHeader(self::GLOBAL_SHORT_CALLS_WAIT_TIME));
+            return;
         }
     }
 }

@@ -248,7 +248,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
             ->getMock();
 
         $response = $this->getResponseMock('Failed', 200, false);
-        $response->expects($this->any())->method('getHeader')->willReturn(1);
+        $response->expects($this->any())->method('getHeader')->willReturn('1');
         $requestMock->expects($this->any())->method('send')->will($this->returnValue($response));
 
         $clientMock = $this->getClientMock(['createRequest']);
