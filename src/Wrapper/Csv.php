@@ -2,97 +2,111 @@
 
 namespace Findologic\Plentymarkets\Wrapper;
 
-use Findologic\Plentymarkets\Wrapper\WrapperInterface;
 use Findologic\Plentymarkets\Exception\CriticalException;
 
 class Csv implements WrapperInterface
 {
     /**
      * The csv delimiter character
+     *
      * @var string
      */
     const CSV_DELIMITER = "\t";
 
     /**
      * The csv enclosure character
+     *
      * @var string
      */
     const CSV_ENCLOSURE = '"';
 
     /**
      * The FINDOLOGIC delimiter for categories
+     *
      * @var string
      */
     const CATEGORY_DELIMITER = '_';
 
     /**
-     * The plentymarkets delimiter for categories
+     * The Plentymarkets delimiter for categories
+     *
      * @var string
      */
     const PLENTY_CATEGORY_DELIMITER = ';';
 
     /**
      * The FINDOLOGIC delimiter for ordernumbers
+     *
      * @var string
      */
     const ORDERNUMBER_DELIMITER = '|';
 
     /**
-     * The plentymarkets delimiter for attribute sets
+     * The Plentymarkets delimiter for attribute sets
+     *
      * @var string
      */
     const ATTRIBUTE_SET_DELIMITER = ';';
 
     /**
-     * The plentymarkets delimiter for attribute names and values
+     * The Plentymarkets delimiter for attribute names and values
+     *
      * @var string
      */
     const ATTRIBUTE_DELIMITER = ':';
 
     /**
      * The FINDOLOGIC delimiter for groups
+     *
      * @var string
      */
     const GROUPS_DELIMITER = ',';
 
     /**
      * The key for category filters
+     *
      * @var string
      */
     const CATEGORY_FILTER_KEY = 'cat';
 
     /**
      * The key for vendor filters
+     *
      * @var string
      */
     const VENDOR_FILTER_KEY = 'vendor';
 
     /**
-     * plentymarkets customer class for all customers
+     * Plentymarkets customer class for all customers
+     *
      * @var integer
      */
     const CUSTOMER_CLASS_ALL_CUSTOMERS = 0;
 
     /**
      * Flag for knowing if file header line was set already
+     *
      * @var bool
      */
     protected $headersSetFlag = false;
 
     /**
      * File where the results should be exported
+     *
      * @var null|string
      */
     protected $filename = 'Export.csv';
 
     /**
      * File handle for writing
+     *
      * @var mixed|bool
      */
     protected $stream = false;
 
     /**
      * Change file name if given.
+     *
      * @param string $filename
      */
     public function __construct($filename = null)
@@ -135,10 +149,10 @@ class Csv implements WrapperInterface
     /**
      * Write item data to file
      *
-     * @param array
+     * @param array $data
      * @return $this
      */
-     public function wrapItem($data)
+     public function wrapItem(array $data)
      {
          // Check if headers already set
          if (!$this->headersSetFlag) {
@@ -173,7 +187,7 @@ class Csv implements WrapperInterface
      * @param array $data
      * @return array
      */
-    public function convertData($data)
+    public function convertData(array $data)
     {
         // Fields which values can not contain html
         $htmlFields = array('ordernumber', 'name', 'summary', 'description', 'keywords');
@@ -197,9 +211,9 @@ class Csv implements WrapperInterface
     /**
      * Set the header line of csv
      *
-     * @param $headersData
+     * @param array $headersData
      */
-    protected function setHeaders($headersData)
+    protected function setHeaders(array $headersData)
     {
         $headers = array_keys($headersData);
         fputcsv($this->getStream(), $headers, self::CSV_DELIMITER, self::CSV_ENCLOSURE);

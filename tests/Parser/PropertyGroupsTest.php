@@ -27,6 +27,22 @@ class PropertyGroupsTest extends PHPUnit_Framework_TestCase
         return array(
             // No property groups data given, results should be empty
             array(array(), array()),
+            // Property groups data given, but name is empty
+            array(
+                array(
+                    'entries' => array(
+                        array(
+                            'id' => 1,
+                            'backendName' => 'Test',
+                            'names' => array(
+                                array('lang' => 'DE', 'name' => 'Test 2 DE'),
+                                array('lang' => 'LT', 'name' => ''),
+                            )
+                        )
+                    )
+                ),
+                array(1 => 'Test')
+            ),
             // Property groups data given, results should contain array with property group id => name
             array(
                 array(
@@ -34,10 +50,18 @@ class PropertyGroupsTest extends PHPUnit_Framework_TestCase
                         array(
                             'id' => 1,
                             'backendName' => 'Test'
+                        ),
+                        array(
+                            'id' => 2,
+                            'backendName' => 'Test 2',
+                            'names' => array(
+                                array('lang' => 'DE', 'name' => 'Test 2 DE'),
+                                array('lang' => 'LT', 'name' => 'Test 2 LT'),
+                            )
                         )
                     )
                 ),
-                array(1 => 'Test')
+                array(1 => 'Test', 2 => 'Test 2 LT')
             )
         );
     }
@@ -47,9 +71,10 @@ class PropertyGroupsTest extends PHPUnit_Framework_TestCase
      */
     public function testParse($data, $expectedResult)
     {
-        $propertiesGroupsMock = $this->getPropertiesGroupsMock(array('getDefaultEmptyValue'));
+        $propertiesGroupsMock = $this->getPropertiesGroupsMock(array('getDefaultEmptyValue', 'getLanguageCode'));
 
         $propertiesGroupsMock->expects($this->any())->method('getDefaultEmptyValue')->willReturn($this->defaultEmptyValue);
+        $propertiesGroupsMock->expects($this->any())->method('getLanguageCode')->willReturn('LT');
 
         $propertiesGroupsMock->parse($data);
         $this->assertSame($expectedResult, $propertiesGroupsMock->getResults());

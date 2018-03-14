@@ -3,9 +3,8 @@
 namespace Findologic\Plentymarkets;
 
 use \Findologic\Plentymarkets\Exception\InternalException;
-use \HTTP_Request2;
-use \HTTP_Request2_Response;
-use \Logger;
+use HTTP_Request2;
+use Logger;
 
 class Debugger
 {
@@ -23,10 +22,9 @@ class Debugger
     protected $directory = 'dump';
 
     /**
-     * Array for holding specific paths of api calls to debug
+     * Array for holding specific paths of API calls to debug
      * If empty all calls will be logged
      * Example: if you pass array('items') only /rest/items call will be logged
-     *
      *
      * @var array
      */
@@ -43,11 +41,11 @@ class Debugger
     protected $timing = array();
 
     /**
-     * @param \Logger $log
+     * @param Logger $log
      * @param string|bool $directory
      * @param array $pathsToDebug
      */
-    public function __construct($log, $directory = false, $pathsToDebug = array())
+    public function __construct(Logger $log, $directory = false, array $pathsToDebug = array())
     {
         $this->log = $log;
 
@@ -72,15 +70,16 @@ class Debugger
     public function resetCallTiming()
     {
         unset($this->timing);
+
         $this->timing = [];
     }
 
     /**
-     * @param \HTTP_Request2 $request
-     * @param \HTTP_Request2_Response $response
+     * @param HTTP_Request2 $request
+     * @param HTTP_Request2_Response $response
      * @return bool
      */
-    public function debugCall($request, $response)
+    public function debugCall(HTTP_Request2 $request, $response)
     {
         if (!$this->isPathDebuggable($request->getUrl()->getPath())) {
             return false;
@@ -100,9 +99,9 @@ class Debugger
     /**
      * Log the timing of a REST call.
      *
-     * @param $uri string The URI that was used.
-     * @param $begin float Timestamp when the request was started.
-     * @param $end float Timestamp when the request finished.
+     * @param string $uri The URI that was used.
+     * @param float $begin Timestamp when the request was started.
+     * @param float $end Timestamp when the request finished.
      */
     public function logCallTiming($uri, $begin, $end)
     {
@@ -153,7 +152,7 @@ class Debugger
     /**
      * Get full directory path where the request and response should be saved
      *
-     * @param $callPath
+     * @param string $callPath
      * @return mixed
      */
     protected function getApiCallDirectoryPath($callPath)
@@ -173,11 +172,11 @@ class Debugger
      */
     protected function getFilePrefix()
     {
-        return time() . '_';
+        return round(microtime(true) * 1000) . '_';
     }
 
     /**
-     * Remove api prefix from method path
+     * Remove API prefix from method path
      *
      * @param string $path
      * @return mixed
@@ -200,7 +199,7 @@ class Debugger
     }
 
     /**
-     * Check if this api path should be debugged
+     * Check if this API path should be debugged
      *
      * @param string $path
      * @return bool
@@ -227,7 +226,7 @@ class Debugger
     protected function createFile($directory, $file)
     {
         if (($fileHandle = fopen($directory . DIRECTORY_SEPARATOR . $file, 'wb+')) === false ) {
-            throw new InternalException("Could not create or open the file for dumping the request data for debugging!");
+            throw new InternalException('Could not create or open the file for dumping the request data for debugging!');
         }
 
         return $fileHandle;
@@ -236,7 +235,7 @@ class Debugger
     /**
      * Write request data to file
      *
-     * @param \HTTP_Request2 $request
+     * @param HTTP_Request2 $request
      * @param resource $fileHandle
      * @return bool
      */
@@ -258,7 +257,7 @@ class Debugger
     /**
      * Write response data to file
      *
-     * @param \HTTP_Request2_Response $response
+     * @param HTTP_Request2_Response $response
      * @param resource $fileHandle
      * @return bool
      */
@@ -277,9 +276,10 @@ class Debugger
     /**
      * Write debug data to file and add some formatting if needed
      *
-     * @param $fileHandle
+     * @param resource $fileHandle
      * @param string $title
      * @param string|int|array $data
+     * @param int $nestingLevel
      */
     protected function writeToFile($fileHandle, $title, $data, $nestingLevel = 0)
     {
@@ -290,14 +290,14 @@ class Debugger
 
         // Get initial field nesting level sting
         $nesting = $this->getNestingString($nestingLevel);
-        fwrite($fileHandle, print_r($nesting . $title . " : ", TRUE));
+        fwrite($fileHandle, print_r($nesting . $title . ' : ', TRUE));
 
         // Get field value nesting level sting
         $nesting = $this->getNestingString(++$nestingLevel);
 
         if (is_array($data)) {
             // If data is array call the method again for each array field
-            fwrite($fileHandle, $nesting . print_r( "\n", TRUE));
+            fwrite($fileHandle, $nesting . print_r("\n", TRUE));
             foreach ($data as $key => $value) {
                 $this->writeToFile($fileHandle, $key, $value, $nestingLevel);
             }

@@ -58,7 +58,7 @@ class Attributes extends ParserAbstract implements ParserInterface
      * @param array $data
      * @return array
      */
-    public function parseValues($data)
+    public function parseValues(array $data)
     {
         if (!isset($data['entries'])) {
             $this->handleEmptyData('No data provided for parsing attribute values.');
@@ -79,7 +79,6 @@ class Attributes extends ParserAbstract implements ParserInterface
     }
 
     /**
-     * @param string $attributeId
      * @param array $data
      * @return string
      */

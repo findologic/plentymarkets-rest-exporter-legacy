@@ -2,7 +2,7 @@
 
 namespace Findologic\Plentymarkets\Parser;
 
-use \Findologic\Plentymarkets\Parser\ParserInterface;
+use Findologic\Plentymarkets\Registry;
 
 class ParserFactory
 {
@@ -14,18 +14,18 @@ class ParserFactory
      * @return \Findologic\Plentymarkets\Parser\ParserAbstract
      * @throws \Exception
      */
-    public static function create($type, $registry)
+    public static function create($type, Registry $registry)
     {
         $parser = '\Findologic\Plentymarkets\Parser\\' . ucwords($type);
         if (class_exists($parser)) {
             $object = new $parser($registry);
             if (!$object instanceof ParserInterface) {
-                throw new \Exception("Invalid parser type given.");
+                throw new \Exception('Invalid parser type given.');
             }
 
             return $object;
         } else {
-            throw new \Exception("Invalid parser type given.");
+            throw new \Exception('Invalid parser type given.');
         }
     }
 }

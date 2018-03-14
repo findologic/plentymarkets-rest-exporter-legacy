@@ -733,8 +733,18 @@ class ProductTest extends PHPUnit_Framework_TestCase
                             'backendName' => 'Test Property',
                             'valueType' => 'text'
                         ),
-                        'valueTexts' => array(
+                        'names' => array(
                             array('value' => 'Test Value', 'lang' => 'en')
+                        )
+                    ),
+                    array(
+                        'property' => array(
+                            'backendName' => 'Test Property 2',
+                            'valueType' => 'text',
+                            'propertyGroupId' => 2
+                        ),
+                        'names' => array(
+                            array('value' => 'Test Value 2', 'lang' => 'en')
                         )
                     ),
                     array(
@@ -745,7 +755,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'valueFloat' => 3.25
                     )
                 ),
-                array('Test Property' => array('Test Value'), 'Test Float' => array(3.25))
+                array('Test Property' => array('Test Value'), 'Test' =>  array('Test Value 2'), 'Test Float' => array(3.25))
             ),
             // Variation has 'selection' and 'int' type properties
             array(
@@ -784,6 +794,55 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     )
                 ),
                 array('Test Property Select' => array('Select Value'), 'Test Int' => array(3), 'Test' => array('Test Value'))
+            ),
+            // Variation property should use name for provided language instead backend name
+            array(
+                array(
+                    array(
+                        'property' => array(
+                            'backendName' => 'Test',
+                            'valueType' => 'selection',
+                        ),
+                        'valueTexts' => array(),
+                        'propertySelection' => array(
+                            array('name' => 'Test value en', 'lang' => 'EN'),
+                        ),
+                        'names' => array(
+                            array('lang' => 'EN', 'value' => ''),
+                        )
+                    ),
+                ),
+                array('Test' => array('Test value en'))
+            ),
+            // Variation property should use name for provided language instead backend name
+            array(
+                array(
+                    array(
+                        'property' => array(
+                            'backendName' => 'Test',
+                            'valueType' => 'selection',
+                        ),
+                        'propertySelection' => array(
+                            array('name' => 'Test value de', 'lang' => 'DE'),
+                            array('name' => 'Test value en', 'lang' => 'EN'),
+                        ),
+                        'names' => array(
+                            array('lang' => 'DE', 'value' => 'Test DE'),
+                            array('lang' => 'EN', 'value' => 'Test EN'),
+                        )
+                    ),
+                    array(
+                        'property' => array(
+                            'backendName' => 'Test Value',
+                            'valueType' => 'text',
+                        ),
+                        'names' => array(
+                            array('lang' => 'DE', 'value' => 'Test DE'),
+                            array('lang' => 'EN', 'value' => 'Test'),
+                        )
+                    )
+                ),
+                array('Test' => array('Test value en'), 'Test Value' => array('Test'))
             )
         );
     }

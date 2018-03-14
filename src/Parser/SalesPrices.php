@@ -6,6 +6,9 @@ class SalesPrices extends ParserAbstract implements ParserInterface
 {
     const RRP_TYPE = 'rrp';
 
+    /**
+     * @var bool|array
+     */
     protected $rrp = false;
 
     /**
