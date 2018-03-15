@@ -354,7 +354,7 @@ class Exporter
             $page++;
         }
 
-        if ($product->hasData()) {
+        if ($product->hasValidData()) {
             $this->getWrapper()->wrapItem($product->getResults());
         } else {
             $this->skippedProductsCount++;
