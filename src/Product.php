@@ -3,6 +3,8 @@
 namespace Findologic\Plentymarkets;
 
 use Findologic\Plentymarkets\Parser\ParserAbstract;
+use Findologic\Plentymarkets\Parser\ParserInterface;
+use Findologic\Plentymarkets\Parser\Properties;
 use Findologic\Plentymarkets\Data\Units;
 
 class Product extends ParserAbstract
@@ -498,6 +500,14 @@ class Product extends ParserAbstract
             $property['property']['valueType'] === 'empty'
         ) {
             $name = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
+        }
+
+        /** @var Properties $properties */
+        $properties = $this->registry->get('Properties');
+        $propertyName = $properties->getPropertyName($property['property']['id'], $this->getLanguageCode());
+
+        if ($propertyName && $propertyName != $this->getDefaultEmptyValue()) {
+            $name = $propertyName;
         }
 
         return $name;

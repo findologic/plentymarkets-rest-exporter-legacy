@@ -693,6 +693,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 array(
                     array(
                         'property' => array(
+                            'id' => '1',
                             'isSearchable' => false,
                         ),
                     ),
@@ -705,6 +706,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 array(
                     array(
                         'property' => array(
+                            'id' => '1',
                             'backendName' => 'Test Property',
                             'valueType' => 'text'
                         ),
@@ -714,6 +716,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     ),
                     array(
                         'property' => array(
+                            'id' => '1',
                             'backendName' => 'Test Property Select',
                             'valueType' => 'selection'
                         ),
@@ -730,6 +733,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 array(
                     array(
                         'property' => array(
+                            'id' => '1',
                             'backendName' => 'Test Property',
                             'valueType' => 'text'
                         ),
@@ -739,6 +743,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     ),
                     array(
                         'property' => array(
+                            'id' => '1',
                             'backendName' => 'Test Property 2',
                             'valueType' => 'text',
                             'propertyGroupId' => 2
@@ -749,6 +754,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     ),
                     array(
                         'property' => array(
+                            'id' => '1',
                             'backendName' => 'Test Float',
                             'valueType' => 'float'
                         ),
@@ -762,6 +768,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 array(
                     array(
                         'property' => array(
+                            'id' => '1',
                             'backendName' => 'Test Property Select',
                             'valueType' => 'selection'
                         ),
@@ -772,6 +779,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     ),
                     array(
                         'property' => array(
+                            'id' => '1',
                             'backendName' => 'Test Int',
                             'valueType' => 'int'
                         ),
@@ -779,6 +787,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     ),
                     array(
                         'property' => array(
+                            'id' => '1',
                             'backendName' => 'Test Default',
                             'valueType' => 'Test'
                         )
@@ -787,6 +796,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     // and actual property name should be taken from property group name
                     array(
                         'property' => array(
+                            'id' => '1',
                             'backendName' => 'Test Value',
                             'valueType' => 'empty',
                             'propertyGroupId' => 2
@@ -800,6 +810,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 array(
                     array(
                         'property' => array(
+                            'id' => '1',
                             'backendName' => 'Test',
                             'valueType' => 'selection',
                         ),
@@ -819,6 +830,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 array(
                     array(
                         'property' => array(
+                            'id' => '1',
                             'backendName' => 'Test',
                             'valueType' => 'selection',
                         ),
@@ -833,6 +845,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     ),
                     array(
                         'property' => array(
+                            'id' => '1',
                             'backendName' => 'Test Value',
                             'valueType' => 'text',
                         ),
@@ -859,12 +872,20 @@ class ProductTest extends PHPUnit_Framework_TestCase
 
         $propertyGroupsMock->expects($this->any())->method('getPropertyGroupName')->willReturn('Test');
 
-        $registryMock = $this->getMockBuilder('\Findologic\Plentymarkets\Registry')
+        $propertiesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Properties')
             ->disableOriginalConstructor()
-            ->setMethods(array('get'))
+            ->setMethods(null)
             ->getMock();
 
-        $registryMock->expects($this->any())->method('get')->willReturn($propertyGroupsMock);
+        $propertiesMock->expects($this->any())->method('getPropertyName')->willReturnOnConsecutiveCalls();
+
+        $registryMock = $this->getMockBuilder('\Findologic\Plentymarkets\Registry')
+            ->disableOriginalConstructor()
+            ->setMethods(null)
+            ->getMock();
+
+        $registryMock->set('PropertyGroups', $propertyGroupsMock);
+        $registryMock->set('Properties', $propertiesMock);
 
         $productMock = $this->getProductMock(array('handleEmptyData'), array('registry' => $registryMock));
         $productMock->processVariationsProperties($data);
