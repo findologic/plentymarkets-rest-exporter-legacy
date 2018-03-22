@@ -333,7 +333,7 @@ class Exporter
                 foreach ($variations['entries'] as $variation) {
                     $continueProcess = $product->processVariation($variation);
 
-                     if (!$continueProcess) {
+                    if (!$continueProcess) {
                         continue;
                     }
 
