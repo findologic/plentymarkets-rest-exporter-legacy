@@ -238,22 +238,39 @@ class Exporter
             // Cycle the call for products to API until all we have all products
             while ($continue) {
                 $this->getClient()->setItemsPerPage($itemsPerPage)->setPage($page);
-                $results = $this->getClient()->getProducts();
+                $results = $this->getClient()->getProducts($this->getConfig()->getLanguage());
 
-                // Check if there is any results. Products is contained is 'entries' value of response array
+                // Check if there is any results. Products is contained in 'entries' value of response array
                 if (!$results || !isset($results['entries'])) {
                     throw new CustomerException('Could not find any results!');
+                }
+
+                $count = 0;
+                $products = array();
+
+                while (($product = current($results['entries']))) {
+                    if ($product['id']) {
+                        $products[$product['id']] = $product;
+                    } else {
+                        $this->skippedProductsCount++;
+                        $this->skippedProductsIds[] = $product['id'];
+                        $this->getLog()->trace('Product was skipped as it has no id.');
+                    }
+
+                    unset($results['entries'][$count]);
+
+                    $count++;
                 }
 
                 $start = (($page - 1) * $itemsPerPage);
                 $this->getCustomerLog()->info(
                     'Processing items from ' . $start .
-                    ' to ' . ($start + count($results['entries'])) .
+                    ' to ' . ($start + $count) .
                     ' out of ' . $results['totalsCount']
                 );
 
-                foreach ($results['entries'] as $product) {
-                    $this->processProductData($product);
+                if (count($products)) {
+                    $this->processProductData($products);
                 }
 
                 if (!empty($this->skippedProductsIds)) {
@@ -261,13 +278,13 @@ class Exporter
                     $this->skippedProductsIds = array();
                 }
 
-                if (!$results || !isset($results['isLastPage']) || $results['isLastPage'] == true) {
+                if (!isset($results['isLastPage']) || $results['isLastPage'] === true) {
                     $continue = false;
                 }
 
                 $page++;
             }
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             if ($e instanceof ThrottlingException) {
                 $this->log->fatal('Stopping products processing because of throttling exception.');
             } else {
@@ -312,56 +329,57 @@ class Exporter
      */
     public function processProductData($productData)
     {
-        $product = $this->createProductItem($productData);
-
-        // Ignore product if there is no id
-        if (!$product->getItemId() || $product->getItemId() < 0) {
-            $this->skippedProductsCount++;
-            $this->skippedProductsIds[] = $product->getItemId();
-            $this->getLog()->trace('Product was skipped as it has no id.');
-            return $this;
-        }
-
-        $continue = true;
+        $index = 0;
         $page = 1;
+        $continue = true;
+        $variations = array();
+        $itemIds = array_keys($productData);
 
         while ($continue) {
             $this->getClient()->setItemsPerPage(self::NUMBER_OF_ITEMS_PER_PAGE)->setPage($page);
-            $variations = $this->getClient()->getProductVariations($product->getItemId(), $this->getStorePlentyId());
+            $result = $this->getClient()->getProductVariations($itemIds, $this->getStorePlentyId());
 
-            if (isset($variations['entries'])) {
-                foreach ($variations['entries'] as $variation) {
-                    $continueProcess = $product->processVariation($variation);
-
-                    if (!$continueProcess) {
-                        continue;
-                    }
-
-                    if (isset($variation['itemImages'])) {
-                        $product->processImages($variation['itemImages']);
-                    }
-
-                    if (isset($variation['variationProperties'])) {
-                        $product->processVariationsProperties($variation['variationProperties']);
-                    }
-                }
+            if (isset($result['entries'])) {
+                $variations = array_merge($variations, $result['entries']);
             }
 
-            if (!$variations || !isset($variations['entries']) || $variations['isLastPage']) {
+            if (!$result || !isset($result['entries']) || $result['isLastPage']) {
                 $continue = false;
             }
 
             $page++;
         }
 
-        if ($product->hasData()) {
-            $this->getWrapper()->wrapItem($product->getResults());
-        } else {
-            $this->skippedProductsCount++;
-            $this->skippedProductsIds[] = $product->getItemId();
-        }
+        while (($variation = current($variations))) {
+            $product = $this->createProductItem($productData[$variation['itemId']]);
 
-        unset($product);
+            $continueProcess = $product->processVariation($variation);
+
+            if (!$continueProcess) {
+                continue;
+            }
+
+            if (isset($variation['itemImages'])) {
+                $product->processImages($variation['itemImages']);
+            }
+
+            if (isset($variation['variationProperties'])) {
+                $product->processVariationsProperties($variation['variationProperties']);
+            }
+
+            if ($product->hasData()) {
+                $this->getWrapper()->wrapItem($product->getResults());
+            } else {
+                $this->skippedProductsCount++;
+                $this->skippedProductsIds[] = $product->getItemId();
+            }
+
+            unset($product);
+            unset($variations[$index]);
+            unset($productData[$variation['itemId']]);
+
+            $index++;
+        }
 
         return $this;
     }

@@ -462,7 +462,7 @@ class Client
      */
     public function getProducts($language = null)
     {
-        $params = array('with' => 'itemProperties');
+        $params = array();
 
         if ($language) {
             $params['lang'] = $language;
@@ -474,11 +474,11 @@ class Client
     }
 
     /**
-     * @param int $productId
+     * @param array $productIds
      * @param bool|int $storePlentyId
      * @return array
      */
-    public function getProductVariations($productId, $storePlentyId = false)
+    public function getProductVariations(array $productIds, $storePlentyId = false)
     {
         $params = array(
             'with' =>
@@ -493,14 +493,15 @@ class Client
                     'unit',
                     'stock'
                 ),
-            'isActive' => true
+            'isActive' => true,
+            'itemId' => $productIds
         );
 
         if ($storePlentyId) {
             $params['plentyId'] = $storePlentyId;
         }
 
-        $response = $this->call('GET', $this->getEndpoint('items/' . $productId . '/variations', $params));
+        $response = $this->call('GET', $this->getEndpoint('items/variations', $params));
 
         return $this->returnResult($response);
     }
