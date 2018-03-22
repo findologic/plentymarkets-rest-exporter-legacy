@@ -12,7 +12,7 @@ use \Logger;
 
 class Exporter
 {
-    const NUMBER_OF_ITEMS_PER_PAGE = 50;
+    const NUMBER_OF_ITEMS_PER_PAGE = 100;
 
     /**
      * @var \Findologic\Plentymarkets\Client $client
