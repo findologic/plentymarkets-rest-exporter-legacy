@@ -324,23 +324,34 @@ class Exporter
     /**
      * Process product data
      *
-     * @param array $productData
+     * @param array $productsData
      * @return $this
      */
-    public function processProductData($productData)
+    public function processProductData($productsData)
     {
         $index = 0;
         $page = 1;
         $continue = true;
         $variations = array();
-        $itemIds = array_keys($productData);
+        $itemIds = array_keys($productsData);
 
         while ($continue) {
             $this->getClient()->setItemsPerPage(self::NUMBER_OF_ITEMS_PER_PAGE)->setPage($page);
             $result = $this->getClient()->getProductVariations($itemIds, $this->getStorePlentyId());
 
             if (isset($result['entries'])) {
-                $variations = array_merge($variations, $result['entries']);
+                while (($variation = current($result['entries']))) {
+                    unset($result['entries'][$index]);
+                    $index++;
+
+                    if (array_key_exists($variation['itemId'], $variations)) {
+                        $variations[$variation['itemId']][] = $variation;
+                    } else {
+                        $variations[$variation['itemId']] = array($variation);
+                    }
+                }
+
+                $index = 0;
             }
 
             if (!$result || !isset($result['entries']) || $result['isLastPage']) {
@@ -350,21 +361,36 @@ class Exporter
             $page++;
         }
 
-        while (($variation = current($variations))) {
-            $product = $this->createProductItem($productData[$variation['itemId']]);
+        foreach ($itemIds as $itemId) {
+            $productData = $productsData[$itemId];
 
-            $continueProcess = $product->processVariation($variation);
+            unset($productsData[$itemId]);
 
-            if (!$continueProcess) {
+            if (!array_key_exists($itemId, $variations)) {
+                $this->skippedProductsCount++;
+                $this->skippedProductsIds[] = $itemId;
                 continue;
             }
 
-            if (isset($variation['itemImages'])) {
-                $product->processImages($variation['itemImages']);
-            }
+            $product = $this->createProductItem($productData);
 
-            if (isset($variation['variationProperties'])) {
-                $product->processVariationsProperties($variation['variationProperties']);
+            while (($variation = current($variations[$product->getItemId()]))) {
+                unset($variations[$product->getItemId()][$index]);
+                $index++;
+
+                $continueProcess = $product->processVariation($variation);
+
+                if (!$continueProcess) {
+                    continue;
+                }
+
+                if (isset($variation['itemImages'])) {
+                    $product->processImages($variation['itemImages']);
+                }
+
+                if (isset($variation['variationProperties'])) {
+                    $product->processVariationsProperties($variation['variationProperties']);
+                }
             }
 
             if ($product->hasData()) {
@@ -374,11 +400,10 @@ class Exporter
                 $this->skippedProductsIds[] = $product->getItemId();
             }
 
-            unset($product);
-            unset($variations[$index]);
-            unset($productData[$variation['itemId']]);
+            $index = 0;
 
-            $index++;
+            unset($variations[$product->getItemId()]);
+            unset($product);
         }
 
         return $this;
