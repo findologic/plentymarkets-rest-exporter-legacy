@@ -252,29 +252,31 @@ class Exporter
                     if ($product['id']) {
                         $products[$product['id']] = $product;
                     } else {
-                        $this->skippedProductsCount++;
-                        $this->skippedProductsIds[] = $product['id'];
+                        $this->trackSkippedProducts($product['id']);
                         $this->getLog()->trace('Product was skipped as it has no id.');
                     }
 
                     unset($results['entries'][$count]);
+                    unset($product);
 
                     $count++;
                 }
 
                 $start = (($page - 1) * $itemsPerPage);
-                $this->getCustomerLog()->info(
-                    'Processing items from ' . $start .
-                    ' to ' . ($start + $count) .
-                    ' out of ' . $results['totalsCount']
-                );
+                $this->getCustomerLog()->info(sprintf(
+                    'Processing items from %d to %d out of %d',
+                    $start, ($start + $count), $results['totalsCount']
+                ));
 
-                if (count($products)) {
+                if (!empty($products)) {
                     $this->processProductData($products);
                 }
 
                 if (!empty($this->skippedProductsIds)) {
-                    $this->getLog()->debug('Products with ids ' . implode(',', $this->skippedProductsIds) . ' were skipped as they have no correct data (all variations could be inactive or etc.)');
+                    $this->getLog()->debug(sprintf(
+                        'Products with ids %s were skipped as they have no correct data (all variations could be inactive or etc.)',
+                        implode(',', $this->skippedProductsIds)
+                    ));
                     $this->skippedProductsIds = array();
                 }
 
@@ -292,7 +294,10 @@ class Exporter
             }
         }
 
-        $this->getCustomerLog()->info('Products processing finished. ' . $this->skippedProductsCount . ' products where skipped.');
+        $this->getCustomerLog()->info(sprintf(
+            'Products processing finished. %d products where skipped.',
+            $this->skippedProductsCount
+        ));
         $this->getWrapper()->allItemsHasBeenProcessed();
         $this->getCustomerLog()->info('Data processing finished.');
 
@@ -349,9 +354,9 @@ class Exporter
                     } else {
                         $variations[$variation['itemId']] = array($variation);
                     }
-                }
 
-                $index = 0;
+                    unset($variation);
+                }
             }
 
             if (!$result || !isset($result['entries']) || $result['isLastPage']) {
@@ -361,48 +366,46 @@ class Exporter
             $page++;
         }
 
-        foreach ($itemIds as $itemId) {
-            $productData = $productsData[$itemId];
+        $validItemIds = array_keys($variations);
+
+        $this->trackSkippedProducts(array_diff($itemIds, $validItemIds));
+
+        foreach ($validItemIds as $itemId) {
+            $product = $this->createProductItem($productsData[$itemId]);
 
             unset($productsData[$itemId]);
 
-            if (!array_key_exists($itemId, $variations)) {
-                $this->skippedProductsCount++;
-                $this->skippedProductsIds[] = $itemId;
-                continue;
-            }
+            while (($itemVariations = current($variations[$product->getItemId()]))) {
+                foreach ($itemVariations as $i => $variation) {
+                    unset($variations[$product->getItemId()][$i]);
 
-            $product = $this->createProductItem($productData);
+                    $continueProcess = $product->processVariation($variation);
 
-            while (($variation = current($variations[$product->getItemId()]))) {
-                unset($variations[$product->getItemId()][$index]);
-                $index++;
+                    if (!$continueProcess) {
+                        continue;
+                    }
 
-                $continueProcess = $product->processVariation($variation);
+                    if (isset($variation['itemImages'])) {
+                        $product->processImages($variation['itemImages']);
+                    }
 
-                if (!$continueProcess) {
-                    continue;
+                    if (isset($variation['variationProperties'])) {
+                        $product->processVariationsProperties($variation['variationProperties']);
+                    }
+
+                    unset($variation);
                 }
 
-                if (isset($variation['itemImages'])) {
-                    $product->processImages($variation['itemImages']);
-                }
-
-                if (isset($variation['variationProperties'])) {
-                    $product->processVariationsProperties($variation['variationProperties']);
-                }
+                unset($variations[$product->getItemId()]);
+                unset($itemVariations);
             }
 
             if ($product->hasData()) {
                 $this->getWrapper()->wrapItem($product->getResults());
             } else {
-                $this->skippedProductsCount++;
-                $this->skippedProductsIds[] = $product->getItemId();
+                $this->trackSkippedProducts($product->getItemId());
             }
 
-            $index = 0;
-
-            unset($variations[$product->getItemId()]);
             unset($product);
         }
 
@@ -531,5 +534,19 @@ class Exporter
         }
 
         return $this;
+    }
+
+    /**
+     * @param array|int $ids
+     */
+    private function trackSkippedProducts($ids)
+    {
+        if (is_array($ids)) {
+            $this->skippedProductsIds = array_merge($this->skippedProductsIds, $ids);
+            $this->skippedProductsCount += count($ids);
+        } else {
+            $this->skippedProductsIds[] = $ids;
+            $this->skippedProductsCount++;
+        }
     }
 }
