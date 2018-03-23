@@ -375,29 +375,27 @@ class Exporter
 
             unset($productsData[$itemId]);
 
-            while (($itemVariations = current($variations[$product->getItemId()]))) {
-                foreach ($itemVariations as $i => $variation) {
-                    unset($variations[$product->getItemId()][$i]);
+            $index = 0;
 
-                    $continueProcess = $product->processVariation($variation);
+            while (($variation = current($variations[$product->getItemId()]))) {
+                unset($variations[$product->getItemId()][$index]);
+                $index++;
 
-                    if (!$continueProcess) {
-                        continue;
-                    }
+                $continueProcess = $product->processVariation($variation);
 
-                    if (isset($variation['itemImages'])) {
-                        $product->processImages($variation['itemImages']);
-                    }
-
-                    if (isset($variation['variationProperties'])) {
-                        $product->processVariationsProperties($variation['variationProperties']);
-                    }
-
-                    unset($variation);
+                if (!$continueProcess) {
+                    continue;
                 }
 
-                unset($variations[$product->getItemId()]);
-                unset($itemVariations);
+                if (isset($variation['itemImages'])) {
+                    $product->processImages($variation['itemImages']);
+                }
+
+                if (isset($variation['variationProperties'])) {
+                    $product->processVariationsProperties($variation['variationProperties']);
+                }
+
+                unset($variation);
             }
 
             if ($product->hasData()) {
@@ -406,6 +404,7 @@ class Exporter
                 $this->trackSkippedProducts($product->getItemId());
             }
 
+            unset($variations[$product->getItemId()]);
             unset($product);
         }
 
