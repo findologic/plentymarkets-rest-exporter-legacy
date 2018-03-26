@@ -334,7 +334,6 @@ class Exporter
      */
     public function processProductData($productsData)
     {
-        $index = 0;
         $page = 1;
         $continue = true;
         $variations = array();
@@ -345,6 +344,8 @@ class Exporter
             $result = $this->getClient()->getProductVariations($itemIds, $this->getStorePlentyId());
 
             if (isset($result['entries'])) {
+                $index = 0;
+
                 while (($variation = current($result['entries']))) {
                     unset($result['entries'][$index]);
                     $index++;
