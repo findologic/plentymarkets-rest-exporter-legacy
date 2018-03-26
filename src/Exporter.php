@@ -249,7 +249,7 @@ class Exporter
                 $products = array();
 
                 while (($product = current($results['entries']))) {
-                    if ($product['id']) {
+                    if ($product['id'] > 0) {
                         $products[$product['id']] = $product;
                     } else {
                         $this->trackSkippedProducts($product['id']);
