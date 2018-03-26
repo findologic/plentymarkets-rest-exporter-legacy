@@ -284,6 +284,9 @@ class Exporter
                     $continue = false;
                 }
 
+                unset($results);
+                unset($products);
+
                 $page++;
             }
         } catch (Exception $e) {
@@ -365,6 +368,8 @@ class Exporter
             }
 
             $page++;
+
+            unset($result);
         }
 
         $validItemIds = array_keys($variations);
@@ -408,6 +413,9 @@ class Exporter
             unset($variations[$product->getItemId()]);
             unset($product);
         }
+
+        unset($productsData);
+        unset($variations);
 
         return $this;
     }
