@@ -248,7 +248,7 @@ class Exporter
                 $count = 0;
                 $products = array();
 
-                while (($product = current($results['entries']))) {
+                while (($product = array_shift($results['entries']))) {
                     if ($product['id'] > 0) {
                         $products[$product['id']] = $product;
                     } else {
@@ -256,7 +256,6 @@ class Exporter
                         $this->getLog()->trace('Product was skipped as it has no id.');
                     }
 
-                    unset($results['entries'][$count]);
                     unset($product);
 
                     $count++;
@@ -347,12 +346,7 @@ class Exporter
             $result = $this->getClient()->getProductVariations($itemIds, $this->getStorePlentyId());
 
             if (isset($result['entries'])) {
-                $index = 0;
-
-                while (($variation = current($result['entries']))) {
-                    unset($result['entries'][$index]);
-                    $index++;
-
+                while (($variation = array_shift($result['entries']))) {
                     if (array_key_exists($variation['itemId'], $variations)) {
                         $variations[$variation['itemId']][] = $variation;
                     } else {
@@ -381,12 +375,7 @@ class Exporter
 
             unset($productsData[$itemId]);
 
-            $index = 0;
-
-            while (($variation = current($variations[$product->getItemId()]))) {
-                unset($variations[$product->getItemId()][$index]);
-                $index++;
-
+            while (($variation = array_shift($variations[$product->getItemId()]))) {
                 $continueProcess = $product->processVariation($variation);
 
                 if (!$continueProcess) {
