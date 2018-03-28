@@ -640,6 +640,11 @@ class Client
             throw new CriticalException('Provided REST client does not have access rights for method with URL: ' . $response->getEffectiveUrl());
         }
 
+        if ($response->getStatus() == 429) {
+            $this->log->fatal('Global throttling limit reached.');
+            throw new ThrottlingException();
+        }
+
         // Method is not reachable, maybe server is down
         if ($response->getStatus() != 200) {
             throw new CustomerException('Could not reach API method for ' . $response->getEffectiveUrl());
