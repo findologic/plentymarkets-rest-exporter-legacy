@@ -237,6 +237,29 @@ class ClientTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Should throw exception if api method requires permissions (403 status code is returned)
+     */
+    public function testApiMethodNeedsPermissions()
+    {
+
+        $requestMock = $this->getMockBuilder('\HTTP_Request2')
+            ->disableOriginalConstructor()
+            ->setMethods(array('send'))
+            ->getMock();
+
+        $response = $this->getResponseMock('Access denied!', 403, false);
+        $response->expects($this->any())->method('getHeader')->willReturn('1');
+        $requestMock->expects($this->any())->method('send')->will($this->returnValue($response));
+
+        $clientMock = $this->getClientMock(['createRequest']);
+        $clientMock->expects($this->once())->method('createRequest')->will($this->returnValue($requestMock));
+
+        $this->setExpectedException(CustomerException::class);
+
+        $clientMock->getAttributes();
+    }
+
+    /**
      * Should throw exception if global limit is reached
      */
     public function testThrottlingGlobalLimitReached()
