@@ -641,8 +641,7 @@ class Client
         }
 
         if ($response->getStatus() == 429) {
-            $this->log->fatal('Global throttling limit reached.');
-            throw new ThrottlingException();
+            throw new ThrottlingException('Global throttling limit reached.');
         }
 
         // Method is not reachable, maybe server is down
