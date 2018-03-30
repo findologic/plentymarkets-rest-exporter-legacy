@@ -504,7 +504,7 @@ class Product extends ParserAbstract
 
         /** @var Properties $properties */
         $properties = $this->registry->get('Properties');
-        $propertyName = $properties->getPropertyName($property['property']['id'], $this->getLanguageCode());
+        $propertyName = $properties->getPropertyName($property['property']['id']);
 
         if ($propertyName && $propertyName != $this->getDefaultEmptyValue()) {
             $name = $propertyName;

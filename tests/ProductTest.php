@@ -877,8 +877,6 @@ class ProductTest extends PHPUnit_Framework_TestCase
             ->setMethods(null)
             ->getMock();
 
-        $propertiesMock->expects($this->any())->method('getPropertyName')->willReturnOnConsecutiveCalls();
-
         $registryMock = $this->getMockBuilder('\Findologic\Plentymarkets\Registry')
             ->disableOriginalConstructor()
             ->setMethods(null)

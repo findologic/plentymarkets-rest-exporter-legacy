@@ -39,13 +39,12 @@ class Properties extends ParserAbstract implements ParserInterface
 
     /**
      * @param int $propertyId
-     * @param string $language
      * @return string
      */
-    public function getPropertyName($propertyId, $language)
+    public function getPropertyName($propertyId)
     {
-        if (isset($this->results[$propertyId]['names'][strtoupper($language)])) {
-            return $this->results[$propertyId]['names'][strtoupper($language)]['name'];
+        if (isset($this->results[$propertyId]['names'][strtoupper($this->getLanguageCode())])) {
+            return $this->results[$propertyId]['names'][strtoupper($this->getLanguageCode())]['name'];
         } else if (isset($this->results[$propertyId]['backendName'])) {
             return $this->results[$propertyId]['backendName'];
         }

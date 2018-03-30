@@ -103,11 +103,12 @@ class PropertiesTest extends \PHPUnit_Framework_TestCase
     {
         $propertiesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Properties')
             ->disableOriginalConstructor()
-            ->setMethods(null)
+            ->setMethods(array('getLanguageCode'))
             ->getMock();
 
+        $propertiesMock->expects($this->atLeastOnce())->method('getLanguageCode')->willReturn($languageCode);
         $propertiesMock->setResults($results);
 
-        $this->assertEquals($expectedResults, $propertiesMock->getPropertyName($propertyId, $languageCode));
+        $this->assertEquals($expectedResults, $propertiesMock->getPropertyName($propertyId));
     }
 }
