@@ -435,6 +435,13 @@ class Product extends ParserAbstract
                 continue;
             }
 
+            if (
+                $property['property']['valueType'] === 'empty' &&
+                (!isset($property['property']['propertyGroupId']) || empty($property['property']['propertyGroupId']))
+            ) {
+                continue;
+            }
+
             $propertyName = $this->getPropertyName($property);
             $value = $this->getPropertyValue($property);
 
@@ -495,19 +502,19 @@ class Product extends ParserAbstract
     {
         $name = $property['property']['backendName'];
 
-        if (
-            (isset($property['property']['propertyGroupId']) && !empty($property['property']['propertyGroupId'])) ||
-            $property['property']['valueType'] === 'empty'
-        ) {
-            $name = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
-        }
-
         /** @var Properties $properties */
         $properties = $this->registry->get('Properties');
         $propertyName = $properties->getPropertyName($property['property']['id']);
 
         if ($propertyName && $propertyName != $this->getDefaultEmptyValue()) {
             $name = $propertyName;
+        }
+
+        if (
+            (isset($property['property']['propertyGroupId']) && !empty($property['property']['propertyGroupId'])) ||
+            $property['property']['valueType'] === 'empty'
+        ) {
+            $name = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
         }
 
         return $name;
@@ -527,6 +534,14 @@ class Product extends ParserAbstract
         switch ($propertyType) {
             case 'empty':
                 $value = $property['property']['backendName'];
+                if (isset($property['names'])) {
+                    foreach ($property['names'] as $name) {
+                        if (strtoupper($name['lang']) == $this->getLanguageCode() && !empty($name['value'])) {
+                            $value = $name['value'];
+                            break;
+                        }
+                    }
+                }
                 break;
             case 'text':
                 // For some specific shops the structure of text property is different and do not have 'names' field
