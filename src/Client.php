@@ -632,6 +632,7 @@ class Client
      * @return bool
      * @throws CriticalException
      * @throws CustomerException
+     * @throws ThrottlingException
      */
     protected function isResponseValid(HTTP_Request2_Response $response)
     {
