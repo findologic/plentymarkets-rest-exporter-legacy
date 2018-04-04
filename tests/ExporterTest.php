@@ -154,11 +154,11 @@ class ExporterTest extends PHPUnit_Framework_TestCase
 
         $clientMock->expects($this->once())->method('getProducts')->willThrowException(new ThrottlingException());
 
-        $exporterMock = $this->getExporterMockBuilder(array('client' => $clientMock))
+        $exporterMock = $this->getExporterMockBuilder(array('client' => $clientMock, 'log' => $logMock))
             ->setMethods(array('init'))
             ->getMock();
 
-        $this->setExpectedException(ThrottlingException::class);
+        $logMock->expects($this->once())->method('fatal');
 
         $exporterMock->getProducts();
     }
