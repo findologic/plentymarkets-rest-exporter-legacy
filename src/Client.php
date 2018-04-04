@@ -638,11 +638,11 @@ class Client
     {
         // Method is not reachable because provided API user do not have appropriate access rights
         if ($response->getStatus() == 401 && $response->getReasonPhrase() == 'Unauthorized') {
-            throw new CriticalException('Provided REST client does not have access rights for method with URL: ' . $response->getEffectiveUrl());
+            throw new CriticalException('Provided REST client is not logged in!');
         }
 
         if ($response->getStatus() == 403) {
-            throw new CustomerException('Do not have permissions for API method. Url: ' . $response->getEffectiveUrl());
+            throw new CustomerException('Provided REST client does not have access rights for method with URL: ' . $response->getEffectiveUrl());
         }
 
         if ($response->getStatus() == 429) {
