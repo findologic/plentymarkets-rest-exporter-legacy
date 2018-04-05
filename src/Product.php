@@ -534,13 +534,8 @@ class Product extends ParserAbstract
         switch ($propertyType) {
             case 'empty':
                 $value = $property['property']['backendName'];
-                if (isset($property['names'])) {
-                    foreach ($property['names'] as $name) {
-                        if (strtoupper($name['lang']) == $this->getLanguageCode() && !empty($name['value'])) {
-                            $value = $name['value'];
-                            break;
-                        }
-                    }
+                if ($propertyName = $this->registry->get('Properties')->getPropertyName($property['property']['id'])) {
+                    $value = $propertyName;
                 }
                 break;
             case 'text':

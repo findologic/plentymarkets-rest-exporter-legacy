@@ -881,7 +881,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         )
                     )
                 ),
-                array('Test Selection' => array('Test value en'), 'Test Value' => array('Test'), 'Test' => array('Test EN'))
+                array('Test Selection' => array('Test value en'), 'Test Value' => array('Test'), 'Test' => array('Test 2'))
             )
         );
     }
