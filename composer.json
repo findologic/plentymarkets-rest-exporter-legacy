@@ -1,5 +1,5 @@
 {
-  "name": "findologic-plentymarkets",
+  "name": "findologic/plentymarkets-rest-export",
   "type": "library",
   "description": "FINDOLOGIC plugin for Plentymarkets",
   "keywords": [
