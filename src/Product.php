@@ -171,12 +171,20 @@ class Product extends ParserAbstract
      * Return a false value if there was no variation which was active or passed other
      * configured visibility filtering
      *
-     * @codeCoverageIgnore
      * @return bool
      */
-    public function hasData()
+    public function hasValidData()
     {
-        return $this->hasData;
+        if (!$this->hasData) {
+            return false;
+        }
+
+        $categories = $this->getAttributeField(self::CATEGORY_ATTRIBUTE_FIELD);
+        if (empty($categories) || $categories == $this->getDefaultEmptyValue()) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -253,6 +261,19 @@ class Product extends ParserAbstract
         $this->fields['attributes'][$name][] = $value;
 
         return $this;
+    }
+
+    /**
+     * @param string $name
+     * @return mixed
+     */
+    public function getAttributeField($name)
+    {
+        if (isset($this->fields['attributes'][$name])) {
+            return $this->fields['attributes'][$name];
+        }
+
+        return $this->getDefaultEmptyValue();
     }
 
     /**
