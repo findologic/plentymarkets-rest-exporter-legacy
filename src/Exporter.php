@@ -336,7 +336,7 @@ class Exporter
             $page++;
         }
 
-        if ($product->hasData()) {
+        if ($product->hasValidData()) {
             $this->getWrapper()->wrapItem($product->getResults());
         } else {
             $this->skippedProductsCount++;
@@ -456,7 +456,17 @@ class Exporter
         }
 
         foreach ($attributes->getResults() as $id => $attribute) {
-            $attributes->parseValues($this->getClient()->getAttributeValues($id));
+            $continue = true;
+            $page = 1;
+            while ($continue) {
+                $this->getClient()->setItemsPerPage(self::NUMBER_OF_ITEMS_PER_PAGE)->setPage($page);
+                $results = $this->getClient()->getAttributeValues($id);
+                $attributes->parseValues($results);
+                $page++;
+                if (!$results || !isset($results['isLastPage']) ||$results['isLastPage']) {
+                    $continue = false;
+                }
+            }
         }
 
         return $this;

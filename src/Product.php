@@ -60,14 +60,6 @@ class Product extends ParserAbstract
     protected $protocol = 'http://';
 
     /**
-     * Flag used to identify when the property value should be taken from property name and property name from
-     * property group name
-     *
-     * @var bool
-     */
-    protected $swapPropertyValuesFlag = false;
-
-    /**
      * @var mixed
      */
     protected $availabilityIds;
@@ -179,12 +171,20 @@ class Product extends ParserAbstract
      * Return a false value if there was no variation which was active or passed other
      * configured visibility filtering
      *
-     * @codeCoverageIgnore
      * @return bool
      */
-    public function hasData()
+    public function hasValidData()
     {
-        return $this->hasData;
+        if (!$this->hasData) {
+            return false;
+        }
+
+        $categories = $this->getAttributeField(self::CATEGORY_ATTRIBUTE_FIELD);
+        if (empty($categories) || $categories == $this->getDefaultEmptyValue()) {
+            return false;
+        }
+
+        return true;
     }
 
     /**
@@ -261,6 +261,19 @@ class Product extends ParserAbstract
         $this->fields['attributes'][$name][] = $value;
 
         return $this;
+    }
+
+    /**
+     * @param string $name
+     * @return mixed
+     */
+    public function getAttributeField($name)
+    {
+        if (isset($this->fields['attributes'][$name])) {
+            return $this->fields['attributes'][$name];
+        }
+
+        return $this->getDefaultEmptyValue();
     }
 
     /**
@@ -444,16 +457,7 @@ class Product extends ParserAbstract
             $propertyName = $this->getPropertyName($property);
             $value = $this->getPropertyValue($property);
 
-            if ($this->swapPropertyValuesFlag) {
-                // This means that property value is saved as property 'backendName'
-                // and actual property name should be taken from property group name
-                $temp = $value;
-                $value = $propertyName;
-                $propertyName = $temp;
-                $this->swapPropertyValuesFlag = false;
-            }
-
-            if ($value != null && $value != $this->getDefaultEmptyValue()) {
+            if ($propertyName != null && $value != null && $value != $this->getDefaultEmptyValue()) {
                 $this->setAttributeField($propertyName, $value);
             }
         }
@@ -510,15 +514,11 @@ class Product extends ParserAbstract
     {
         $name = $property['property']['backendName'];
 
-        if (!isset($property['names']) || !is_array($property['names'])) {
-            return $name;
-        }
-
-        foreach ($property['names'] as $propertyName) {
-            if (strtoupper($propertyName['lang']) == $this->getLanguageCode() && !empty($propertyName['value'])) {
-                $name = $propertyName['value'];
-                break;
-            }
+        if (
+            (isset($property['property']['propertyGroupId']) && !empty($property['property']['propertyGroupId'])) ||
+            $property['property']['valueType'] === 'empty'
+        ) {
+            $name = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
         }
 
         return $name;
@@ -537,24 +537,17 @@ class Product extends ParserAbstract
 
         switch ($propertyType) {
             case 'empty':
-                $value = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
+                $value = $property['property']['backendName'];
                 break;
             case 'text':
                 // For some specific shops the structure of text property is different and do not have 'names' field
-                if (isset($property['valueTexts'])) {
-                    foreach ($property['valueTexts'] as $name) {
-                        if (strtoupper($name['lang']) != $this->getLanguageCode()) {
-                            continue;
-                        }
-
-                        $value = $name['value'];
-
-                        if (!$value) {
-                            $value = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
+                if (isset($property['names'])) {
+                    foreach ($property['names'] as $name) {
+                        if (strtoupper($name['lang']) == $this->getLanguageCode()) {
+                            $value = $name['value'];
+                            break;
                         }
                     }
-                } else {
-                    $value = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
                 }
                 break;
             case 'selection':
@@ -587,7 +580,6 @@ class Product extends ParserAbstract
     protected function getPropertyGroupForPropertyName($propertyGroupId)
     {
         $value = $this->getRegistry()->get('PropertyGroups')->getPropertyGroupName($propertyGroupId);
-        $this->swapPropertyValuesFlag = true;
 
         return $value;
     }

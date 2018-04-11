@@ -18,7 +18,6 @@ class Client
     const GLOBAL_SHORT_CALLS_WAIT_TIME = 'x-plenty-global-short-period-decay';
     const GLOBAL_LONG_CALLS_LEFT_COUNT = 'x-plenty-global-long-period-calls-left';
     const GLOBAL_LONG_CALLS_WAIT_TIME = 'x-plenty-global-long-period-decay';
-    const THROTTLING_LIMIT_REACHED = '--- EMPTY ---';
 
     /**
      * REST API URL
@@ -447,34 +446,6 @@ class Client
 
     /**
      * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
-     * @param int $itemId
-     * @param int $variationId
-     * @return array
-     */
-    public function getVariationProperties($itemId, $variationId)
-    {
-        $response = $this->call(
-            'GET',
-            $this->getEndpoint('items/' . $itemId . '/variations/' . $variationId . '/variation_properties')
-        );
-
-        return $this->returnResult($response);
-    }
-
-    /**
-     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
-     * @param int $productId
-     * @return array
-     */
-    public function getProductImages($productId)
-    {
-        $response = $this->call('GET', $this->getEndpoint('items/' . $productId . '/images'));
-
-        return $this->returnResult($response);
-    }
-
-    /**
-     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
      * @param int $id
      * @return array
      */
@@ -567,6 +538,11 @@ class Client
             $params['itemsPerPage'] = $this->itemsPerPage;
         }
 
+        // The itemPerPage and page properties should be reset after every call as the caller methods should
+        // take the actions for setting them again
+        $this->itemsPerPage = false;
+        $this->page = false;
+
         // Process params to URL
         if ($params) {
             $query = '?';
@@ -629,23 +605,15 @@ class Client
 
                 $continue = false;
             } catch (\Exception $e) {
-                if ($e instanceof ThrottlingException) {
-                    throw $e;
-                }
-
-                // If call to API was not successful check if retry limit was reached to stop retry cycle
                 if ($e instanceof ThrottlingException || $count >= self::RETRY_COUNT) {
+                    // Throw exception instantly if it is throttling exception
+                    // or check if retry limit was reached to stop retry cycle
                     throw $e;
                 } else {
                     usleep(100000);
                 }
             }
         }
-
-        // The itemPerPage and page properties should be reset after every call as the caller methods should
-        // take the actions for setting them again
-        $this->itemsPerPage = false;
-        $this->page = false;
 
         $end = microtime(true);
 
@@ -663,12 +631,21 @@ class Client
      * @return bool
      * @throws CriticalException
      * @throws CustomerException
+     * @throws ThrottlingException
      */
     protected function isResponseValid(HTTP_Request2_Response $response)
     {
         // Method is not reachable because provided API user do not have appropriate access rights
         if ($response->getStatus() == 401 && $response->getReasonPhrase() == 'Unauthorized') {
-            throw new CriticalException('Provided REST client does not have access rights for method with URL: ' . $response->getEffectiveUrl());
+            throw new CriticalException('Provided REST client is not logged in!');
+        }
+
+        if ($response->getStatus() == 403) {
+            throw new CustomerException('Provided REST client does not have access rights for method with URL: ' . $response->getEffectiveUrl());
+        }
+
+        if ($response->getStatus() == 429) {
+            throw new ThrottlingException('Throttling limit reached!');
         }
 
         // Method is not reachable, maybe server is down
@@ -752,25 +729,22 @@ class Client
      */
     protected function checkThrottling(HTTP_Request2_Response $response)
     {
-        $globalLimit = $response->getHeader(self::GLOBAL_LONG_CALLS_LEFT_COUNT);
-
-        if ($globalLimit !== null && ($globalLimit <= 1 || $globalLimit == self::THROTTLING_LIMIT_REACHED)) {
+        if ($response->getHeader(self::GLOBAL_LONG_CALLS_LEFT_COUNT) == 1) {
             //TODO: maybe check if global time out is not so long and wait instead of stopping execution
             $this->log->fatal('Global throttling limit reached.');
             throw new ThrottlingException();
         }
 
-        $methodLimit = $response->getHeader(self::METHOD_CALLS_LEFT_COUNT);
-        $timeOut = $response->getHeader(self::METHOD_CALLS_WAIT_TIME);
-
-        if (!$methodLimit) {
-            $methodLimit = $response->getHeader(self::GLOBAL_SHORT_CALLS_LEFT_COUNT);
-            $timeOut = $response->getHeader(self::GLOBAL_SHORT_CALLS_WAIT_TIME);
+        if ($response->getHeader(self::METHOD_CALLS_LEFT_COUNT) == 1) {
+            $this->setLastTimeout(time());
+            $this->setThrottlingTimeout($response->getHeader(self::METHOD_CALLS_WAIT_TIME));
+            return;
         }
 
-        if ($methodLimit <= 1 || $methodLimit == self::THROTTLING_LIMIT_REACHED) {
+        if ($response->getHeader(self::GLOBAL_SHORT_CALLS_LEFT_COUNT) == 1) {
             $this->setLastTimeout(time());
-            $this->setThrottlingTimeout($timeOut);
+            $this->setThrottlingTimeout($response->getHeader(self::GLOBAL_SHORT_CALLS_WAIT_TIME));
+            return;
         }
     }
 }
