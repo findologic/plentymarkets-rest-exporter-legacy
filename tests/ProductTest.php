@@ -108,6 +108,35 @@ class ProductTest extends PHPUnit_Framework_TestCase
         $this->assertSame($expectedResult, $this->product->getField('attributes'));
     }
 
+    public function getAttributeFieldProvider()
+    {
+        return array(
+            array(
+                'Test Attribute',
+                'Test Attribute 2',
+                array('Test Value'),
+                ''
+            ),
+            array(
+                'Test Attribute',
+                'Test Attribute',
+                array('Test Value'),
+                array('Test Value')
+            )
+        );
+    }
+
+    /**
+     * @dataProvider getAttributeFieldProvider
+     */
+    public function testGetAttributeField($setAttribute, $getAttribute, $values, $expectedResult)
+    {
+        foreach ($values as $value) {
+            $this->product->setAttributeField($setAttribute, $value);
+            $this->assertSame($expectedResult, $this->product->getAttributeField($getAttribute));
+        }
+    }
+
     /**
      * Test if passed path is not string
      */
