@@ -402,6 +402,17 @@ class Client
      * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
      * @return array
      */
+    public function getProperties()
+    {
+        $response = $this->call('GET', $this->getEndpoint('items/properties', array('with' => 'names')));
+
+        return $this->returnResult($response);
+    }
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
+     * @return array
+     */
     public function getPropertyGroups()
     {
         $response = $this->call('GET', $this->getEndpoint('items/property_groups', array('with' => 'names')));
