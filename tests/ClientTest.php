@@ -141,7 +141,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
 
         $this->setExpectedException(CustomerException::class);
 
-        $clientMock->getProductVariations('1', '123');
+        $clientMock->getProductVariations(array('1'), '123');
     }
 
     /**
@@ -175,7 +175,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
 
         $this->setExpectedException(CriticalException::class);
 
-        $clientMock->getProductVariations('1');
+        $clientMock->getProductVariations(array('1'));
     }
 
     /**
@@ -316,7 +316,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
             ->getMock();
 
         $response = $this->getResponseMock('Failed', 200, false);
-        $response->expects($this->any())->method('getHeader')->willReturnOnConsecutiveCalls(50, 2, 5);
+        $response->expects($this->any())->method('getHeader')->willReturnOnConsecutiveCalls(50, 1);
         $requestMock->expects($this->any())->method('send')->will($this->returnValue($response));
 
         $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
@@ -347,7 +347,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
             ->getMock();
 
         $response = $this->getResponseMock('Failed', 200, false);
-        $response->expects($this->any())->method('getHeader')->willReturnOnConsecutiveCalls(50, false, 0, 1, 5);
+        $response->expects($this->any())->method('getHeader')->willReturnOnConsecutiveCalls(50, 15, 1);
         $requestMock->expects($this->any())->method('send')->will($this->returnValue($response));
 
         $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
