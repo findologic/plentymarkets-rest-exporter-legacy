@@ -141,7 +141,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
 
         $this->setExpectedException(CustomerException::class);
 
-        $clientMock->getProductVariations('1', '123');
+        $clientMock->getProductVariations(array('1'), '123');
     }
 
     /**
@@ -175,7 +175,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
 
         $this->setExpectedException(CriticalException::class);
 
-        $clientMock->getProductVariations('1');
+        $clientMock->getProductVariations(array('1'));
     }
 
     /**
@@ -237,6 +237,29 @@ class ClientTest extends PHPUnit_Framework_TestCase
     }
 
     /**
+     * Should throw exception if api method requires permissions (403 status code is returned)
+     */
+    public function testApiMethodNeedsPermissions()
+    {
+
+        $requestMock = $this->getMockBuilder('\HTTP_Request2')
+            ->disableOriginalConstructor()
+            ->setMethods(array('send'))
+            ->getMock();
+
+        $response = $this->getResponseMock('Access denied!', 403, false);
+        $response->expects($this->any())->method('getHeader')->willReturn('1');
+        $requestMock->expects($this->any())->method('send')->will($this->returnValue($response));
+
+        $clientMock = $this->getClientMock(['createRequest']);
+        $clientMock->expects($this->once())->method('createRequest')->will($this->returnValue($requestMock));
+
+        $this->setExpectedException(CustomerException::class);
+
+        $clientMock->getAttributes();
+    }
+
+    /**
      * Should throw exception if global limit is reached
      */
     public function testThrottlingGlobalLimitReached()
@@ -262,6 +285,29 @@ class ClientTest extends PHPUnit_Framework_TestCase
     /**
      * Should throw exception if global limit is reached
      */
+    public function testThrottlingGlobalLimitReachedIndicatedByStatusCode()
+    {
+
+        $requestMock = $this->getMockBuilder('\HTTP_Request2')
+            ->disableOriginalConstructor()
+            ->setMethods(array('send'))
+            ->getMock();
+
+        $response = $this->getResponseMock('Failed', 429, false);
+        $response->expects($this->any())->method('getHeader')->willReturn('1');
+        $requestMock->expects($this->any())->method('send')->will($this->returnValue($response));
+
+        $clientMock = $this->getClientMock(['createRequest']);
+        $clientMock->expects($this->once())->method('createRequest')->will($this->returnValue($requestMock));
+
+        $this->setExpectedException(ThrottlingException::class);
+
+        $clientMock->getAttributes();
+    }
+
+    /**
+     * Should throw exception if global limit is reached
+     */
     public function testThrottlingRouteCallsLimitReached()
     {
         $requestMock = $this->getMockBuilder('\HTTP_Request2')
@@ -270,7 +316,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
             ->getMock();
 
         $response = $this->getResponseMock('Failed', 200, false);
-        $response->expects($this->any())->method('getHeader')->willReturnOnConsecutiveCalls(50, 2, 5);
+        $response->expects($this->any())->method('getHeader')->willReturnOnConsecutiveCalls(50, 1);
         $requestMock->expects($this->any())->method('send')->will($this->returnValue($response));
 
         $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
@@ -301,7 +347,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
             ->getMock();
 
         $response = $this->getResponseMock('Failed', 200, false);
-        $response->expects($this->any())->method('getHeader')->willReturnOnConsecutiveCalls(50, false, 0, 1, 5);
+        $response->expects($this->any())->method('getHeader')->willReturnOnConsecutiveCalls(50, 15, 1);
         $requestMock->expects($this->any())->method('send')->will($this->returnValue($response));
 
         $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
