@@ -45,7 +45,7 @@ class Exporter
      *
      * @var array
      */
-    protected $additionalDataParsers = array('Vat', 'Categories', 'SalesPrices', 'Attributes', 'Manufacturers', 'Stores', 'PropertyGroups');
+    protected $additionalDataParsers = array('Vat', 'Categories', 'SalesPrices', 'Attributes', 'Manufacturers', 'Stores', 'PropertyGroups', 'Properties');
 
     /**
      * Count of products skipped during the export

@@ -3,6 +3,8 @@
 namespace Findologic\Plentymarkets;
 
 use Findologic\Plentymarkets\Parser\ParserAbstract;
+use Findologic\Plentymarkets\Parser\ParserInterface;
+use Findologic\Plentymarkets\Parser\Properties;
 use Findologic\Plentymarkets\Data\Units;
 
 class Product extends ParserAbstract
@@ -454,6 +456,13 @@ class Product extends ParserAbstract
                 continue;
             }
 
+            if (
+                $property['property']['valueType'] === 'empty' &&
+                (!isset($property['property']['propertyGroupId']) || empty($property['property']['propertyGroupId']))
+            ) {
+                continue;
+            }
+
             $propertyName = $this->getPropertyName($property);
             $value = $this->getPropertyValue($property);
 
@@ -514,6 +523,14 @@ class Product extends ParserAbstract
     {
         $name = $property['property']['backendName'];
 
+        /** @var Properties $properties */
+        $properties = $this->registry->get('Properties');
+        $propertyName = $properties->getPropertyName($property['property']['id']);
+
+        if ($propertyName && $propertyName != $this->getDefaultEmptyValue()) {
+            $name = $propertyName;
+        }
+
         if (
             (isset($property['property']['propertyGroupId']) && !empty($property['property']['propertyGroupId'])) ||
             $property['property']['valueType'] === 'empty'
@@ -538,6 +555,9 @@ class Product extends ParserAbstract
         switch ($propertyType) {
             case 'empty':
                 $value = $property['property']['backendName'];
+                if ($propertyName = $this->registry->get('Properties')->getPropertyName($property['property']['id'])) {
+                    $value = $propertyName;
+                }
                 break;
             case 'text':
                 // For some specific shops the structure of text property is different and do not have 'names' field
