@@ -71,7 +71,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
 
         $exporterMock->init();
 
-        $items = array('Vat', 'Categories', 'SalesPrices', 'Attributes', 'Stores', 'Manufacturers');
+        $items = array('Vat', 'Categories', 'SalesPrices', 'Attributes', 'Stores', 'Manufacturers', 'Properties', 'Units');
 
         foreach ($items as $item) {
             $this->assertInstanceOf('\Findologic\Plentymarkets\Parser\\' . $item, $exporterMock->getRegistry()->get($item));
@@ -147,34 +147,6 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * Test parsing units data from API
-     */
-    public function testGetUnits()
-    {
-        $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
-            ->disableOriginalConstructor()
-            ->setMethods(array('getUnits'))
-            ->getMock();
-
-        $clientMock->expects($this->any())
-            ->method('getUnits')
-            ->will(
-                $this->returnValue(
-                    array('entries' => array(
-                        array('id' => 1, 'unitOfMeasurement' => 'C62'),
-                        array('id' => 2, 'unitOfMeasurement' => 'KGM'),
-                    ))
-                )
-            );
-
-        $exporterMock = $this->getExporterMockBuilder(array('client' => $clientMock));
-        $exporterMock->setMethods(array('handleException'));
-        $exporterMock = $exporterMock->getMock();
-
-        $this->assertSame(array(1 => 'C62', 2 => 'KGM'), $exporterMock->getUnits());
-    }
-
-    /**
      * The tested method should return instance of \Findologic\Plentymarkets\Product
      */
     public function testCreateProductItem()
@@ -186,7 +158,6 @@ class ExporterTest extends PHPUnit_Framework_TestCase
 
         $this->assertInstanceOf('\Findologic\Plentymarkets\Product', $product);
     }
-
 
     /**
      * Test if all methods are called to process the product
