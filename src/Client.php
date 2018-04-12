@@ -402,6 +402,17 @@ class Client
      * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
      * @return array
      */
+    public function getProperties()
+    {
+        $response = $this->call('GET', $this->getEndpoint('items/properties', array('with' => 'names')));
+
+        return $this->returnResult($response);
+    }
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
+     * @return array
+     */
     public function getPropertyGroups()
     {
         $response = $this->call('GET', $this->getEndpoint('items/property_groups', array('with' => 'names')));
@@ -606,12 +617,9 @@ class Client
 
                 $continue = false;
             } catch (\Exception $e) {
-                if ($e instanceof ThrottlingException) {
-                    throw $e;
-                }
-
-                // If call to API was not successful check if retry limit was reached to stop retry cycle
                 if ($e instanceof ThrottlingException || $count >= self::RETRY_COUNT) {
+                    // Throw exception instantly if it is throttling exception
+                    // or check if retry limit was reached to stop retry cycle
                     throw $e;
                 } else {
                     usleep(100000);
@@ -635,12 +643,21 @@ class Client
      * @return bool
      * @throws CriticalException
      * @throws CustomerException
+     * @throws ThrottlingException
      */
     protected function isResponseValid(HTTP_Request2_Response $response)
     {
         // Method is not reachable because provided API user do not have appropriate access rights
         if ($response->getStatus() == 401 && $response->getReasonPhrase() == 'Unauthorized') {
-            throw new CriticalException('Provided REST client does not have access rights for method with URL: ' . $response->getEffectiveUrl());
+            throw new CriticalException('Provided REST client is not logged in!');
+        }
+
+        if ($response->getStatus() == 403) {
+            throw new CustomerException('Provided REST client does not have access rights for method with URL: ' . $response->getEffectiveUrl());
+        }
+
+        if ($response->getStatus() == 429) {
+            throw new ThrottlingException('Throttling limit reached!');
         }
 
         // Method is not reachable, maybe server is down

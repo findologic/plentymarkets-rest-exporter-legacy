@@ -45,7 +45,7 @@ class Exporter
      *
      * @var array
      */
-    protected $additionalDataParsers = array('Vat', 'Categories', 'SalesPrices', 'Attributes', 'Manufacturers', 'Stores', 'PropertyGroups');
+    protected $additionalDataParsers = array('Vat', 'Categories', 'SalesPrices', 'Attributes', 'Manufacturers', 'Stores', 'PropertyGroups', 'Properties', 'Units');
 
     /**
      * Count of products skipped during the export
@@ -111,12 +111,12 @@ class Exporter
      */
     public function init()
     {
-        $this->getCustomerLog()->info('Starting to initialise necessary data (categories, attributes, etc.)');
+        $this->getCustomerLog()->info('Starting to initialise necessary data (categories, attributes, etc.).');
         $this->getClient()->login();
         $this->initAdditionalData();
         $this->initCategoriesFullUrls();
         $this->initAttributeValues();
-        $this->getCustomerLog()->info('Starting to initialise necessary data (categories, attributes, etc.)');
+        $this->getCustomerLog()->info('Finished to initialise necessary data.');
 
         return $this;
     }
@@ -194,24 +194,6 @@ class Exporter
     public function getStorePlentyId()
     {
         return $this->storePlentyId;
-    }
-
-    /**
-     * Function for getting the units id with actual values
-     *
-     * @return array
-     */
-    public function getUnits()
-    {
-        $results = $this->getClient()->getUnits();
-
-        $units = array();
-
-        foreach ($results['entries'] as $result) {
-            $units[$result['id']] = $result['unitOfMeasurement'];
-        }
-
-        return $units;
     }
 
     /**
@@ -393,7 +375,7 @@ class Exporter
                 unset($variation);
             }
 
-            if ($product->hasData()) {
+            if ($product->hasValidData()) {
                 $this->getWrapper()->wrapItem($product->getResults());
             } else {
                 $this->trackSkippedProducts($product->getItemId());
