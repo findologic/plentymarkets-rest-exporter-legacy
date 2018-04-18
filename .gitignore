@@ -1,7 +1,6 @@
 Export.csv
 Config.php
 vendor/
-composer.lock
 composer.phar
 build/
 .idea/
