@@ -10,4 +10,4 @@ before_script:
   - cp src/Config.php.dist src/Config.php
 
 script:
-  - phpunit --configuration phpunit.xml
+  - vendor/bin/phpunit --configuration phpunit.xml
