@@ -615,11 +615,31 @@ class Product extends ParserAbstract
             return false;
         }
 
+        if (isset($variation['availableUntil']) && !$this->isDateStillAvailable($variation['availableUntil'])) {
+            return false;
+        }
+
         if (!$this->isProductAvailable($variation['availability'])) {
             return false;
         }
 
         $this->hasData = true;
+
+        return true;
+    }
+
+    /**
+     * @param string $availableUntil
+     * @return bool
+     */
+    protected function isDateStillAvailable($availableUntil)
+    {
+        $date = strtotime($availableUntil);
+        $currentTime = time();
+
+        if ($date && $date < $currentTime) {
+            return false;
+        }
 
         return true;
     }

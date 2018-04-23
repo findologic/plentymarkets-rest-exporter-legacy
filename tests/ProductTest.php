@@ -533,14 +533,23 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 array()
             ),
             // Variation is not active and config is set to include inactive variations but availability ids config
-            // is set and variation availability id is not in config
+            // is set and variation availability id is the same as config
             array(
                 array(
                     'isActive' => true,
                     'availability' => 2,
                 ),
                 2
+            ),
+            array(
+                array(
+                    'isActive' => true,
+                    'availability' => 1,
+                    'availableUntil' => '2018-01-01T00:00:00+01:00'
+                ),
+                2
             )
+
         );
     }
 
@@ -630,8 +639,6 @@ class ProductTest extends PHPUnit_Framework_TestCase
         $productMock->processVariationCategories($data);
         $this->assertSame($expectedResult, $productMock->getField('attributes'));
     }
-
-
 
     public function processVariationGroupsProvider()
     {
