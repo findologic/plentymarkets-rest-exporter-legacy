@@ -401,6 +401,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'model' => 'Test Model',
                         'isActive' => true,
                         'availability' => 1,
+                        'availableUntil' => '2099-01-01T00:00:00+01:00',
                         'id' => 'Test Id',
                         'vatId' => 2,
                         'isVisibleIfNetStockIsPositive' => false,
@@ -431,6 +432,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'model' => 'Test Model 2',
                         'isActive' => true,
                         'availability' => 1,
+                        'availableUntil' => null,
                         'id' => 'Test Id',
                         'isVisibleIfNetStockIsPositive' => false,
                         'isInvisibleIfNetStockIsNotPositive' => false,
@@ -549,7 +551,6 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 ),
                 2
             )
-
         );
     }
 
