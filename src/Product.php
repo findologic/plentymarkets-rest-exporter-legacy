@@ -462,8 +462,16 @@ class Product extends ParserAbstract
                 continue;
             }
 
-            $propertyName = $this->getPropertyName($property);
             $value = $this->getPropertyValue($property);
+
+            if ($property['property']['valueType'] === 'empty') {
+                $propertyName = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
+            } elseif ($value === $this->getDefaultEmptyValue()) {
+                $propertyName = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
+                $value = $this->getPropertyName($property);
+            } else {
+                $propertyName = $this->getPropertyName($property);
+            }
 
             if ($propertyName != null && $value != null && $value != $this->getDefaultEmptyValue()) {
                 $this->setAttributeField($propertyName, $value);
@@ -528,13 +536,6 @@ class Product extends ParserAbstract
 
         if ($propertyName && $propertyName != $this->getDefaultEmptyValue()) {
             $name = $propertyName;
-        }
-
-        if (
-            (isset($property['property']['propertyGroupId']) && !empty($property['property']['propertyGroupId'])) ||
-            $property['property']['valueType'] === 'empty'
-        ) {
-            $name = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
         }
 
         return $name;
