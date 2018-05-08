@@ -752,7 +752,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'property' => array(
                             'id' => '1',
                             'backendName' => 'Test Property',
-                            'valueType' => 'text'
+                            'valueType' => 'text',
+                            'propertyGroupId' => null
                         ),
                         'valueTexts' => array(
                             array('value' => 'Test Value', 'lang' => 'lt')
@@ -762,7 +763,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'property' => array(
                             'id' => '1',
                             'backendName' => 'Test Property Select',
-                            'valueType' => 'selection'
+                            'valueType' => 'selection',
+                            'propertyGroupId' => null
                         ),
                         'valueTexts' => array(),
                         'propertySelection' => array(
@@ -771,6 +773,36 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     ),
                 ),
                 ''
+            ),
+            // Variation has 'text' and 'selection' type properties but the language of those properties is not the same
+            // as in export config, should use property names as values instead
+            array(
+                array(
+                    array(
+                        'property' => array(
+                            'id' => '1',
+                            'backendName' => 'Test Property',
+                            'valueType' => 'text',
+                            'propertyGroupId' => 2
+                        ),
+                        'valueTexts' => array(
+                            array('value' => 'Test Value', 'lang' => 'lt')
+                        )
+                    ),
+                    array(
+                        'property' => array(
+                            'id' => '1',
+                            'backendName' => 'Test Property Select',
+                            'valueType' => 'selection',
+                            'propertyGroupId' => 2
+                        ),
+                        'valueTexts' => array(),
+                        'propertySelection' => array(
+                            array('name' => 'Select Value', 'lang' => 'lt')
+                        )
+                    ),
+                ),
+                array('Test' => array('Test Property', 'Test Property Select'))
             ),
             // Variation has 'text' and 'float' type properties
             array(
@@ -798,24 +830,13 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     array(
                         'property' => array(
                             'id' => '1',
-                            'backendName' => 'Test Property 2',
-                            'valueType' => 'text',
-                            'propertyGroupId' => 2
-                        ),
-                        'names' => array(
-                            array('value' => 'Test Value 2', 'lang' => 'en')
-                        )
-                    ),
-                    array(
-                        'property' => array(
-                            'id' => '1',
                             'backendName' => 'Test Float',
                             'valueType' => 'float'
                         ),
                         'valueFloat' => 3.25
                     )
                 ),
-                array('Test Property' => array('Test Value'), 'Test Property Name' => array('Test Value 2'), 'Test' =>  array('Test Value 2'), 'Test Float' => array(3.25))
+                array('Test Property' => array('Test Value'), 'Test Property Name' => array('Test Value 2'), 'Test Float' => array(3.25))
             ),
             // Variation has 'selection' and 'int' type properties
             array(
@@ -824,7 +845,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'property' => array(
                             'id' => '1',
                             'backendName' => 'Test Property Select',
-                            'valueType' => 'selection'
+                            'valueType' => 'selection',
+                            'propertyGroupId' => null
                         ),
                         'valueTexts' => array(),
                         'propertySelection' => array(
@@ -835,7 +857,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'property' => array(
                             'id' => '1',
                             'backendName' => 'Test Int',
-                            'valueType' => 'int'
+                            'valueType' => 'int',
+                            'propertyGroupId' => null
                         ),
                         'valueInt' => 3
                     ),
@@ -843,7 +866,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'property' => array(
                             'id' => '1',
                             'backendName' => 'Test Default',
-                            'valueType' => 'Test'
+                            'valueType' => 'Test',
+                            'propertyGroupId' => null
                         )
                     ),
                     array(
@@ -933,7 +957,9 @@ class ProductTest extends PHPUnit_Framework_TestCase
             ->setMethods(array('getPropertyGroupName'))
             ->getMock();
 
-        $propertyGroupsMock->expects($this->any())->method('getPropertyGroupName')->willReturn('Test');
+        $propertyGroupsMock->expects($this->any())->method('getPropertyGroupName')->will($this->returnCallback(function ($gid) {
+            return is_null($gid) ? '' : 'Test';
+        }));
 
         $propertiesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Properties')
             ->disableOriginalConstructor()
