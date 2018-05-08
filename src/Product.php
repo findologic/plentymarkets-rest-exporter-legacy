@@ -464,6 +464,9 @@ class Product extends ParserAbstract
 
             $value = $this->getPropertyValue($property);
 
+            // If there is no valid value for the property, use its name as value and the group name as the
+            // property name.
+            // Properties of type "empty" are a special case since they never have a value of their own.
             if ($property['property']['valueType'] === 'empty') {
                 $propertyName = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
             } elseif ($value === $this->getDefaultEmptyValue()) {
