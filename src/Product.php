@@ -51,6 +51,7 @@ class Product extends ParserAbstract
         'sales_frequency' => null,
         'date_added' => '',
         'sort' => '',
+        'main_variation_id' => ''
     );
 
     /**
@@ -653,6 +654,10 @@ class Product extends ParserAbstract
 
         if (!$this->getField('ordernumber')) {
             $this->setField('ordernumber', array());
+        }
+
+        if ($this->getField('main_variation_id') == $this->getDefaultEmptyValue() || $variation['isMain']) {
+            $this->setField('main_variation_id', $variation['id']);
         }
 
         foreach ($identificators as $identificator) {
