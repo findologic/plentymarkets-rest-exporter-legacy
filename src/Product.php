@@ -656,8 +656,8 @@ class Product extends ParserAbstract
             $this->setField('ordernumber', array());
         }
 
-        if ($this->getField('main_variation_id') == $this->getDefaultEmptyValue() || $variation['isMain']) {
-            $this->setField('main_variation_id', $variation['id']);
+        if ($this->getField('main_variation_id') == $this->getDefaultEmptyValue() || $variation['mainVariationId']) {
+            $this->setField('main_variation_id', $variation['mainVariationId']);
         }
 
         foreach ($identificators as $identificator) {

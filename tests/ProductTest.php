@@ -333,6 +333,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'isActive' => true,
                         'availability' => 1,
                         'id' => 'Test Id',
+                        'mainVariationId' => 'Test Id',
                         'variationSalesPrices' => array(),
                         'vatId' => 2,
                         'salesRank' => 15,
@@ -365,6 +366,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'isActive' => false,
                         'availability' => 1,
                         'id' => 'Test Id 2',
+                        'mainVariationId' => 'Test Id',
                         'variationSalesPrices' => array(),
                         'vatId' => 2,
                         'isVisibleIfNetStockIsPositive' => false,
@@ -404,7 +406,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'model' => 'Test Model',
                         'isActive' => true,
                         'availability' => 1,
-                        'id' => 'Test Id',
+                        'id' => 'Test',
+                        'mainVariationId' => 'Test Id',
                         'vatId' => 2,
                         'isVisibleIfNetStockIsPositive' => false,
                         'isInvisibleIfNetStockIsNotPositive' => false,
@@ -436,6 +439,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'isActive' => true,
                         'availability' => 1,
                         'id' => 'Test Id',
+                        'mainVariationId' => 'Test',
                         'isVisibleIfNetStockIsPositive' => false,
                         'isInvisibleIfNetStockIsNotPositive' => false,
                         'isAvailableIfNetStockIsPositive' => false,
@@ -468,8 +472,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     )
                 ),
                 '',
-                array('Test Number', 'Test Model', 'Test Id', 'Test Number 2', 'Test Model 2', 'Barcode'),
-                array('price' => 14, 'maxprice' => '', 'instead' => 17, 'main_variation_id' => 'Test Id')
+                array('Test Number', 'Test Model', 'Test', 'Test Number 2', 'Test Model 2', 'Test Id', 'Barcode'),
+                array('price' => 14, 'maxprice' => '', 'instead' => 17, 'main_variation_id' => 'Test')
             ),
         );
     }
