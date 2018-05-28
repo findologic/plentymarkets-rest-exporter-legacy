@@ -333,7 +333,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'isActive' => true,
                         'availability' => 1,
                         'id' => 'Test Id',
-                        'mainVariationId' => 'Test Id',
+                        'mainVariationId' => null,
                         'variationSalesPrices' => array(),
                         'vatId' => 2,
                         'salesRank' => 15,

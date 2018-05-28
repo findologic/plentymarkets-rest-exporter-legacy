@@ -263,13 +263,13 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         return array(
             array(
                 array(
-                    'entries' => array(array('id' => 'Test', 'itemId' => '1', 'mainVariationId' => 'Test', 'isActive' => false, 'availability' => 1, 'variationCategories' => array(array('categoryId' => '1')))),
+                    'entries' => array(array('id' => 'Test', 'isMain' => false, 'itemId' => '1', 'mainVariationId' => 'Test', 'isActive' => false, 'availability' => 1, 'variationCategories' => array(array('categoryId' => '1')))),
                     'isLastPage' => true
                 )
             ),
             array(
                 array(
-                    'entries' => array(array('id' => 'Test', 'itemId' => '1', 'mainVariationId' => 'Test', 'isActive' => true, 'availability' => 1, 'variationCategories' => array(array('categoryId' => '1')))),
+                    'entries' => array(array('id' => 'Test', 'isMain' => false, 'itemId' => '1', 'mainVariationId' => 'Test', 'isActive' => true, 'availability' => 1, 'variationCategories' => array(array('categoryId' => '1')))),
                     'isLastPage' => true
                 )
             )

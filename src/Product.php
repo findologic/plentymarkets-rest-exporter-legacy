@@ -652,12 +652,18 @@ class Product extends ParserAbstract
     {
         $identificators = array('number', 'model', 'id', 'itemId');
 
+        if ($variation['isMain']) {
+            $mainVariationId = $variation['id'];
+        } else {
+            $mainVariationId = $variation['mainVariationId'];
+        }
+
         if (!$this->getField('ordernumber')) {
             $this->setField('ordernumber', array());
         }
 
-        if ($this->getField('main_variation_id') == $this->getDefaultEmptyValue() || $variation['mainVariationId']) {
-            $this->setField('main_variation_id', $variation['mainVariationId']);
+        if ($this->getField('main_variation_id') == $this->getDefaultEmptyValue() || $mainVariationId) {
+            $this->setField('main_variation_id', $mainVariationId);
         }
 
         foreach ($identificators as $identificator) {
