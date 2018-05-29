@@ -51,6 +51,7 @@ class Product extends ParserAbstract
         'sales_frequency' => null,
         'date_added' => '',
         'sort' => '',
+        'main_variation_id' => ''
     );
 
     /**
@@ -619,11 +620,31 @@ class Product extends ParserAbstract
             return false;
         }
 
+        if (isset($variation['availableUntil']) && !$this->isDateStillAvailable($variation['availableUntil'])) {
+            return false;
+        }
+
         if (!$this->isProductAvailable($variation['availability'])) {
             return false;
         }
 
         $this->hasData = true;
+
+        return true;
+    }
+
+    /**
+     * @param string $availableUntil
+     * @return bool
+     */
+    protected function isDateStillAvailable($availableUntil)
+    {
+        $date = strtotime($availableUntil);
+        $currentTime = time();
+
+        if ($date && $date < $currentTime) {
+            return false;
+        }
 
         return true;
     }
@@ -651,8 +672,18 @@ class Product extends ParserAbstract
     {
         $identificators = array('number', 'model', 'id', 'itemId');
 
+        if ($variation['isMain']) {
+            $mainVariationId = $variation['id'];
+        } else {
+            $mainVariationId = $variation['mainVariationId'];
+        }
+
         if (!$this->getField('ordernumber')) {
             $this->setField('ordernumber', array());
+        }
+
+        if ($this->getField('main_variation_id') == $this->getDefaultEmptyValue() || $mainVariationId) {
+            $this->setField('main_variation_id', $mainVariationId);
         }
 
         foreach ($identificators as $identificator) {

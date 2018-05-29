@@ -327,11 +327,13 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 array(
                     array(
                         'position' => '1',
+                        'isMain' => true,
                         'number' => 'Test Number',
                         'model' => 'Test Model',
                         'isActive' => true,
                         'availability' => 1,
                         'id' => 'Test Id',
+                        'mainVariationId' => null,
                         'variationSalesPrices' => array(),
                         'vatId' => 2,
                         'salesRank' => 15,
@@ -358,11 +360,13 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     ),
                     array(
                         'position' => '2',
+                        'isMain' => false,
                         'number' => 'Test Number 2',
                         'model' => 'Test Model 2',
                         'isActive' => false,
                         'availability' => 1,
                         'id' => 'Test Id 2',
+                        'mainVariationId' => 'Test Id',
                         'variationSalesPrices' => array(),
                         'vatId' => 2,
                         'isVisibleIfNetStockIsPositive' => false,
@@ -389,7 +393,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 ),
                 array('Test' => array('Test')),
                 array('Test Number', 'Test Model', 'Test Id'),
-                array('price' => 0.00, 'maxprice' => '', 'instead' => 0.00, 'base_unit' => 'C62', 'taxrate' => '19.00', 'sales_frequency' => 15)
+                array('price' => 0.00, 'maxprice' => '', 'instead' => 0.00, 'base_unit' => 'C62', 'taxrate' => '19.00', 'sales_frequency' => 15, 'main_variation_id' => 'Test Id')
             ),
             // Variation prices includes price with configurated sales price id and configurated rrp price id
             // Variation has duplicate identifier id => 'Test Id' so it should be ignored when adding to 'ordernumber' field
@@ -397,11 +401,14 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 array(
                     array(
                         'position' => '1',
+                        'isMain' => false,
                         'number' => 'Test Number',
                         'model' => 'Test Model',
                         'isActive' => true,
                         'availability' => 1,
+                        'availableUntil' => '2099-01-01T00:00:00+01:00',
                         'id' => 'Test Id',
+                        'mainVariationId' => 'Test Id',
                         'vatId' => 2,
                         'isVisibleIfNetStockIsPositive' => false,
                         'isInvisibleIfNetStockIsNotPositive' => false,
@@ -427,11 +434,14 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     ),
                     array(
                         'position' => '2',
+                        'isMain' => false,
                         'number' => 'Test Number 2',
                         'model' => 'Test Model 2',
                         'isActive' => true,
                         'availability' => 1,
+                        'availableUntil' => null,
                         'id' => 'Test Id',
+                        'mainVariationId' => 'Test',
                         'isVisibleIfNetStockIsPositive' => false,
                         'isInvisibleIfNetStockIsNotPositive' => false,
                         'isAvailableIfNetStockIsPositive' => false,
@@ -465,7 +475,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 ),
                 '',
                 array('Test Number', 'Test Model', 'Test Id', 'Test Number 2', 'Test Model 2', 'Barcode'),
-                array('price' => 14, 'maxprice' => '', 'instead' => 17)
+                array('price' => 14, 'maxprice' => '', 'instead' => 17, 'main_variation_id' => 'Test')
             ),
         );
     }
@@ -533,11 +543,19 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 array()
             ),
             // Variation is not active and config is set to include inactive variations but availability ids config
-            // is set and variation availability id is not in config
+            // is set and variation availability id is the same as config
             array(
                 array(
                     'isActive' => true,
                     'availability' => 2,
+                ),
+                2
+            ),
+            array(
+                array(
+                    'isActive' => true,
+                    'availability' => 1,
+                    'availableUntil' => '2018-01-01T00:00:00+01:00'
                 ),
                 2
             )
@@ -630,8 +648,6 @@ class ProductTest extends PHPUnit_Framework_TestCase
         $productMock->processVariationCategories($data);
         $this->assertSame($expectedResult, $productMock->getField('attributes'));
     }
-
-
 
     public function processVariationGroupsProvider()
     {
