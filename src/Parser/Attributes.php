@@ -73,7 +73,7 @@ class Attributes extends ParserAbstract implements ParserInterface
             $values[$value['id']] = $this->parseValueName($value['valueNames']);
         }
 
-        $this->results[$attributeId]['values'] = $values;
+        $this->results[$attributeId]['values'] += $values;
 
         return $values;
     }
