@@ -2,6 +2,7 @@
 
 namespace Findologic\PlentymarketsTest\Parser;
 
+Use Findologic\Plentymarkets\Parser\Attributes;
 use Findologic\Plentymarkets\Config;
 use PHPUnit_Framework_TestCase;
 
@@ -129,10 +130,17 @@ class AttributesTest extends PHPUnit_Framework_TestCase
             // No data for attribute value provided, results should be empty
             array(
                 array(),
+                array(),
                 array()
             ),
             // Attribute has some values
             array(
+                array(
+                    '3' => array(
+                        'name' => 'Test Attribute',
+                        'values' => array()
+                    )
+                ),
                 array(
                     'entries' => array(
                         $this->getValuesArray(
@@ -161,6 +169,7 @@ class AttributesTest extends PHPUnit_Framework_TestCase
                 ),
                 array(
                     '3' => array(
+                        'name' => 'Test Attribute',
                         'values' => array(
                             '1' => 'Test Value',
                             '2' => 'Test Value'
@@ -174,10 +183,92 @@ class AttributesTest extends PHPUnit_Framework_TestCase
     /**
      * @dataProvider parseValuesProvider
      */
-    public function testParseValues($data, $expectedResult)
+    public function testParseValues($previouslyParsedData, $data, $expectedResult)
     {
         $attributesMock = $this->getAttributesMock();
+        $attributesMock->setResults($previouslyParsedData);
         $attributesMock->parseValues($data);
+        $this->assertSame($expectedResult, $attributesMock->getResults());
+    }
+
+    public function parseValuesWithMultiplePagesProvider()
+    {
+        return array(
+            array(
+                array(
+                    '3' => array(
+                        'name' => 'Test Attribute',
+                        'values' => array()
+                    )
+                ),
+                array(
+                    array(
+                        'entries' => array(
+                            $this->getValuesArray(
+                                '3',
+                                '1',
+                                'Test Value',
+                                array(
+                                    array(
+                                        'lang' => 'en',
+                                        'name' => 'Test Value'
+                                    )
+                                )
+                            ),
+                            $this->getValuesArray(
+                                '3',
+                                '2',
+                                'Test Value',
+                                array(
+                                    array(
+                                        'lang' => 'en',
+                                        'name' => 'Test Value 2'
+                                    )
+                                )
+                            )
+                        )
+                    ),
+                    array(
+                        'entries' => array(
+                            $this->getValuesArray(
+                                '3',
+                                '1',
+                                'Test Value',
+                                array(
+                                    array(
+                                        'lang' => 'en',
+                                        'name' => 'Test Value 3'
+                                    )
+                                )
+                            )
+                        ),
+                    )
+                ),
+                array(
+                    '3' => array(
+                        'name' => 'Test Attribute',
+                        'values' => array(
+                            '1' => 'Test Value',
+                            '2' => 'Test Value 2'
+                        )
+                    )
+                )
+            )
+        );
+    }
+
+    /**
+     * @dataProvider parseValuesWithMultiplePagesProvider
+     */
+    public function testParseValuesWithMultiplePages($previouslyParsedData, $paginatedData, $expectedResult)
+    {
+        $attributesMock = $this->getAttributesMock();
+        $attributesMock->setResults($previouslyParsedData);
+
+        foreach ($paginatedData as $data) {
+            $attributesMock->parseValues($data);
+        }
+
         $this->assertSame($expectedResult, $attributesMock->getResults());
     }
 
@@ -365,7 +456,7 @@ class AttributesTest extends PHPUnit_Framework_TestCase
      * Helper function to construct attributes mock
      *
      * @param array $methods
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return Attributes|\PHPUnit_Framework_MockObject_MockObject
      */
     protected function getAttributesMock($methods = array())
     {

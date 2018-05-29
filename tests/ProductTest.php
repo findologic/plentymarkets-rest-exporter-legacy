@@ -327,11 +327,13 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 array(
                     array(
                         'position' => '1',
+                        'isMain' => true,
                         'number' => 'Test Number',
                         'model' => 'Test Model',
                         'isActive' => true,
                         'availability' => 1,
                         'id' => 'Test Id',
+                        'mainVariationId' => null,
                         'variationSalesPrices' => array(),
                         'vatId' => 2,
                         'salesRank' => 15,
@@ -358,11 +360,13 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     ),
                     array(
                         'position' => '2',
+                        'isMain' => false,
                         'number' => 'Test Number 2',
                         'model' => 'Test Model 2',
                         'isActive' => false,
                         'availability' => 1,
                         'id' => 'Test Id 2',
+                        'mainVariationId' => 'Test Id',
                         'variationSalesPrices' => array(),
                         'vatId' => 2,
                         'isVisibleIfNetStockIsPositive' => false,
@@ -389,7 +393,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 ),
                 array('Test' => array('Test')),
                 array('Test Number', 'Test Model', 'Test Id'),
-                array('price' => 0.00, 'maxprice' => '', 'instead' => 0.00, 'base_unit' => 'C62', 'taxrate' => '19.00', 'sales_frequency' => 15)
+                array('price' => 0.00, 'maxprice' => '', 'instead' => 0.00, 'base_unit' => 'C62', 'taxrate' => '19.00', 'sales_frequency' => 15, 'main_variation_id' => 'Test Id')
             ),
             // Variation prices includes price with configurated sales price id and configurated rrp price id
             // Variation has duplicate identifier id => 'Test Id' so it should be ignored when adding to 'ordernumber' field
@@ -397,12 +401,14 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 array(
                     array(
                         'position' => '1',
+                        'isMain' => false,
                         'number' => 'Test Number',
                         'model' => 'Test Model',
                         'isActive' => true,
                         'availability' => 1,
                         'availableUntil' => '2099-01-01T00:00:00+01:00',
                         'id' => 'Test Id',
+                        'mainVariationId' => 'Test Id',
                         'vatId' => 2,
                         'isVisibleIfNetStockIsPositive' => false,
                         'isInvisibleIfNetStockIsNotPositive' => false,
@@ -428,12 +434,14 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     ),
                     array(
                         'position' => '2',
+                        'isMain' => false,
                         'number' => 'Test Number 2',
                         'model' => 'Test Model 2',
                         'isActive' => true,
                         'availability' => 1,
                         'availableUntil' => null,
                         'id' => 'Test Id',
+                        'mainVariationId' => 'Test',
                         'isVisibleIfNetStockIsPositive' => false,
                         'isInvisibleIfNetStockIsNotPositive' => false,
                         'isAvailableIfNetStockIsPositive' => false,
@@ -467,7 +475,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 ),
                 '',
                 array('Test Number', 'Test Model', 'Test Id', 'Test Number 2', 'Test Model 2', 'Barcode'),
-                array('price' => 14, 'maxprice' => '', 'instead' => 17)
+                array('price' => 14, 'maxprice' => '', 'instead' => 17, 'main_variation_id' => 'Test')
             ),
         );
     }
@@ -760,7 +768,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'property' => array(
                             'id' => '1',
                             'backendName' => 'Test Property',
-                            'valueType' => 'text'
+                            'valueType' => 'text',
+                            'propertyGroupId' => null
                         ),
                         'valueTexts' => array(
                             array('value' => 'Test Value', 'lang' => 'lt')
@@ -770,7 +779,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'property' => array(
                             'id' => '1',
                             'backendName' => 'Test Property Select',
-                            'valueType' => 'selection'
+                            'valueType' => 'selection',
+                            'propertyGroupId' => null
                         ),
                         'valueTexts' => array(),
                         'propertySelection' => array(
@@ -779,6 +789,36 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     ),
                 ),
                 ''
+            ),
+            // Variation has 'text' and 'selection' type properties but the language of those properties is not the same
+            // as in export config, should use property names as values instead
+            array(
+                array(
+                    array(
+                        'property' => array(
+                            'id' => '1',
+                            'backendName' => 'Test Property',
+                            'valueType' => 'text',
+                            'propertyGroupId' => 2
+                        ),
+                        'valueTexts' => array(
+                            array('value' => 'Test Value', 'lang' => 'lt')
+                        )
+                    ),
+                    array(
+                        'property' => array(
+                            'id' => '1',
+                            'backendName' => 'Test Property Select',
+                            'valueType' => 'selection',
+                            'propertyGroupId' => 2
+                        ),
+                        'valueTexts' => array(),
+                        'propertySelection' => array(
+                            array('name' => 'Select Value', 'lang' => 'lt')
+                        )
+                    ),
+                ),
+                array('Test' => array('Test Property', 'Test Property Select'))
             ),
             // Variation has 'text' and 'float' type properties
             array(
@@ -806,24 +846,13 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     array(
                         'property' => array(
                             'id' => '1',
-                            'backendName' => 'Test Property 2',
-                            'valueType' => 'text',
-                            'propertyGroupId' => 2
-                        ),
-                        'names' => array(
-                            array('value' => 'Test Value 2', 'lang' => 'en')
-                        )
-                    ),
-                    array(
-                        'property' => array(
-                            'id' => '1',
                             'backendName' => 'Test Float',
                             'valueType' => 'float'
                         ),
                         'valueFloat' => 3.25
                     )
                 ),
-                array('Test Property' => array('Test Value'), 'Test Property Name' => array('Test Value 2'), 'Test' =>  array('Test Value 2'), 'Test Float' => array(3.25))
+                array('Test Property' => array('Test Value'), 'Test Property Name' => array('Test Value 2'), 'Test Float' => array(3.25))
             ),
             // Variation has 'selection' and 'int' type properties
             array(
@@ -832,7 +861,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'property' => array(
                             'id' => '1',
                             'backendName' => 'Test Property Select',
-                            'valueType' => 'selection'
+                            'valueType' => 'selection',
+                            'propertyGroupId' => null
                         ),
                         'valueTexts' => array(),
                         'propertySelection' => array(
@@ -843,7 +873,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'property' => array(
                             'id' => '1',
                             'backendName' => 'Test Int',
-                            'valueType' => 'int'
+                            'valueType' => 'int',
+                            'propertyGroupId' => null
                         ),
                         'valueInt' => 3
                     ),
@@ -851,7 +882,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'property' => array(
                             'id' => '1',
                             'backendName' => 'Test Default',
-                            'valueType' => 'Test'
+                            'valueType' => 'Test',
+                            'propertyGroupId' => null
                         )
                     ),
                     array(
@@ -941,7 +973,9 @@ class ProductTest extends PHPUnit_Framework_TestCase
             ->setMethods(array('getPropertyGroupName'))
             ->getMock();
 
-        $propertyGroupsMock->expects($this->any())->method('getPropertyGroupName')->willReturn('Test');
+        $propertyGroupsMock->expects($this->any())->method('getPropertyGroupName')->will($this->returnCallback(function ($gid) {
+            return is_null($gid) ? '' : 'Test';
+        }));
 
         $propertiesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Properties')
             ->disableOriginalConstructor()
