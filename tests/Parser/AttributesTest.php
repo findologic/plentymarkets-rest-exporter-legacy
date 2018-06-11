@@ -33,6 +33,12 @@ class AttributesTest extends PHPUnit_Framework_TestCase
                 0,
                 array()
             ),
+            // Empty attributes entries array provided so results should be empty
+            array(
+               array('entries' => array()),
+               0,
+               array()
+            ),
             // Parsing was successful
             array(
                 array(
@@ -131,6 +137,12 @@ class AttributesTest extends PHPUnit_Framework_TestCase
             array(
                 array(),
                 array(),
+                array()
+            ),
+            // No data for attribute value provided, results should be empty
+            array(
+                array(),
+                array('entries' => array()),
                 array()
             ),
             // Attribute has some values
