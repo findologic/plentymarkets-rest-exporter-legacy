@@ -1,6 +1,6 @@
+phpunit
 Export.csv
 Config.php
-phpunit
 vendor/
 composer.phar
 build/

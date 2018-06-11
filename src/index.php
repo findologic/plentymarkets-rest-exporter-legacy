@@ -20,12 +20,12 @@ if (Config::DEBUG) {
 
 $config = new PlentyConfig();
 
-$config->setUsername('username')
-    ->setPassword('password')
-    ->setDomain('www.store.com')
+$config->setUsername('py30228')
+    ->setPassword('6d1ff92a')
+    ->setDomain('findologic-adeo.plentymarkets-cloud02.com')
     ->setPriceId(1)
     ->setRrpId(2) // price id for 'instead' field
-    ->setCountry('GB') // Country code for tax rates
+    ->setCountry('EN') // Country code for tax rates
     ->setLanguage('EN'); // Language code for texts
 
 $registry = new \Findologic\Plentymarkets\Registry($log, $customerLogger);

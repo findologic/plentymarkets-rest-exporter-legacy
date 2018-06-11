@@ -2,39 +2,67 @@
 
 namespace Findologic\PlentymarketsTest\Parser;
 
+use Findologic\Plentymarkets\Parser\Properties;
+
 class PropertiesTest extends \PHPUnit_Framework_TestCase
 {
+    protected $defaultEmptyValue = '';
+
     public function providerParse()
     {
         return array(
-            array(
+            'No item properties' => array(
                 array(
                     'entries' => array(
-                        array('id' => '32', 'backendName' => 'Test', 'propertyGroupId' => '12'),
+                        array('id' => '1', 'typeIdentifier' => 'test', 'propertyGroupId' => '11', 'names' => array(), 'propertyGroups' => array())
                     )
                 ),
-                array(
-                    '32' => array('backendName' => 'Test', 'propertyGroupId' => '12')
-                )
+                array()
             ),
-            array(
+            'Properties with translations' => array(
                 array(
                     'entries' => array(
-                        array('id' => '30', 'backendName' => 'Test', 'propertyGroupId' => '12'),
-                        array('id' => '32', 'backendName' => 'Test 2', 'propertyGroupId' => '11', 'names' => array(
+                        array('id' => '1', 'typeIdentifier' => 'item', 'propertyGroupId' => '11', 'names' => array(
                             array(
                                 'lang' => 'EN',
-                                'name' => 'Test 2 EN',
-                                'description' => 'Test 2 Description'
-                            )
-                        ))
+                                'name' => 'Test EN',
+                            ),
+                        ),
+                            'propertyGroups' => array()
+                        )
                     )
                 ),
                 array(
-                    '30' => array('backendName' => 'Test', 'propertyGroupId' => '12'),
-                    '32' => array('backendName' => 'Test 2', 'propertyGroupId' => '11', 'names' => array(
-                        'EN' => array('name' => 'Test 2 EN', 'description' => 'Test 2 Description')
-                    ))
+                    '1' => array('propertyGroupId' => '11', 'propertyGroups' => array(), 'names' => array('EN' => 'Test EN'))
+                )
+            ),
+            'Properties with groups' => array(
+                array(
+                    'entries' => array(
+                        array('id' => '1', 'propertyGroupId' => '11', 'names' => array(
+                                array(
+                                    'lang' => 'EN',
+                                    'name' => 'Test EN',
+                                ),
+                            ),
+                            'propertyGroups' => array(),
+                            'groups' => array(
+                                array(
+                                    'id' => '1',
+                                    'names' => array(
+                                        array('lang' => 'en', 'name' => 'Test Group EN')
+                                    )
+                                )
+                            )
+                        )
+                    )
+                ),
+                array(
+                    '1' => array(
+                        'propertyGroupId' => '11',
+                        'propertyGroups' => array('1' => array('EN' => 'Test Group EN')),
+                        'names' => array('EN' => 'Test EN')
+                    )
                 )
             )
         );
@@ -68,30 +96,13 @@ class PropertiesTest extends \PHPUnit_Framework_TestCase
             array(
                 array(
                     '1' => array(
-                        'backendName' => 'Test 2',
                         'propertyGroupId' => '11',
-                        'names' => array(
-                            'EN' => array('name' => 'Test 2 EN', 'description' => 'Test 2 Description')
-                        )
+                        'names' => array('EN' => 'Test 2 EN')
                     )
                 ),
                 '1',
                 'EN',
                 'Test 2 EN'
-            ),
-            array(
-                array(
-                    '1' => array(
-                        'backendName' => 'Test 2',
-                        'propertyGroupId' => '11',
-                        'names' => array(
-                            'EN' => array('name' => 'Test 2 EN', 'description' => 'Test 2 Description')
-                        )
-                    )
-                ),
-                '1',
-                'LT',
-                'Test 2'
             )
         );
     }
@@ -110,5 +121,51 @@ class PropertiesTest extends \PHPUnit_Framework_TestCase
         $propertiesMock->setResults($results);
 
         $this->assertEquals($expectedResults, $propertiesMock->getPropertyName($propertyId));
+    }
+
+    public function providerGetPropertyGroupName()
+    {
+        return array(
+            'No property' => array(
+                array(),
+                1,
+                null,
+                $this->defaultEmptyValue
+            ),
+            'Property group id provided' => array(
+                array(
+                    '1' => array('propertyGroupId' => '11', 'propertyGroups' => array('1' => array('EN' => 'Test EN'))),
+                ),
+                '1',
+                '1',
+                'Test EN'
+            ),
+            'Property group id is not provided' => array(
+                array(
+                    '1' => array('propertyGroupId' => '11', 'propertyGroups' => array('1' => array('DE' => 'Test DE', 'EN' => 'Test EN'), '2' => array('EN' => 'Test 2 EN'))),
+                ),
+                '1',
+                null,
+                'Test EN'
+            )
+        );
+    }
+
+    /**
+     * @dataProvider providerGetPropertyGroupName
+     */
+    public function testGetPropertyGroupName($previousParsedData, $propertyId, $groupId, $expectedResult)
+    {
+        /** @var Properties|\PHPUnit_Framework_MockObject_MockObject $propertiesMock */
+        $propertiesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Properties')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getDefaultEmptyValue', 'getLanguageCode'))
+            ->getMock();
+
+        $propertiesMock->expects($this->any())->method('getDefaultEmptyValue')->willReturn($this->defaultEmptyValue);
+        $propertiesMock->expects($this->any())->method('getLanguageCode')->willReturn('en');
+        $propertiesMock->setResults($previousParsedData);
+
+        $this->assertEquals($expectedResult, $propertiesMock->getPropertyGroupName($propertyId, $groupId));
     }
 }

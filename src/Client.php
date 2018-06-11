@@ -404,6 +404,17 @@ class Client
      */
     public function getProperties()
     {
+        $response = $this->call('GET', $this->getEndpoint('properties'));
+
+        return $this->returnResult($response);
+    }
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
+     * @return array
+     */
+    public function getItemProperties()
+    {
         $response = $this->call('GET', $this->getEndpoint('items/properties', array('with' => 'names')));
 
         return $this->returnResult($response);
@@ -500,6 +511,7 @@ class Client
                     'variationAttributeValues',
                     'variationClients',
                     'variationProperties',
+                    'properties',
                     'itemImages',
                     'unit',
                     'stock'

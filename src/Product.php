@@ -4,6 +4,7 @@ namespace Findologic\Plentymarkets;
 
 use Findologic\Plentymarkets\Parser\ParserAbstract;
 use Findologic\Plentymarkets\Parser\Units;
+use Findologic\Plentymarkets\Parser\ItemProperties;
 use Findologic\Plentymarkets\Parser\Properties;
 
 class Product extends ParserAbstract
@@ -486,6 +487,51 @@ class Product extends ParserAbstract
     }
 
     /**
+     * @param array $data
+     * @return $this
+     */
+    public function processVariationSpecificProperties($data)
+    {
+        if (!is_array($data) || empty($data)) {
+            $this->handleEmptyData();
+            return $this;
+        }
+
+        /** @var Properties $properties */
+        $properties = $this->registry->get('Properties');
+
+        foreach ($data as $property) {
+            if ($property['relationTypeIdentifier'] != ItemProperties::PROPERTY_TYPE_ITEM) {
+                continue;
+            }
+
+            $propertyName = $properties->getPropertyName($property['propertyId']);
+            $value = null;
+
+            if ($property['propertyRelation']['cast'] == 'empty') {
+                $value = $propertyName;
+                $propertyName = $properties->getPropertyGroupName($property['propertyId']);
+            } else if ($property['propertyRelation']['cast'] == 'shortText' || $property['propertyRelation']['cast'] == 'longText') {
+                foreach ($property['relationValues'] as $relationValue) {
+                    if (strtoupper($relationValue['lang']) != strtoupper($this->getLanguageCode())) {
+                        continue;
+                    }
+
+                    $value = $relationValue['value'];
+                }
+            } else {
+                $value = $property['relationValues'][0]['value'];
+            }
+
+            if ($propertyName != null && $value != null && $value != $this->getDefaultEmptyValue()) {
+                $this->setAttributeField($propertyName, $value);
+            }
+        }
+
+        return $this;
+    }
+
+    /**
      * Get the image for item
      *
      * @param array $data
@@ -534,14 +580,13 @@ class Product extends ParserAbstract
     {
         $name = $property['property']['backendName'];
 
-        /** @var Properties $properties */
-        $properties = $this->registry->get('Properties');
+        /** @var ItemProperties $properties */
+        $properties = $this->registry->get('ItemProperties');
         $propertyName = $properties->getPropertyName($property['property']['id']);
 
         if ($propertyName && $propertyName != $this->getDefaultEmptyValue()) {
             $name = $propertyName;
         }
-
         return $name;
     }
 
@@ -559,7 +604,7 @@ class Product extends ParserAbstract
         switch ($propertyType) {
             case 'empty':
                 $value = $property['property']['backendName'];
-                if ($propertyName = $this->registry->get('Properties')->getPropertyName($property['property']['id'])) {
+                if ($propertyName = $this->registry->get('ItemProperties')->getPropertyName($property['property']['id'])) {
                     $value = $propertyName;
                 }
                 break;

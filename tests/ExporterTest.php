@@ -72,7 +72,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
 
         $exporterMock->init();
 
-        $items = array('Vat', 'Categories', 'SalesPrices', 'Attributes', 'Stores', 'Manufacturers', 'Properties', 'Units');
+        $items = array('Vat', 'Categories', 'SalesPrices', 'Attributes', 'Stores', 'Manufacturers', 'ItemProperties', 'Units');
 
         foreach ($items as $item) {
             $this->assertInstanceOf('\Findologic\Plentymarkets\Parser\\' . $item, $exporterMock->getRegistry()->get($item));
@@ -214,8 +214,8 @@ class ExporterTest extends PHPUnit_Framework_TestCase
             ->willReturn(
                 array(
                     'entries' => array(
-                        array('id' => 'Test', 'itemId' => '1', 'isActive' => true, 'availability' => 1, 'variationCategories' => array(array('categoryId' => '1')), 'itemImages' => array(), 'variationProperties' => array()),
-                        array('id' => 'Test', 'itemId' => '1', 'isActive' => true, 'availability' => 1, 'variationCategories' => array(array('categoryId' => '1')), 'itemImages' => array(), 'variationProperties' => array())
+                        array('id' => 'Test', 'itemId' => '1', 'isActive' => true, 'availability' => 1, 'variationCategories' => array(array('categoryId' => '1')), 'itemImages' => array(), 'variationProperties' => array(), 'properties' => array()),
+                        array('id' => 'Test', 'itemId' => '1', 'isActive' => true, 'availability' => 1, 'variationCategories' => array(array('categoryId' => '1')), 'itemImages' => array(), 'variationProperties' => array(), 'properties' => array())
                     ),
                     'isLastPage' => true
                 )
@@ -244,7 +244,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
 
         $productMock = $this->getMockBuilder('\Findologic\Plentymarkets\Product')
             ->setConstructorArgs(array('registry' => $registryMock))
-            ->setMethods(array('processImages', 'getItemId', 'processVariationAttributes', 'hasValidData', 'processVariation'))
+            ->setMethods(array('processImages', 'getItemId', 'processVariationAttributes', 'processVariationSpecificProperties', 'hasValidData', 'processVariation'))
             ->getMock();
 
         $productMock->expects($this->exactly(2))->method('processVariation')->willReturn(true);

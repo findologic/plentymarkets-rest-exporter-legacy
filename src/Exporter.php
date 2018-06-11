@@ -45,7 +45,7 @@ class Exporter
      *
      * @var array
      */
-    protected $additionalDataParsers = array('Vat', 'Categories', 'SalesPrices', 'Attributes', 'Manufacturers', 'Stores', 'PropertyGroups', 'Properties', 'Units');
+    protected $additionalDataParsers = array('Vat', 'Categories', 'SalesPrices', 'Attributes', 'Manufacturers', 'Stores', 'PropertyGroups', 'Properties', 'ItemProperties', 'Units');
 
     /**
      * Count of products skipped during the export
@@ -370,6 +370,10 @@ class Exporter
 
                 if (isset($variation['variationProperties'])) {
                     $product->processVariationsProperties($variation['variationProperties']);
+                }
+
+                if (isset($variation['properties'])) {
+                    $product->processVariationSpecificProperties($variation['properties']);
                 }
 
                 unset($variation);
