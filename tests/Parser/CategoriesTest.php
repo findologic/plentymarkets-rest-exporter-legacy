@@ -43,7 +43,7 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
                     'entries' => array(
                         array(
                             'details' => array(
-                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'lt', 'nameUrl' => 'test', 'previewUrl' => 'http://example.com/test/')
+                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'lt', 'plentyId' => '1', 'nameUrl' => 'test', 'previewUrl' => 'http://example.com/test/')
                             )
                         )
                     )
@@ -56,9 +56,10 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
                     'entries' => array(
                         array(
                             'details' => array(
-                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'en', 'nameUrl' => 'test', 'previewUrl' => 'http://example.com/test/')
+                                array('categoryId' => 1, 'name' => 'Test 2', 'lang' => 'en', 'plentyId' => '2', 'nameUrl' => 'test-2', 'previewUrl' => 'http://example.com/test-2/'),
+                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'en', 'plentyId' => '1', 'nameUrl' => 'test', 'previewUrl' => 'http://example.com/test/')
                             )
-                        )
+                        ),
                     )
                 ),
                 array(1 => array('name' => 'Test', 'urlKey' => 'test', 'fullPath' => '/test/'))
@@ -71,9 +72,10 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
      */
     public function testParse($data, $expectedResult)
     {
-        $categoriesMock = $this->getCategoriesMock(array('getLanguageCode'));
+        $categoriesMock = $this->getCategoriesMock(array('getLanguageCode', 'getStorePlentyId'));
 
         $categoriesMock->expects($this->any())->method('getLanguageCode')->willReturn('EN');
+        $categoriesMock->expects($this->any())->method('getStorePlentyId')->willReturn('1');
 
         $categoriesMock->parse($data);
         $this->assertSame($expectedResult, $categoriesMock->getResults());
