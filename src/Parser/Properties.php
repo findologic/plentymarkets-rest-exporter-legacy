@@ -47,6 +47,22 @@ class Properties extends ParserAbstract implements ParserInterface
                     $this->results[$property['id']]['propertyGroups'][$propertyGroup['id']] = $names;
                 }
             }
+
+            if ($property['cast'] == 'selection' && !empty($property['selections'])) {
+                $this->results[$property['id']]['selections'] = [];
+
+                foreach ($property['selections'] as $selection) {
+                    $this->results[$property['id']]['selections'][$selection['id']] = [];
+
+                    if (!isset($selection['relation']['relationValues'])) {
+                        continue;
+                    }
+
+                    foreach ($selection['relation']['relationValues'] as $value){
+                        $this->results[$property['id']]['selections'][$selection['id']][strtoupper($value['lang'])] = $value['value'];
+                    }
+                }
+            }
         }
 
         return $this->results;
@@ -86,6 +102,20 @@ class Properties extends ParserAbstract implements ParserInterface
             }
         } else if (isset($this->results[$propertyId]['propertyGroups'][$groupId][strtoupper($this->getLanguageCode())])) {
             return $this->results[$propertyId]['propertyGroups'][$groupId][strtoupper($this->getLanguageCode())];
+        }
+
+        return $this->getDefaultEmptyValue();
+    }
+
+    /**
+     * @param int $propertyId
+     * @param int $selectionId
+     * @return string
+     */
+    public function getPropertySelectionValue($propertyId, $selectionId)
+    {
+        if (isset($this->results[$propertyId]['selections'][$selectionId][strtoupper($this->getLanguageCode())])) {
+            return $this->results[$propertyId]['selections'][$selectionId][strtoupper($this->getLanguageCode())];
         }
 
         return $this->getDefaultEmptyValue();

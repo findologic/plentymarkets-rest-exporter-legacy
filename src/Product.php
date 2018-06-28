@@ -519,6 +519,8 @@ class Product extends ParserAbstract
 
                     $value = $relationValue['value'];
                 }
+            } else if ($property['propertyRelation']['cast'] == 'selection') {
+                $value = $properties->getPropertySelectionValue($property['propertyId'], $property['relationValues'][0]['value']);
             } else {
                 $value = $property['relationValues'][0]['value'];
             }

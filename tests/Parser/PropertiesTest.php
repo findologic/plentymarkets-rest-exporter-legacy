@@ -22,7 +22,7 @@ class PropertiesTest extends \PHPUnit_Framework_TestCase
             'Properties with translations' => array(
                 array(
                     'entries' => array(
-                        array('id' => '1', 'typeIdentifier' => 'item', 'propertyGroupId' => '11', 'names' => array(
+                        array('id' => '1', 'typeIdentifier' => 'item', 'propertyGroupId' => '11', 'cast' => 'shortText', 'names' => array(
                             array(
                                 'lang' => 'EN',
                                 'name' => 'Test EN',
@@ -39,7 +39,7 @@ class PropertiesTest extends \PHPUnit_Framework_TestCase
             'Properties with groups' => array(
                 array(
                     'entries' => array(
-                        array('id' => '1', 'propertyGroupId' => '11', 'names' => array(
+                        array('id' => '1', 'propertyGroupId' => '11', 'cast' => 'shortText', 'names' => array(
                                 array(
                                     'lang' => 'EN',
                                     'name' => 'Test EN',
