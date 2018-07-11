@@ -319,8 +319,7 @@ class Product extends ParserAbstract
         $this->itemId = $this->getFromArray($data, 'id');
 
         $this->setField('id', $this->getItemId())
-            ->setField('date_added', strtotime($this->getFromArray($data, 'createdAt')))
-            ->setField('sort', $this->getFromArray($data, 'position'));
+            ->setField('date_added', strtotime($this->getFromArray($data, 'createdAt')));
 
         $this->processManufacturer($this->getFromArray($data, 'manufacturerId'));
         $this->processTexts($data);
@@ -356,6 +355,10 @@ class Product extends ParserAbstract
     {
         if (!$this->shouldProcessVariation($variation)) {
             return false;
+        }
+
+        if ($variation['isMain'] || $this->getField('sort') === '') {
+            $this->setField('sort', $this->getFromArray($variation, 'position'));
         }
 
         $this->setField(
