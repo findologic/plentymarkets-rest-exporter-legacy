@@ -478,7 +478,7 @@ class Product extends ParserAbstract
                 $propertyName = $this->getPropertyName($property);
             }
 
-            if ($propertyName != null && $value != null && $value != $this->getDefaultEmptyValue()) {
+            if ($propertyName != null && $value != "null" && $value != null && $value != $this->getDefaultEmptyValue()) {
                 $this->setAttributeField($propertyName, $value);
             }
         }
@@ -525,7 +525,7 @@ class Product extends ParserAbstract
                 $value = $property['relationValues'][0]['value'];
             }
 
-            if ($propertyName != null && $value != null && $value != $this->getDefaultEmptyValue()) {
+            if ($propertyName != null && $value != "null" && $value != null && $value != $this->getDefaultEmptyValue()) {
                 $this->setAttributeField($propertyName, $value);
             }
         }

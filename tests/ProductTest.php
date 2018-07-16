@@ -760,6 +760,23 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 ),
                 ''
             ),
+            // Variation has 'text' type property but value is "null", results should be empty
+            array(
+                array(
+                    array(
+                        'property' => array(
+                            'id' => '1',
+                            'backendName' => 'Test Property',
+                            'valueType' => 'text',
+                            'propertyGroupId' => null
+                        ),
+                        'valueTexts' => array(
+                            array('value' => 'null', 'lang' => 'lt')
+                        )
+                    )
+                ),
+                ''
+            ),
             // Variation has 'text' and 'selection' type properties but the language of those properties is not the same
             // as in export config, results should be empty
             array(
@@ -1100,7 +1117,37 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     )
                 ),
                 array('Test Property' => array(12)),
-            )
+            ),
+            'Selection type property' => array(
+                array(
+                    '1' => array(
+                        'names' => array(
+                            'EN' => 'Test Property'
+                        ),
+                        'selections' => array(
+                            '1' => array(
+                                'EN' => 'Selecttion Value'
+                            )
+                        )
+                    )
+                ),
+                array(
+                    array(
+                        'property' => array(
+                            'id' => '1',
+                        ),
+                        'propertyId' => '1',
+                        'relationTypeIdentifier' => 'item',
+                        'propertyRelation' => array(
+                            'cast' => 'selection'
+                        ),
+                        'relationValues' => array(
+                            array('value' => 1)
+                        )
+                    )
+                ),
+                array('Test Property' => array('Selecttion Value')),
+            ),
         );
     }
 
