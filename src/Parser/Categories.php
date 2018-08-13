@@ -18,15 +18,16 @@ class Categories extends ParserAbstract implements ParserInterface
 
         foreach ($data['entries'] as $category) {
             foreach ($category['details'] as $details) {
-                if (strtoupper($details['lang']) != $this->getLanguageCode() || $details['plentyId'] != $this->getStorePlentyId()) {
-                    continue;
+                if (
+                    strtoupper($details['lang']) == $this->getLanguageCode() &&
+                    (!isset($this->results[$details['categoryId']]) || $details['plentyId'] == $this->getStorePlentyId())
+                ) {
+                    $this->results[$details['categoryId']] = array(
+                        'name' => $details['name'],
+                        'urlKey' => $details['nameUrl'],
+                        'fullPath' => parse_url($details['previewUrl'], PHP_URL_PATH)
+                    );
                 }
-
-                $this->results[$details['categoryId']] = array(
-                    'name' => $details['name'],
-                    'urlKey' => $details['nameUrl'],
-                    'fullPath' => parse_url($details['previewUrl'], PHP_URL_PATH)
-                );
             }
         }
 
