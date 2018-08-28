@@ -434,7 +434,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     ),
                     array(
                         'position' => '2',
-                        'isMain' => false,
+                        'isMain' => true,
                         'number' => 'Test Number 2',
                         'model' => 'Test Model 2',
                         'isActive' => true,
@@ -475,7 +475,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 ),
                 '',
                 array('Test Number', 'Test Model', 'Test Id', 'Test Number 2', 'Test Model 2', 'Barcode'),
-                array('price' => 14, 'maxprice' => '', 'instead' => 17, 'main_variation_id' => 'Test')
+                array('price' => 14, 'maxprice' => '', 'instead' => 17, 'main_variation_id' => 'Test Id', 'sort' => '2')
             ),
         );
     }
