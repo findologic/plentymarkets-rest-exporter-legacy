@@ -143,7 +143,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     /**
      * If API returns no result an exception should be thrown
      *
-     * @expectedException ThrottlingException
+     * @expectedException \Findologic\Plentymarkets\Exception\ThrottlingException
      */
     public function testGetProductsThrottlingException()
     {
