@@ -270,12 +270,11 @@ class Exporter
 
                 $page++;
             }
-        } catch (\Exception $e) {
-            if ($e instanceof ThrottlingException) {
-                $this->log->fatal('Stopping products processing because of throttling exception.');
-            } else {
-                throw $e;
-            }
+        } catch (ThrottlingException $e) {
+            $this->log->fatal('Stopping products processing because of throttling exception.');
+
+            // Re-throw the exception to ensure that the export fails.
+            throw $e;
         }
 
         $this->getCustomerLog()->info(sprintf(
