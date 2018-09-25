@@ -380,6 +380,58 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $this->assertEquals($expectedResult, $exporterMock->getStandardVatCountry());
     }
 
+    public function getStoreConfigValueProvider()
+    {
+        return array(
+            'No store id provided' => array(
+                array(),
+                false,
+                'displayItemName',
+                null
+            ),
+            'No store configuration available' => array(
+                false,
+                '11',
+                'displayItemName',
+                null
+            ),
+            'Get configuration value' => array(
+                array(
+                    array(
+                        'storeIdentifier' => '11',
+                        'configuration' => array(
+                            'displayItemName' => '2'
+                        )
+                    )
+                ),
+                '11',
+                'displayItemName',
+                '2'
+            )
+        );
+    }
+
+    /**
+     * @dataProvider getStoreConfigValueProvider
+     */
+    public function testGetStoreConfigValue($storesConfiguration, $storeId, $configField, $expectedValue)
+    {
+        $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getWebstores'))
+            ->getMock();
+
+        $clientMock->expects($this->any())
+            ->method('getWebstores')
+            ->willReturn($storesConfiguration);
+
+        $exporterMock = $this->getExporterMockBuilder(array('client' => $clientMock))
+            ->setMethods(null)
+            ->getMock();
+
+        $this->assertEquals($expectedValue, $exporterMock->getStoreConfigValue($storeId, $configField));
+    }
+
     /* ------ helper functions ------ */
 
     /**
@@ -414,7 +466,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     /**
      * Helper function to get exporter mock
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return \Findologic\Plentymarkets\Exporter|\PHPUnit_Framework_MockObject_MockObject
      */
     protected function getExporterMock()
     {

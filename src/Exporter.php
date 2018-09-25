@@ -83,6 +83,11 @@ class Exporter
     protected $exportSalesFrequency = false;
 
     /**
+     * @var bool|array
+     */
+    protected $storesConfiguration = false;
+
+    /**
      * @var \PlentyConfig
      */
     protected $config;
@@ -111,6 +116,7 @@ class Exporter
      */
     public function init()
     {
+        $this->getStoresConfiguration();
         $this->getCustomerLog()->info('Starting to initialise necessary data (categories, attributes, etc.).');
         $this->getClient()->login();
         $this->initAdditionalData();
@@ -305,6 +311,7 @@ class Exporter
             ->setPriceId($this->getConfig()->getPriceId())
             ->setRrpPriceId($this->getConfig()->getRrpId())
             ->setExportSalesFrequency($this->exportSalesFrequency)
+            ->setProductNameFieldId($this->getStoreConfigValue($this->getConfig()->getMultishopId(), 'displayItemName'))
             ->processInitialData($productData);
 
         return $product;
@@ -403,7 +410,7 @@ class Exporter
         }
 
         if (!$this->standardVat) {
-            $stores = $this->getClient()->getWebstores();
+            $stores = $this->getStoresConfiguration();
             foreach ($stores as $store) {
                 if ($store['id'] == $this->getConfig()->getMultishopId()) {
                     $this->setStorePlentyId($store['storeIdentifier']);
@@ -418,6 +425,48 @@ class Exporter
         }
 
         return $this->standardVat;
+    }
+
+    /**
+     * @return array|bool
+     */
+    public function getStoresConfiguration()
+    {
+        if (!$this->storesConfiguration) {
+            $this->storesConfiguration = $this->getClient()->getWebstores();
+        }
+
+        return $this->storesConfiguration;
+    }
+
+    /**
+     * @param $storeId
+     * @param $configKey
+     * @return null|mixed
+     */
+    public function getStoreConfigValue($storeId, $configKey)
+    {
+        if (!$storeId) {
+            return null;
+        }
+
+        $storesConfiguration = $this->getStoresConfiguration();
+
+        if (!is_array($storesConfiguration)) {
+            return null;
+        }
+
+        foreach ($storesConfiguration as $storeConfiguration) {
+            if ($storeConfiguration['storeIdentifier'] !== $storeId) {
+                continue;
+            }
+
+            if (isset($storeConfiguration['configuration'][$configKey])) {
+                return $storeConfiguration['configuration'][$configKey];
+            }
+        }
+
+        return null;
     }
 
     /**
