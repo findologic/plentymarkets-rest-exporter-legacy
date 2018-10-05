@@ -205,10 +205,10 @@ class ProductTest extends PHPUnit_Framework_TestCase
             array('', '1', array(), array()),
             // Product initial data provided but the texts array is empty
             array(
-                '1',
+                1,
                 '1',
                 array(
-                    'id' => '1',
+                    'id' => 1,
                     'createdAt' => '2001-12-12 14:12:45'
                 ),
                 array()
@@ -216,10 +216,10 @@ class ProductTest extends PHPUnit_Framework_TestCase
             // Product initial data provided but the texts data is not in language configured in export config,
             // texts should be null
             array(
-                '1',
+                1,
                 '1',
                 array(
-                    'id' => '1',
+                    'id' => 1,
                     'createdAt' => '2001-12-12 14:12:45',
                     'texts' => array(
                         array(
@@ -240,10 +240,10 @@ class ProductTest extends PHPUnit_Framework_TestCase
             ),
             // Product initial data provided, item should have an id and appropriate texts fields (description, meta description, etc.)
             array(
-                '1',
+                1,
                 2,
                 array(
-                    'id' => '1',
+                    'id' => 1,
                     'createdAt' => '2001-12-12 14:12:45',
                     'texts' => array(
                         array(

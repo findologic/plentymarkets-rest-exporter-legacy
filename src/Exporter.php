@@ -83,9 +83,9 @@ class Exporter
     protected $exportSalesFrequency = false;
 
     /**
-     * @var bool|array
+     * @var array
      */
-    protected $storesConfiguration = false;
+    protected $storesConfiguration = array();
 
     /**
      * @var \PlentyConfig
@@ -116,9 +116,9 @@ class Exporter
      */
     public function init()
     {
-        $this->getStoresConfiguration();
         $this->getCustomerLog()->info('Starting to initialise necessary data (categories, attributes, etc.).');
         $this->getClient()->login();
+        $this->storesConfiguration = $this->setStoresConfiguration($this->getClient()->getWebstores());
         $this->initAdditionalData();
         $this->initCategoriesFullUrls();
         $this->initAttributeValues();
@@ -428,14 +428,21 @@ class Exporter
     }
 
     /**
-     * @return array|bool
+     * @param array $configuration
+     * @return $this
+     */
+    public function setStoresConfiguration($configuration)
+    {
+        $this->storesConfiguration = $configuration;
+
+        return $this;
+    }
+
+    /**
+     * @return array
      */
     public function getStoresConfiguration()
     {
-        if (!$this->storesConfiguration) {
-            $this->storesConfiguration = $this->getClient()->getWebstores();
-        }
-
         return $this->storesConfiguration;
     }
 
@@ -450,13 +457,13 @@ class Exporter
             return null;
         }
 
-        $storesConfiguration = $this->getStoresConfiguration();
+        $storesConfigurations = $this->getStoresConfiguration();
 
-        if (!is_array($storesConfiguration)) {
+        if (!is_array($storesConfigurations) || empty($storesConfigurations)) {
             return null;
         }
 
-        foreach ($storesConfiguration as $storeConfiguration) {
+        foreach ($storesConfigurations as $storeConfiguration) {
             if ($storeConfiguration['storeIdentifier'] !== $storeId) {
                 continue;
             }

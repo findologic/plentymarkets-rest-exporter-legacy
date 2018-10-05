@@ -350,7 +350,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     public function getStandartVatProvider()
     {
         return array(
-            array(array(), false, 'GB', 2, 'GB'),
+            array(array(), null, 'GB', 2, 'GB'),
             array(array(array('id' => 1, 'storeIdentifier' => 2, 'itemSortByMonthlySales' => 1, 'configuration' => array('itemSortByMonthlySales' => 15))), 1, 'GB', 2, 'AT')
         );
     }
@@ -362,7 +362,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     {
         $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
             ->disableOriginalConstructor()
-            ->setMethods(array('getConfig', 'getStandardVat', 'getWebstores'))
+            ->setMethods(array('getConfig', 'getStandardVat'))
             ->getMock();
 
         $configMock = $this->getConfigMock();
@@ -370,12 +370,12 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $configMock->expects($this->any())->method('getCountry')->willReturn($configCountry);
 
         $clientMock->expects($this->any())->method('getStandardVat')->willReturn(array('countryId' => $apiCountryId));
-        $clientMock->expects($this->any())->method('getWebstores')->willReturn($webstores);
         $clientMock->expects($this->any())->method('getConfig')->willReturn($configMock);
 
         $exporterMock = $this->getExporterMockBuilder(['client' => $clientMock]);
         $exporterMock->setMethods(null);
         $exporterMock = $exporterMock->getMock();
+        $exporterMock->setStoresConfiguration($webstores);
 
         $this->assertEquals($expectedResult, $exporterMock->getStandardVatCountry());
     }
@@ -385,26 +385,26 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         return array(
             'No store id provided' => array(
                 array(),
-                false,
+                null,
                 'displayItemName',
                 null
             ),
             'No store configuration available' => array(
-                false,
-                '11',
+                array(),
+                11,
                 'displayItemName',
                 null
             ),
             'Get configuration value' => array(
                 array(
                     array(
-                        'storeIdentifier' => '11',
+                        'storeIdentifier' => 11,
                         'configuration' => array(
                             'displayItemName' => '2'
                         )
                     )
                 ),
-                '11',
+                11,
                 'displayItemName',
                 '2'
             )
@@ -416,18 +416,11 @@ class ExporterTest extends PHPUnit_Framework_TestCase
      */
     public function testGetStoreConfigValue($storesConfiguration, $storeId, $configField, $expectedValue)
     {
-        $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
-            ->disableOriginalConstructor()
-            ->setMethods(array('getWebstores'))
-            ->getMock();
-
-        $clientMock->expects($this->any())
-            ->method('getWebstores')
-            ->willReturn($storesConfiguration);
-
-        $exporterMock = $this->getExporterMockBuilder(array('client' => $clientMock))
+        $exporterMock = $this->getExporterMockBuilder(array())
             ->setMethods(null)
             ->getMock();
+
+        $exporterMock->setStoresConfiguration($storesConfiguration);
 
         $this->assertEquals($expectedValue, $exporterMock->getStoreConfigValue($storeId, $configField));
     }
