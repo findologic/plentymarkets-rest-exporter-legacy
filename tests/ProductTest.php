@@ -315,7 +315,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
     {
         return array(
             // No variation data provided, item fields should be empty
-            array(
+            'No variation data provided' => array(
                 array(),
                 '',
                 '',
@@ -323,7 +323,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
             ),
             // Variation attributes, units and identifiers (barcodes not included) data provided but the prices is missing,
             // second variation will be ignored as it is not active
-            array(
+            'Prices is missing' => array(
                 array(
                     array(
                         'position' => '1',
@@ -397,7 +397,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
             ),
             // Variation prices includes price with configurated sales price id and configurated rrp price id
             // Variation has duplicate identifier id => 'Test Id' so it should be ignored when adding to 'ordernumber' field
-            array(
+            'Variation has duplicate identifier id' => array(
                 array(
                     array(
                         'position' => '1',
@@ -477,6 +477,80 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 array('Test Number', 'Test Model', 'Test Id', 'Test Number 2', 'Test Model 2', 'Barcode'),
                 array('price' => 14, 'maxprice' => '', 'instead' => 17, 'main_variation_id' => 'Test Id', 'sort' => '2')
             ),
+            'One of the variations is hidden in category' => array(
+                array(
+                    array(
+                        'position' => '1',
+                        'isMain' => true,
+                        'number' => 'Test Number',
+                        'model' => 'Test Model',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'id' => 'Test Id',
+                        'mainVariationId' => null,
+                        'variationSalesPrices' => array(),
+                        'vatId' => 2,
+                        'salesRank' => 15,
+                        'isHiddenInCategoryList' => false,
+                        'isVisibleIfNetStockIsPositive' => false,
+                        'isInvisibleIfNetStockIsNotPositive' => false,
+                        'isAvailableIfNetStockIsPositive' => false,
+                        'isUnavailableIfNetStockIsNotPositive' => false,
+                        'variationAttributeValues' => array(
+                            array(
+                                'attributeId' => '1',
+                                'valueId' => '2'
+                            ),
+                        ),
+                        'variationBarcodes' => array(),
+                        'unit' => array(
+                            "unitId"=> 1,
+                            "content" => 2
+                        ),
+                        'stock' => array(
+                            array(
+                                'netStock' => 1
+                            )
+                        )
+                    ),
+                    array(
+                        'position' => '2',
+                        'isMain' => false,
+                        'number' => 'Test Number 2',
+                        'model' => 'Test Model 2',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'id' => 'Test Id 2',
+                        'mainVariationId' => 'Test Id',
+                        'variationSalesPrices' => array(),
+                        'vatId' => 2,
+                        'isHiddenInCategoryList' => true,
+                        'isVisibleIfNetStockIsPositive' => false,
+                        'isInvisibleIfNetStockIsNotPositive' => false,
+                        'isAvailableIfNetStockIsPositive' => false,
+                        'isUnavailableIfNetStockIsNotPositive' => false,
+                        'variationAttributeValues' => array(
+                            array(
+                                'attributeId' => '3',
+                                'valueId' => '5'
+                            ),
+                        ),
+                        'variationBarcodes' => array(),
+                        'unit' => array(
+                            "unitId"=> 1,
+                            "content" => 2
+                        ),
+                        'stock' => array(
+                            array(
+                                'netStock' => 1
+                            )
+                        )
+                    )
+                ),
+                array('Test' => array('Test')),
+                array('Test Number', 'Test Model', 'Test Id'),
+                array('price' => 0.00, 'maxprice' => '', 'instead' => 0.00, 'base_unit' => 'C62', 'taxrate' => '19.00', 'sales_frequency' => 15, 'main_variation_id' => 'Test Id')
+            )
         );
     }
 
