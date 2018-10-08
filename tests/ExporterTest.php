@@ -58,6 +58,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
             ->getMock();
 
         $clientMock->expects($this->any())->method('setItemsPerPage')->willReturn($clientMock);
+        $clientMock->expects($this->any())->method('getWebstores')->willReturn(array());
         // Check if category branches will be parsed
         $clientMock->expects($this->once())->method('getCategoriesBranches');
 
@@ -439,6 +440,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $clientMock->expects($this->any())->method('setItemsPerPage')->willReturn($clientMock);
         $clientMock->expects($this->any())->method('getConfig')->willReturn($this->getConfigMock());
         $clientMock->expects($this->any())->method('getAttributeValues')->willReturn(array());
+        $clientMock->expects($this->any())->method('getWebstores')->willReturn(array());
 
         $defaultMocks = array(
             'client' => $clientMock,

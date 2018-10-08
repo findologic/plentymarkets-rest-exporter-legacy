@@ -118,7 +118,7 @@ class Exporter
     {
         $this->getCustomerLog()->info('Starting to initialise necessary data (categories, attributes, etc.).');
         $this->getClient()->login();
-        $this->storesConfiguration = $this->setStoresConfiguration($this->getClient()->getWebstores());
+        $this->setStoresConfiguration($this->getClient()->getWebstores());
         $this->initAdditionalData();
         $this->initCategoriesFullUrls();
         $this->initAttributeValues();
@@ -431,7 +431,7 @@ class Exporter
      * @param array $configuration
      * @return $this
      */
-    public function setStoresConfiguration($configuration)
+    public function setStoresConfiguration(array $configuration)
     {
         $this->storesConfiguration = $configuration;
 
