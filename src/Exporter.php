@@ -447,8 +447,8 @@ class Exporter
     }
 
     /**
-     * @param $storeId
-     * @param $configKey
+     * @param int $storeId
+     * @param string $configKey
      * @return null|mixed
      */
     public function getStoreConfigValue($storeId, $configKey)
