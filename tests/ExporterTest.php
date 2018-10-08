@@ -407,7 +407,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
                 ),
                 11,
                 'displayItemName',
-                '2'
+                2
             )
         );
     }
