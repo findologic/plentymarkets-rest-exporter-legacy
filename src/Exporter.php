@@ -311,7 +311,7 @@ class Exporter
             ->setPriceId($this->getConfig()->getPriceId())
             ->setRrpPriceId($this->getConfig()->getRrpId())
             ->setExportSalesFrequency($this->exportSalesFrequency)
-            ->setProductNameFieldId($this->getStoreConfigValue($this->getConfig()->getMultishopId(), 'displayItemName'))
+            ->setProductNameFieldId($this->getStoreConfigValue($this->getConfig()->getStorePlentyId(), 'displayItemName'))
             ->processInitialData($productData);
 
         return $product;
