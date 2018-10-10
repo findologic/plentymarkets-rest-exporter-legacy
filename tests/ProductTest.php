@@ -202,12 +202,13 @@ class ProductTest extends PHPUnit_Framework_TestCase
     {
         return array(
             // No data given, item object should not have any information
-            array('', array(), array()),
+            array('', '1', array(), array()),
             // Product initial data provided but the texts array is empty
             array(
+                1,
                 '1',
                 array(
-                    'id' => '1',
+                    'id' => 1,
                     'createdAt' => '2001-12-12 14:12:45'
                 ),
                 array()
@@ -215,9 +216,10 @@ class ProductTest extends PHPUnit_Framework_TestCase
             // Product initial data provided but the texts data is not in language configured in export config,
             // texts should be null
             array(
+                1,
                 '1',
                 array(
-                    'id' => '1',
+                    'id' => 1,
                     'createdAt' => '2001-12-12 14:12:45',
                     'texts' => array(
                         array(
@@ -238,14 +240,16 @@ class ProductTest extends PHPUnit_Framework_TestCase
             ),
             // Product initial data provided, item should have an id and appropriate texts fields (description, meta description, etc.)
             array(
-                '1',
+                1,
+                2,
                 array(
-                    'id' => '1',
+                    'id' => 1,
                     'createdAt' => '2001-12-12 14:12:45',
                     'texts' => array(
                         array(
                             'lang' => 'en',
                             'name1' => 'Test',
+                            'name2' => 'Test 2',
                             'shortDescription' => 'Short Description',
                             'description' => 'Description',
                             'keywords' => 'Keyword'
@@ -253,7 +257,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     )
                 ),
                 array(
-                    'name' => 'Test',
+                    'name' => 'Test 2',
                     'summary' => 'Short Description',
                     'description' => 'Description',
                     'keywords' => 'Keyword'
@@ -267,9 +271,10 @@ class ProductTest extends PHPUnit_Framework_TestCase
      *
      * @dataProvider processInitialDataProvider
      */
-    public function testProcessInitialData($itemId, $data, $texts)
+    public function testProcessInitialData($itemId, $productNameId, $data, $texts)
     {
         $productMock = $this->getProductMock();
+        $productMock->setProductNameFieldId($productNameId);
         $productMock->processInitialData($data);
 
         $this->assertSame($itemId, $productMock->getItemId());
@@ -572,7 +577,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
         $productMock = $this->getProductMock(
             array(
                 'processVariationIdentifiers',
-                'proccessVariationCategories'
+                'processVariationCategories'
             )
         );
 
@@ -581,7 +586,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
         // Further processing methods should not be called if variation do not pass visibility filtering so it could be
         // used to indicate whether it passes or not
         $productMock->expects($this->never())->method('processVariationIdentifiers');
-        $productMock->expects($this->never())->method('proccessVariationCategories');
+        $productMock->expects($this->never())->method('processVariationCategories');
 
         $productMock->processVariation($data);
     }
@@ -1062,7 +1067,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
     /**
      * @param array $methods
      * @param array|bool $constructorArgs
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return \Findologic\Plentymarkets\Product|\PHPUnit_Framework_MockObject_MockObject
      */
     protected function getProductMock($methods = array(), $constructorArgs = false)
     {
