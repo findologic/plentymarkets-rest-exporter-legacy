@@ -652,6 +652,10 @@ class Product extends ParserAbstract
             return false;
         }
 
+        if (isset($variation['isHiddenInCategoryList']) && $variation['isHiddenInCategoryList'] === true) {
+            return false;
+        }
+
         if (isset($variation['availableUntil']) && !$this->isDateStillAvailable($variation['availableUntil'])) {
             return false;
         }
