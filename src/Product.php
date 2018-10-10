@@ -84,6 +84,35 @@ class Product extends ParserAbstract
     protected $exportSalesFrequency = false;
 
     /**
+     * Value for getting correct product name
+     *
+     * @var int
+     */
+    protected $productNameFieldId = 1;
+
+    /**
+     * Available values for product name field configuration
+     *
+     * @var array
+     */
+    protected $availableProductNameFieldIdValues = array(1, 2, 3);
+
+    /**
+     * @param int $productNameFieldId
+     * @return $this
+     */
+    public function setProductNameFieldId($productNameFieldId)
+    {
+        if (!in_array($productNameFieldId, $this->availableProductNameFieldIdValues)) {
+            return $this;
+        }
+
+        $this->productNameFieldId = $productNameFieldId;
+
+        return $this;
+    }
+
+    /**
      * @param mixed $ids
      * @return $this
      */
@@ -623,6 +652,10 @@ class Product extends ParserAbstract
             return false;
         }
 
+        if (isset($variation['isHiddenInCategoryList']) && $variation['isHiddenInCategoryList'] === true) {
+            return false;
+        }
+
         if (isset($variation['availableUntil']) && !$this->isDateStillAvailable($variation['availableUntil'])) {
             return false;
         }
@@ -846,7 +879,7 @@ class Product extends ParserAbstract
                 continue;
             }
 
-            $this->setField('name', $this->getFromArray($texts, 'name1'))
+            $this->setField('name', $this->getFromArray($texts, 'name' . $this->productNameFieldId))
                 ->setField('summary', $this->getFromArray($texts, 'shortDescription'))
                 ->setField('description', $this->getFromArray($texts, 'description'))
                 ->setField('url', $this->getProductFullUrl($this->getFromArray($texts, 'urlPath')))

@@ -23,6 +23,7 @@ $config = new PlentyConfig();
 $config->setUsername('username')
     ->setPassword('password')
     ->setDomain('www.store.com')
+    ->setMultishopId(10000)
     ->setPriceId(1)
     ->setRrpId(2) // price id for 'instead' field
     ->setCountry('GB') // Country code for tax rates

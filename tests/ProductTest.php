@@ -202,12 +202,13 @@ class ProductTest extends PHPUnit_Framework_TestCase
     {
         return array(
             // No data given, item object should not have any information
-            array('', array(), array()),
+            array('', '1', array(), array()),
             // Product initial data provided but the texts array is empty
             array(
+                1,
                 '1',
                 array(
-                    'id' => '1',
+                    'id' => 1,
                     'createdAt' => '2001-12-12 14:12:45'
                 ),
                 array()
@@ -215,9 +216,10 @@ class ProductTest extends PHPUnit_Framework_TestCase
             // Product initial data provided but the texts data is not in language configured in export config,
             // texts should be null
             array(
+                1,
                 '1',
                 array(
-                    'id' => '1',
+                    'id' => 1,
                     'createdAt' => '2001-12-12 14:12:45',
                     'texts' => array(
                         array(
@@ -238,14 +240,16 @@ class ProductTest extends PHPUnit_Framework_TestCase
             ),
             // Product initial data provided, item should have an id and appropriate texts fields (description, meta description, etc.)
             array(
-                '1',
+                1,
+                2,
                 array(
-                    'id' => '1',
+                    'id' => 1,
                     'createdAt' => '2001-12-12 14:12:45',
                     'texts' => array(
                         array(
                             'lang' => 'en',
                             'name1' => 'Test',
+                            'name2' => 'Test 2',
                             'shortDescription' => 'Short Description',
                             'description' => 'Description',
                             'keywords' => 'Keyword'
@@ -253,7 +257,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     )
                 ),
                 array(
-                    'name' => 'Test',
+                    'name' => 'Test 2',
                     'summary' => 'Short Description',
                     'description' => 'Description',
                     'keywords' => 'Keyword'
@@ -267,9 +271,10 @@ class ProductTest extends PHPUnit_Framework_TestCase
      *
      * @dataProvider processInitialDataProvider
      */
-    public function testProcessInitialData($itemId, $data, $texts)
+    public function testProcessInitialData($itemId, $productNameId, $data, $texts)
     {
         $productMock = $this->getProductMock();
+        $productMock->setProductNameFieldId($productNameId);
         $productMock->processInitialData($data);
 
         $this->assertSame($itemId, $productMock->getItemId());
@@ -315,7 +320,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
     {
         return array(
             // No variation data provided, item fields should be empty
-            array(
+            'No variation data provided' => array(
                 array(),
                 '',
                 '',
@@ -323,7 +328,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
             ),
             // Variation attributes, units and identifiers (barcodes not included) data provided but the prices is missing,
             // second variation will be ignored as it is not active
-            array(
+            'Prices is missing' => array(
                 array(
                     array(
                         'position' => '1',
@@ -397,7 +402,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
             ),
             // Variation prices includes price with configurated sales price id and configurated rrp price id
             // Variation has duplicate identifier id => 'Test Id' so it should be ignored when adding to 'ordernumber' field
-            array(
+            'Variation has duplicate identifier id' => array(
                 array(
                     array(
                         'position' => '1',
@@ -477,6 +482,80 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 array('Test Number', 'Test Model', 'Test Id', 'Test Number 2', 'Test Model 2', 'Barcode'),
                 array('price' => 14, 'maxprice' => '', 'instead' => 17, 'main_variation_id' => 'Test Id', 'sort' => '2')
             ),
+            'One of the variations is hidden in category' => array(
+                array(
+                    array(
+                        'position' => '1',
+                        'isMain' => true,
+                        'number' => 'Test Number',
+                        'model' => 'Test Model',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'id' => 'Test Id',
+                        'mainVariationId' => null,
+                        'variationSalesPrices' => array(),
+                        'vatId' => 2,
+                        'salesRank' => 15,
+                        'isHiddenInCategoryList' => false,
+                        'isVisibleIfNetStockIsPositive' => false,
+                        'isInvisibleIfNetStockIsNotPositive' => false,
+                        'isAvailableIfNetStockIsPositive' => false,
+                        'isUnavailableIfNetStockIsNotPositive' => false,
+                        'variationAttributeValues' => array(
+                            array(
+                                'attributeId' => '1',
+                                'valueId' => '2'
+                            ),
+                        ),
+                        'variationBarcodes' => array(),
+                        'unit' => array(
+                            "unitId"=> 1,
+                            "content" => 2
+                        ),
+                        'stock' => array(
+                            array(
+                                'netStock' => 1
+                            )
+                        )
+                    ),
+                    array(
+                        'position' => '2',
+                        'isMain' => false,
+                        'number' => 'Test Number 2',
+                        'model' => 'Test Model 2',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'id' => 'Test Id 2',
+                        'mainVariationId' => 'Test Id',
+                        'variationSalesPrices' => array(),
+                        'vatId' => 2,
+                        'isHiddenInCategoryList' => true,
+                        'isVisibleIfNetStockIsPositive' => false,
+                        'isInvisibleIfNetStockIsNotPositive' => false,
+                        'isAvailableIfNetStockIsPositive' => false,
+                        'isUnavailableIfNetStockIsNotPositive' => false,
+                        'variationAttributeValues' => array(
+                            array(
+                                'attributeId' => '3',
+                                'valueId' => '5'
+                            ),
+                        ),
+                        'variationBarcodes' => array(),
+                        'unit' => array(
+                            "unitId"=> 1,
+                            "content" => 2
+                        ),
+                        'stock' => array(
+                            array(
+                                'netStock' => 1
+                            )
+                        )
+                    )
+                ),
+                array('Test' => array('Test')),
+                array('Test Number', 'Test Model', 'Test Id'),
+                array('price' => 0.00, 'maxprice' => '', 'instead' => 0.00, 'base_unit' => 'C62', 'taxrate' => '19.00', 'sales_frequency' => 15, 'main_variation_id' => 'Test Id')
+            )
         );
     }
 
@@ -572,7 +651,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
         $productMock = $this->getProductMock(
             array(
                 'processVariationIdentifiers',
-                'proccessVariationCategories'
+                'processVariationCategories'
             )
         );
 
@@ -581,7 +660,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
         // Further processing methods should not be called if variation do not pass visibility filtering so it could be
         // used to indicate whether it passes or not
         $productMock->expects($this->never())->method('processVariationIdentifiers');
-        $productMock->expects($this->never())->method('proccessVariationCategories');
+        $productMock->expects($this->never())->method('processVariationCategories');
 
         $productMock->processVariation($data);
     }
@@ -1062,7 +1141,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
     /**
      * @param array $methods
      * @param array|bool $constructorArgs
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return \Findologic\Plentymarkets\Product|\PHPUnit_Framework_MockObject_MockObject
      */
     protected function getProductMock($methods = array(), $constructorArgs = false)
     {

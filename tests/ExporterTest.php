@@ -58,6 +58,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
             ->getMock();
 
         $clientMock->expects($this->any())->method('setItemsPerPage')->willReturn($clientMock);
+        $clientMock->expects($this->any())->method('getWebstores')->willReturn(array());
         // Check if category branches will be parsed
         $clientMock->expects($this->once())->method('getCategoriesBranches');
 
@@ -352,7 +353,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     public function getStandartVatProvider()
     {
         return array(
-            array(array(), false, 'GB', 2, 'GB'),
+            array(array(), null, 'GB', 2, 'GB'),
             array(array(array('id' => 1, 'storeIdentifier' => 2, 'itemSortByMonthlySales' => 1, 'configuration' => array('itemSortByMonthlySales' => 15))), 1, 'GB', 2, 'AT')
         );
     }
@@ -364,7 +365,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     {
         $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
             ->disableOriginalConstructor()
-            ->setMethods(array('getConfig', 'getStandardVat', 'getWebstores'))
+            ->setMethods(array('getConfig', 'getStandardVat'))
             ->getMock();
 
         $configMock = $this->getConfigMock();
@@ -372,14 +373,59 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $configMock->expects($this->any())->method('getCountry')->willReturn($configCountry);
 
         $clientMock->expects($this->any())->method('getStandardVat')->willReturn(array('countryId' => $apiCountryId));
-        $clientMock->expects($this->any())->method('getWebstores')->willReturn($webstores);
         $clientMock->expects($this->any())->method('getConfig')->willReturn($configMock);
 
         $exporterMock = $this->getExporterMockBuilder(['client' => $clientMock]);
         $exporterMock->setMethods(null);
         $exporterMock = $exporterMock->getMock();
+        $exporterMock->setStoresConfiguration($webstores);
 
         $this->assertEquals($expectedResult, $exporterMock->getStandardVatCountry());
+    }
+
+    public function getStoreConfigValueProvider()
+    {
+        return array(
+            'No store id provided' => array(
+                array(),
+                null,
+                'displayItemName',
+                null
+            ),
+            'No store configuration available' => array(
+                array(),
+                11,
+                'displayItemName',
+                null
+            ),
+            'Get configuration value' => array(
+                array(
+                    array(
+                        'storeIdentifier' => 11,
+                        'configuration' => array(
+                            'displayItemName' => '2'
+                        )
+                    )
+                ),
+                11,
+                'displayItemName',
+                2
+            )
+        );
+    }
+
+    /**
+     * @dataProvider getStoreConfigValueProvider
+     */
+    public function testGetStoreConfigValue($storesConfiguration, $storeId, $configField, $expectedValue)
+    {
+        $exporterMock = $this->getExporterMockBuilder(array())
+            ->setMethods(null)
+            ->getMock();
+
+        $exporterMock->setStoresConfiguration($storesConfiguration);
+
+        $this->assertEquals($expectedValue, $exporterMock->getStoreConfigValue($storeId, $configField));
     }
 
     /* ------ helper functions ------ */
@@ -396,6 +442,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $clientMock->expects($this->any())->method('setItemsPerPage')->willReturn($clientMock);
         $clientMock->expects($this->any())->method('getConfig')->willReturn($this->getConfigMock());
         $clientMock->expects($this->any())->method('getAttributeValues')->willReturn(array());
+        $clientMock->expects($this->any())->method('getWebstores')->willReturn(array());
 
         $defaultMocks = array(
             'client' => $clientMock,
@@ -416,7 +463,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     /**
      * Helper function to get exporter mock
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return \Findologic\Plentymarkets\Exporter|\PHPUnit_Framework_MockObject_MockObject
      */
     protected function getExporterMock()
     {

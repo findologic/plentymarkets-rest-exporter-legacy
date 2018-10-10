@@ -83,6 +83,11 @@ class Exporter
     protected $exportSalesFrequency = false;
 
     /**
+     * @var array
+     */
+    protected $storesConfiguration = array();
+
+    /**
      * @var \PlentyConfig
      */
     protected $config;
@@ -113,6 +118,7 @@ class Exporter
     {
         $this->getCustomerLog()->info('Starting to initialise necessary data (categories, attributes, etc.).');
         $this->getClient()->login();
+        $this->setStoresConfiguration($this->getClient()->getWebstores());
         $this->initAdditionalData();
         $this->initCategoriesFullUrls();
         $this->initAttributeValues();
@@ -304,6 +310,7 @@ class Exporter
             ->setPriceId($this->getConfig()->getPriceId())
             ->setRrpPriceId($this->getConfig()->getRrpId())
             ->setExportSalesFrequency($this->exportSalesFrequency)
+            ->setProductNameFieldId($this->getStoreConfigValue($this->getStorePlentyId(), 'displayItemName'))
             ->processInitialData($productData);
 
         return $product;
@@ -402,7 +409,7 @@ class Exporter
         }
 
         if (!$this->standardVat) {
-            $stores = $this->getClient()->getWebstores();
+            $stores = $this->getStoresConfiguration();
             foreach ($stores as $store) {
                 if ($store['id'] == $this->getConfig()->getMultishopId()) {
                     $this->setStorePlentyId($store['storeIdentifier']);
@@ -417,6 +424,55 @@ class Exporter
         }
 
         return $this->standardVat;
+    }
+
+    /**
+     * @param array $configuration
+     * @return $this
+     */
+    public function setStoresConfiguration(array $configuration)
+    {
+        $this->storesConfiguration = $configuration;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getStoresConfiguration()
+    {
+        return $this->storesConfiguration;
+    }
+
+    /**
+     * @param int $storeId
+     * @param string $configKey
+     * @return null|mixed
+     */
+    public function getStoreConfigValue($storeId, $configKey)
+    {
+        if (!$storeId) {
+            return null;
+        }
+
+        $storesConfigurations = $this->getStoresConfiguration();
+
+        if (!is_array($storesConfigurations) || empty($storesConfigurations)) {
+            return null;
+        }
+
+        foreach ($storesConfigurations as $storeConfiguration) {
+            if ($storeConfiguration['storeIdentifier'] !== $storeId) {
+                continue;
+            }
+
+            if (isset($storeConfiguration['configuration'][$configKey])) {
+                return $storeConfiguration['configuration'][$configKey];
+            }
+        }
+
+        return null;
     }
 
     /**
