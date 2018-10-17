@@ -145,7 +145,7 @@ class AttributesTest extends PHPUnit_Framework_TestCase
             ),
             'Attribute values provided' => array(
                 array(
-                    '3' => array(
+                    3 => array(
                         'name' => 'Test Attribute',
                         'values' => array()
                     )
@@ -177,7 +177,7 @@ class AttributesTest extends PHPUnit_Framework_TestCase
                     )
                 ),
                 array(
-                    '3' => array(
+                    3 => array(
                         'name' => 'Test Attribute',
                         'values' => array(
                             '1' => 'Test Value',
