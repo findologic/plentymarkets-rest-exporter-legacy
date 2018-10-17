@@ -156,8 +156,8 @@ class AttributesTest extends PHPUnit_Framework_TestCase
                 array(
                     'entries' => array(
                         $this->getValuesArray(
-                            '3',
-                            '1',
+                            3,
+                            1,
                             'Test Value',
                             array(
                                 array(
@@ -167,8 +167,8 @@ class AttributesTest extends PHPUnit_Framework_TestCase
                             )
                         ),
                         $this->getValuesArray(
-                            '3',
-                            '2',
+                            3,
+                            2,
                             'Test Value',
                             array(
                                 array(
@@ -217,8 +217,8 @@ class AttributesTest extends PHPUnit_Framework_TestCase
                     array(
                         'entries' => array(
                             $this->getValuesArray(
-                                '3',
-                                '1',
+                                3,
+                                1,
                                 'Test Value',
                                 array(
                                     array(
@@ -228,8 +228,8 @@ class AttributesTest extends PHPUnit_Framework_TestCase
                                 )
                             ),
                             $this->getValuesArray(
-                                '3',
-                                '2',
+                                3,
+                                2,
                                 'Test Value',
                                 array(
                                     array(
@@ -243,8 +243,8 @@ class AttributesTest extends PHPUnit_Framework_TestCase
                     array(
                         'entries' => array(
                             $this->getValuesArray(
-                                '3',
-                                '1',
+                                3,
+                                1,
                                 'Test Value',
                                 array(
                                     array(
@@ -444,12 +444,13 @@ class AttributesTest extends PHPUnit_Framework_TestCase
     /**
      * Helper function to minimize code lines in data provider methods
      *
-     * @param $attributeId
-     * @param $id
-     * @param $backendName
+     * @param int $attributeId
+     * @param int $id
+     * @param string $backendName
+     * @param array $valueNames
      * @return array
      */
-    protected function getValuesArray($attributeId, $id, $backendName, $valueNames = array())
+    protected function getValuesArray($attributeId, $id, $backendName, array $valueNames = array())
     {
         $values = array(
             'id' => $id,
