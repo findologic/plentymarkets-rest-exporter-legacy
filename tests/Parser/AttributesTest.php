@@ -133,20 +133,17 @@ class AttributesTest extends PHPUnit_Framework_TestCase
     public function parseValuesProvider()
     {
         return array(
-            // No data for attribute value provided, results should be empty
-            array(
+            'No data provided' => array(
                 array(),
                 array(),
                 array()
             ),
-            // No data for attribute value provided, results should be empty
-            array(
+            'No attribute values provided' => array(
                 array(),
                 array('entries' => array()),
                 array()
             ),
-            // Attribute has some values
-            array(
+            'Attribute values provided' => array(
                 array(
                     '3' => array(
                         'name' => 'Test Attribute',
