@@ -180,8 +180,65 @@ class AttributesTest extends PHPUnit_Framework_TestCase
                     3 => array(
                         'name' => 'Test Attribute',
                         'values' => array(
-                            '1' => 'Test Value',
-                            '2' => 'Test Value'
+                            1 => 'Test Value',
+                            2 => 'Test Value'
+                        )
+                    )
+                )
+            ),
+            'No translated attribute value provided' => array(
+                array(
+                    3 => array(
+                        'name' => 'Test Attribute',
+                        'values' => array()
+                    )
+                ),
+                array(
+                    'entries' => array(
+                        $this->getValuesArray(
+                            3,
+                            1,
+                            'internalName',
+                            array(
+                                array(
+                                    'lang' => 'de',
+                                    'name' => 'Testwert'
+                                )
+                            )
+                        )
+                    )
+                ),
+                array(
+                    3 => array(
+                        'name' => 'Test Attribute',
+                        'values' => array(
+                            1 => 'internalName',
+                        )
+                    )
+                )
+            ),
+            'No attribute value names provided' => array(
+                array(
+                    3 => array(
+                        'name' => 'Test Attribute',
+                        'values' => array()
+                    )
+                ),
+                array(
+                    'entries' => array(
+                        $this->getValuesArray(
+                            3,
+                            1,
+                            'internalName',
+                            array()
+                        )
+                    )
+                ),
+                array(
+                    3 => array(
+                        'name' => 'Test Attribute',
+                        'values' => array(
+                            1 => 'internalName',
                         )
                     )
                 )
