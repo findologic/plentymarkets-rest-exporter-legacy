@@ -455,9 +455,7 @@ class AttributesTest extends PHPUnit_Framework_TestCase
             'backendName' => $backendName
         );
 
-        if (!empty($valueNames)) {
-            $values['valueNames'] = $valueNames;
-        }
+        $values['valueNames'] = $valueNames;
 
         return $values;
     }
