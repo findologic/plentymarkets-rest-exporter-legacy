@@ -133,22 +133,19 @@ class AttributesTest extends PHPUnit_Framework_TestCase
     public function parseValuesProvider()
     {
         return array(
-            // No data for attribute value provided, results should be empty
-            array(
+            'No data provided' => array(
                 array(),
                 array(),
                 array()
             ),
-            // No data for attribute value provided, results should be empty
-            array(
+            'No attribute values provided' => array(
                 array(),
                 array('entries' => array()),
                 array()
             ),
-            // Attribute has some values
-            array(
+            'Attribute values provided' => array(
                 array(
-                    '3' => array(
+                    3 => array(
                         'name' => 'Test Attribute',
                         'values' => array()
                     )
@@ -156,8 +153,8 @@ class AttributesTest extends PHPUnit_Framework_TestCase
                 array(
                     'entries' => array(
                         $this->getValuesArray(
-                            '3',
-                            '1',
+                            3,
+                            1,
                             'Test Value',
                             array(
                                 array(
@@ -167,8 +164,8 @@ class AttributesTest extends PHPUnit_Framework_TestCase
                             )
                         ),
                         $this->getValuesArray(
-                            '3',
-                            '2',
+                            3,
+                            2,
                             'Test Value',
                             array(
                                 array(
@@ -180,11 +177,68 @@ class AttributesTest extends PHPUnit_Framework_TestCase
                     )
                 ),
                 array(
-                    '3' => array(
+                    3 => array(
                         'name' => 'Test Attribute',
                         'values' => array(
-                            '1' => 'Test Value',
-                            '2' => 'Test Value'
+                            1 => 'Test Value',
+                            2 => 'Test Value'
+                        )
+                    )
+                )
+            ),
+            'No translated attribute value provided' => array(
+                array(
+                    3 => array(
+                        'name' => 'Test Attribute',
+                        'values' => array()
+                    )
+                ),
+                array(
+                    'entries' => array(
+                        $this->getValuesArray(
+                            3,
+                            1,
+                            'internalName',
+                            array(
+                                array(
+                                    'lang' => 'de',
+                                    'name' => 'Testwert'
+                                )
+                            )
+                        )
+                    )
+                ),
+                array(
+                    3 => array(
+                        'name' => 'Test Attribute',
+                        'values' => array(
+                            1 => 'internalName',
+                        )
+                    )
+                )
+            ),
+            'No attribute value names provided' => array(
+                array(
+                    3 => array(
+                        'name' => 'Test Attribute',
+                        'values' => array()
+                    )
+                ),
+                array(
+                    'entries' => array(
+                        $this->getValuesArray(
+                            3,
+                            1,
+                            'internalName',
+                            array()
+                        )
+                    )
+                ),
+                array(
+                    3 => array(
+                        'name' => 'Test Attribute',
+                        'values' => array(
+                            1 => 'internalName',
                         )
                     )
                 )
@@ -217,8 +271,8 @@ class AttributesTest extends PHPUnit_Framework_TestCase
                     array(
                         'entries' => array(
                             $this->getValuesArray(
-                                '3',
-                                '1',
+                                3,
+                                1,
                                 'Test Value',
                                 array(
                                     array(
@@ -228,8 +282,8 @@ class AttributesTest extends PHPUnit_Framework_TestCase
                                 )
                             ),
                             $this->getValuesArray(
-                                '3',
-                                '2',
+                                3,
+                                2,
                                 'Test Value',
                                 array(
                                     array(
@@ -243,8 +297,8 @@ class AttributesTest extends PHPUnit_Framework_TestCase
                     array(
                         'entries' => array(
                             $this->getValuesArray(
-                                '3',
-                                '1',
+                                3,
+                                1,
                                 'Test Value',
                                 array(
                                     array(
@@ -444,12 +498,13 @@ class AttributesTest extends PHPUnit_Framework_TestCase
     /**
      * Helper function to minimize code lines in data provider methods
      *
-     * @param $attributeId
-     * @param $id
-     * @param $backendName
+     * @param int $attributeId
+     * @param int $id
+     * @param string $backendName
+     * @param array $valueNames
      * @return array
      */
-    protected function getValuesArray($attributeId, $id, $backendName, $valueNames = array())
+    protected function getValuesArray($attributeId, $id, $backendName, array $valueNames = array())
     {
         $values = array(
             'id' => $id,
@@ -457,9 +512,7 @@ class AttributesTest extends PHPUnit_Framework_TestCase
             'backendName' => $backendName
         );
 
-        if (!empty($valueNames)) {
-            $values['valueNames'] = $valueNames;
-        }
+        $values['valueNames'] = $valueNames;
 
         return $values;
     }
