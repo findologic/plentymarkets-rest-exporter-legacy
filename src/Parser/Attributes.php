@@ -71,6 +71,10 @@ class Attributes extends ParserAbstract implements ParserInterface
         foreach ($data['entries'] as $value) {
             $attributeId = $value['attributeId'];
             $values[$value['id']] = $this->parseValueName($value['valueNames']);
+
+            if ($values[$value['id']] === $this->getDefaultEmptyValue()) {
+                $values[$value['id']] = $value['backendName'];
+            }
         }
 
         $this->results[$attributeId]['values'] += $values;
