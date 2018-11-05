@@ -4,12 +4,8 @@ namespace Findologic\Plentymarkets\Parser;
 
 class SalesPrices extends ParserAbstract implements ParserInterface
 {
+    const PRICE_TYPE = 'default';
     const RRP_TYPE = 'rrp';
-
-    /**
-     * @var bool|array
-     */
-    protected $rrp = false;
 
     /**
      * @inheritdoc
@@ -22,32 +18,39 @@ class SalesPrices extends ParserAbstract implements ParserInterface
         }
 
         foreach ($data['entries'] as $price) {
-            $this->results[$price['id']] = $price['type'];
+            $this->results[$price['type']][] = $price['id'];
         }
+
+        array_multisort($this->results[self::PRICE_TYPE], $this->results[self::RRP_TYPE]);
 
         return $this->results;
     }
 
     /**
-     * Filter sales prices by rrp type
+     * Get default price id, if no prices data was parsed return false
      *
-     * @return array|bool
+     * @return false|int
      */
-    public function getRRP()
+    public function getDefaultPrice()
     {
-        if (!$this->rrp) {
-            $rrp = array();
-
-            foreach ($this->results as $id => $type) {
-                if ($type == self::RRP_TYPE) {
-                    $rrp[] = $id;
-                }
-            }
-
-            // Avoid multiple filtering of sales prices for rrp type and save filtered result to property
-            $this->rrp = $rrp;
+        if (isset($this->results[self::PRICE_TYPE][0])) {
+            return $this->results[self::PRICE_TYPE][0];
         }
 
-        return $this->rrp;
+        return false;
+    }
+
+    /**
+     * Get default rrp price id, if no prices data was parsed return false
+     *
+     * @return false|int
+     */
+    public function getDefaultRrp()
+    {
+        if (isset($this->results[self::RRP_TYPE][0])) {
+            return $this->results[self::RRP_TYPE][0];
+        }
+
+        return false;
     }
 }
