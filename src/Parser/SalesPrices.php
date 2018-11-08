@@ -29,7 +29,7 @@ class SalesPrices extends ParserAbstract implements ParserInterface
     /**
      * Get default price id, if no prices data was parsed return false.
      *
-     * @return false|int
+     * @return bool|int
      */
     public function getDefaultPrice()
     {
@@ -43,7 +43,7 @@ class SalesPrices extends ParserAbstract implements ParserInterface
     /**
      * Get default rrp price id, if no prices data was parsed return false.
      *
-     * @return false|int
+     * @return bool|int
      */
     public function getDefaultRrp()
     {

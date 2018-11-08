@@ -20,12 +20,12 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     /**
      * Init method should call necessary methods for initialising data for mapping ids to actual values.
      *
-     * @param $priceId
-     * @param $rrpId
-     * @param $configPriceId
-     * @param $configRrpId
-     * @param $expectedPriceId
-     * @param $expectedRrpId
+     * @param int $priceId
+     * @param int $rrpId
+     * @param int|bool $configPriceId
+     * @param int|bool $configRrpId
+     * @param int $expectedPriceId
+     * @param int $expectedRrpId
      *
      * @dataProvider initProvider
      */
