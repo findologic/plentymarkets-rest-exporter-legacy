@@ -27,7 +27,7 @@ class SalesPrices extends ParserAbstract implements ParserInterface
     }
 
     /**
-     * Get default price id, if no prices data was parsed return false
+     * Get default price id, if no prices data was parsed return false.
      *
      * @return false|int
      */
@@ -41,7 +41,7 @@ class SalesPrices extends ParserAbstract implements ParserInterface
     }
 
     /**
-     * Get default rrp price id, if no prices data was parsed return false
+     * Get default rrp price id, if no prices data was parsed return false.
      *
      * @return false|int
      */

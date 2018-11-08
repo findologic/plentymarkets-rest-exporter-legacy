@@ -135,7 +135,7 @@ class Exporter
         $this->setStoresConfiguration($this->getClient()->getWebstores());
         $this->initAdditionalData();
 
-        //Init price configuration after sales price additional data was parsed
+        // Init price configuration after sales price additional data was parsed.
         $this->setRrpId($this->getConfig()->getRrpId() ? $this->getConfig()->getRrpId() : $this->getRegistry()->get('SalesPrices')->getDefaultRrp());
         $this->setPriceId($this->getConfig()->getPriceId() ? $this->getConfig()->getPriceId() : $this->getRegistry()->get('SalesPrices')->getDefaultPrice());
 
