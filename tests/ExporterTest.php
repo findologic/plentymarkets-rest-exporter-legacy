@@ -9,22 +9,62 @@ use PHPUnit_Framework_TestCase;
 
 class ExporterTest extends PHPUnit_Framework_TestCase
 {
-    /**
-     * Init method should call necessary methods for initialising data for mapping ids to actuals values
-     */
-    public function testInit()
+    public function initProvider()
     {
+        return [
+            'Config values provided' => [1, 2, 3, 4, 3, 4],
+            'Config values provided missing, use store values' => [1, 2, false, false, 1, 2]
+        ];
+    }
+
+    /**
+     * Init method should call necessary methods for initialising data for mapping ids to actual values.
+     *
+     * @param int $priceId
+     * @param int $rrpId
+     * @param int|bool $configPriceId
+     * @param int|bool $configRrpId
+     * @param int $expectedPriceId
+     * @param int $expectedRrpId
+     *
+     * @dataProvider initProvider
+     */
+    public function testInit($priceId, $rrpId, $configPriceId, $configRrpId, $expectedPriceId, $expectedRrpId)
+    {
+        $salesPricesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\SalesPrices')
+            ->disableOriginalConstructor()
+            ->setMethods(['getDefaultPrice', 'getDefaultRrp'])
+            ->getMock();
+
+        $salesPricesMock->expects($this->any())->method('getDefaultPrice')->willReturn($priceId);
+        $salesPricesMock->expects($this->any())->method('getDefaultRrp')->willReturn($rrpId);
+
+        $registryMock = $this->getRegistryMock(['get']);
+        $registryMock->expects($this->any())->method('get')->willReturnMap([
+            ['log', false],
+            ['SalesPrices', $salesPricesMock]
+        ]);
+
+        $configMock = $this->getConfigMock();
+        $configMock->expects($this->any())->method('getPriceId')->willReturn($configPriceId);
+        $configMock->expects($this->any())->method('getRrpId')->willReturn($configRrpId);
+
         $exporterMock = $this->getExporterMockBuilder();
-        $exporterMock->setMethods(array('initAdditionalData', 'initCategoriesFullUrls', 'initAttributeValues', 'handleException'));
+        $exporterMock->setMethods(['getRegistry', 'getConfig', 'initAdditionalData', 'initCategoriesFullUrls', 'initAttributeValues', 'handleException']);
         $exporterMock = $exporterMock->getMock();
 
         /**
-         * @var $exporterMock \PHPUnit_Framework_MockObject_MockObject
+         * @var $exporterMock \Findologic\Plentymarkets\Exporter|\PHPUnit_Framework_MockObject_MockObject
          */
+        $exporterMock->expects($this->any())->method('getRegistry')->willReturn($registryMock);
+        $exporterMock->expects($this->any())->method('getConfig')->willReturn($configMock);
         $exporterMock->expects($this->once())->method('initAdditionalData');
         $exporterMock->expects($this->once())->method('initCategoriesFullUrls');
         $exporterMock->expects($this->once())->method('initAttributeValues');
         $exporterMock->init();
+
+        $this->assertEquals($expectedPriceId, $exporterMock->getPriceId(), 'Price id is not matching expected value');
+        $this->assertEquals($expectedRrpId, $exporterMock->getRrpId(), 'Rrp price id is not matching expected value');
 
         $this->assertInstanceOf('\Findologic\Plentymarkets\Wrapper\WrapperInterface', $exporterMock->getWrapper());
         $this->assertInstanceOf('\Findologic\Plentymarkets\Client', $exporterMock->getClient());
@@ -85,18 +125,29 @@ class ExporterTest extends PHPUnit_Framework_TestCase
      */
     public function testInitAttributeValues()
     {
+        $salesPricesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\SalesPrices')
+            ->disableOriginalConstructor()
+            ->setMethods(['getDefaultPrice', 'getDefaultRrp'])
+            ->getMock();
+
+        $salesPricesMock->expects($this->any())->method('getDefaultPrice')->willReturn(1);
+        $salesPricesMock->expects($this->any())->method('getDefaultRrp')->willReturn(2);
+
         $attributesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Attributes')
             ->disableOriginalConstructor()
-            ->setMethods(array('getResults', 'parseValues'))
+            ->setMethods(['getResults', 'parseValues'])
             ->getMock();
-        $attributesMock->expects($this->once())->method('getResults')->willReturn(array('1' => 'Test Attribute'));
-        $attributesMock->expects($this->once())->method('parseValues')->willReturn(array('1' => 'Test Value', '2' => 'Test Value'));
+        $attributesMock->expects($this->once())->method('getResults')->willReturn(['1' => 'Test Attribute']);
+        $attributesMock->expects($this->once())->method('parseValues')->willReturn(['1' => 'Test Value', '2' => 'Test Value']);
 
-        $registryMock = $this->getRegistryMock(array('get'));
-        $registryMock->expects($this->any())->method('get')->willReturn($attributesMock);
+        $registryMock = $this->getRegistryMock(['get']);
+        $registryMock->expects($this->any())->method('get')->willReturnMap([
+            ['attributes', $attributesMock],
+            ['SalesPrices', $salesPricesMock]
+        ]);
 
-        $exporterMock = $this->getExporterMockBuilder(array('registry' => $registryMock));
-        $exporterMock->setMethods(array('initAdditionalData', 'initCategoriesFullUrls', 'handleException'));
+        $exporterMock = $this->getExporterMockBuilder(['registry' => $registryMock]);
+        $exporterMock->setMethods(['initAdditionalData', 'initCategoriesFullUrls', 'handleException']);
         $exporterMock = $exporterMock->getMock();
 
         $exporterMock->init();
@@ -194,11 +245,9 @@ class ExporterTest extends PHPUnit_Framework_TestCase
      */
     public function testCreateProductItem()
     {
-        $exporterMock = $this->getExporterMockBuilder()->setMethods(array('getConfig'))->getMock();
-        $exporterMock->expects($this->any())->method('getConfig')->willReturn($this->getConfigMock());
+        $exporterMock = $this->getExporterMockBuilder()->setMethods(null)->getMock();
 
-        $product = $exporterMock->createProductItem(array());
-
+        $product = $exporterMock->createProductItem([]);
         $this->assertInstanceOf('\Findologic\Plentymarkets\Product', $product);
     }
 

@@ -76,6 +76,20 @@ class Exporter
     protected $storePlentyId = false;
 
     /**
+     * RRP price id
+     *
+     * @var bool|int
+     */
+    protected $rrpId = false;
+
+    /**
+     * Price id
+     *
+     * @var bool|int
+     */
+    protected $priceId = false;
+
+    /**
      * Flag to know if store supports salesRank
      *
      * @var bool
@@ -120,6 +134,11 @@ class Exporter
         $this->getClient()->login();
         $this->setStoresConfiguration($this->getClient()->getWebstores());
         $this->initAdditionalData();
+
+        // Init price configuration after sales price additional data was parsed.
+        $this->setRrpId($this->getConfig()->getRrpId() ? $this->getConfig()->getRrpId() : $this->getRegistry()->get('SalesPrices')->getDefaultRrp());
+        $this->setPriceId($this->getConfig()->getPriceId() ? $this->getConfig()->getPriceId() : $this->getRegistry()->get('SalesPrices')->getDefaultPrice());
+
         $this->initCategoriesFullUrls();
         $this->initAttributeValues();
         $this->getCustomerLog()->info('Finished to initialise necessary data.');
@@ -200,6 +219,44 @@ class Exporter
     public function getStorePlentyId()
     {
         return $this->storePlentyId;
+    }
+
+    /**
+     * @return bool|int
+     */
+    public function getRrpId()
+    {
+        return $this->rrpId;
+    }
+
+    /**
+     * @param int $rrpId
+     * @return $this
+     */
+    public function setRrpId($rrpId)
+    {
+        $this->rrpId = $rrpId;
+
+        return $this;
+    }
+
+    /**
+     * @return bool|int
+     */
+    public function getPriceId()
+    {
+        return $this->priceId;
+    }
+
+    /**
+     * @param int $priceId
+     * @return $this
+     */
+    public function setPriceId($priceId)
+    {
+        $this->priceId = $priceId;
+
+        return $this;
     }
 
     /**
@@ -307,8 +364,8 @@ class Exporter
             ->setStoreUrl($this->getConfig()->getDomain())
             ->setLanguageCode($this->getConfig()->getLanguage())
             ->setAvailabilityIds($this->getConfig()->getAvailabilityId())
-            ->setPriceId($this->getConfig()->getPriceId())
-            ->setRrpPriceId($this->getConfig()->getRrpId())
+            ->setPriceId($this->getPriceId())
+            ->setRrpPriceId($this->getRrpId())
             ->setExportSalesFrequency($this->exportSalesFrequency)
             ->setProductNameFieldId($this->getStoreConfigValue($this->getStorePlentyId(), 'displayItemName'))
             ->processInitialData($productData);
