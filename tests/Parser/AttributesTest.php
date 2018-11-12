@@ -2,13 +2,15 @@
 
 namespace Findologic\PlentymarketsTest\Parser;
 
-Use Findologic\Plentymarkets\Parser\Attributes;
-use Findologic\Plentymarkets\Config;
+use Findologic\Plentymarkets\Parser\Attributes;
 use PHPUnit_Framework_TestCase;
 
 class AttributesTest extends PHPUnit_Framework_TestCase
 {
-    protected $defaultEmptyValue = Config::DEFAULT_EMPTY_VALUE;
+    /**
+     * @var string
+     */
+    protected $defaultEmptyValue = '';
 
     /**
      *  Method $data property example:

@@ -2,12 +2,14 @@
 
 namespace Findologic\PlentymarketsTest\Parser;
 
-use Findologic\Plentymarkets\Config;
 use PHPUnit_Framework_TestCase;
 
 class PropertyGroupsTest extends PHPUnit_Framework_TestCase
 {
-    protected $defaultEmptyValue = Config::DEFAULT_EMPTY_VALUE;
+    /**
+     * @var string
+     */
+    protected $defaultEmptyValue = '';
 
     /**
      *  Method $data property example:
