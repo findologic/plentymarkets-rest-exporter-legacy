@@ -2,8 +2,6 @@
 
 namespace Findologic\Plentymarkets\Parser;
 
-use Findologic\Plentymarkets\Config;
-
 class Categories extends ParserAbstract implements ParserInterface
 {
     /**

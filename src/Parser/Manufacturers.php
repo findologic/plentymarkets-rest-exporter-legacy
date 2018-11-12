@@ -2,8 +2,6 @@
 
 namespace Findologic\Plentymarkets\Parser;
 
-use Findologic\Plentymarkets\Config;
-
 class Manufacturers extends ParserAbstract implements ParserInterface
 {
     /**
