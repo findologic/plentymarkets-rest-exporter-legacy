@@ -6,9 +6,6 @@ php:
 install:
   - composer install
 
-before_script:
-  - cp src/Config.php.dist src/Config.php
-
 script:
   - vendor/bin/phpunit --configuration phpunit.xml
 
