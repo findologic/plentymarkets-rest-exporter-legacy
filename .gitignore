@@ -1,5 +1,5 @@
 Export.csv
-Config.php
+PlentyConfig.php
 phpunit
 awd.sh
 docker-compose.env

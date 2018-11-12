@@ -2,10 +2,7 @@
 
 namespace Findologic\PlentymarketsTest;
 
-use Findologic\Plentymarkets\Config;
 use Findologic\Plentymarkets\Product;
-use Findologic\Plentymarkets\Registry;
-use Findologic\Plentymarkets\Parser\SalesPrices;
 use PHPUnit_Framework_TestCase;
 
 class ProductTest extends PHPUnit_Framework_TestCase
@@ -15,7 +12,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
      */
     protected $product;
 
-    protected $defaultEmptyValue = Config::DEFAULT_EMPTY_VALUE;
+    protected $defaultEmptyValue = '';
 
     /**
      * @inheritDoc
