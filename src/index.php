@@ -3,6 +3,7 @@
 ini_set('max_execution_time', 300);
 
 require_once '../vendor/autoload.php';
+require_once 'PlentyConfig.php';
 
 use Findologic\Plentymarkets\Config;
 
@@ -26,7 +27,7 @@ $config->setUsername('username')
     ->setMultishopId(10000)
     ->setPriceId(1)
     ->setRrpId(2) // price id for 'instead' field
-    ->setCountry('GB') // Country code for tax rates
+    ->setMultishopId(0)
     ->setLanguage('EN'); // Language code for texts
 
 $registry = new \Findologic\Plentymarkets\Registry($log, $customerLogger);
