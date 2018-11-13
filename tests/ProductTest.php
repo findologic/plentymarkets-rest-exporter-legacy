@@ -318,19 +318,18 @@ class ProductTest extends PHPUnit_Framework_TestCase
 
     public function processVariationProvider()
     {
-        return array(
-            // No variation data provided, item fields should be empty
-            'No variation data provided' => array(
-                array(),
+        return [
+            'No variation data provided' => [
+                [],
                 '',
                 '',
-                array()
-            ),
+                []
+            ],
             // Variation attributes, units and identifiers (barcodes not included) data provided but the prices is missing,
             // second variation will be ignored as it is not active
-            'Prices is missing' => array(
-                array(
-                    array(
+            'Prices is missing' => [
+                [
+                    [
                         'position' => '1',
                         'isMain' => true,
                         'number' => 'Test Number',
@@ -339,28 +338,28 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'availability' => 1,
                         'id' => 'Test Id',
                         'mainVariationId' => null,
-                        'variationSalesPrices' => array(),
+                        'variationSalesPrices' => [],
                         'vatId' => 2,
                         'salesRank' => 15,
                         'automaticListVisibility' => 3,
-                        'variationAttributeValues' => array(
-                            array(
+                        'variationAttributeValues' => [
+                            [
                                 'attributeId' => '1',
                                 'valueId' => '2'
-                            ),
-                        ),
-                        'variationBarcodes' => array(),
-                        'unit' => array(
-                            "unitId"=> 1,
-                            "content" => 2
-                        ),
-                        'stock' => array(
-                            array(
+                            ]
+                        ],
+                        'variationBarcodes' => [],
+                        'unit' => [
+                            'unitId' => 1,
+                            'content' => 2
+                        ],
+                        'stock' => [
+                            [
                                 'netStock' => 1
-                            )
-                        )
-                    ),
-                    array(
+                            ]
+                        ]
+                    ],
+                    [
                         'position' => '2',
                         'isMain' => false,
                         'number' => 'Test Number 2',
@@ -369,36 +368,36 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'availability' => 1,
                         'id' => 'Test Id 2',
                         'mainVariationId' => 'Test Id',
-                        'variationSalesPrices' => array(),
+                        'variationSalesPrices' => [],
                         'vatId' => 2,
                         'automaticListVisibility' => 3,
-                        'variationAttributeValues' => array(
-                            array(
+                        'variationAttributeValues' => [
+                            [
                                 'attributeId' => '3',
                                 'valueId' => '5'
-                            ),
-                        ),
-                        'variationBarcodes' => array(),
-                        'unit' => array(
-                            "unitId"=> 1,
-                            "content" => 2
-                        ),
-                        'stock' => array(
-                            array(
+                            ]
+                        ],
+                        'variationBarcodes' => [],
+                        'unit' => [
+                            'unitId' => 1,
+                            'content' => 2
+                        ],
+                        'stock' => [
+                            [
                                 'netStock' => 1
-                            )
-                        )
-                    )
-                ),
-                array('Test' => array('Test')),
-                array('Test Number', 'Test Model', 'Test Id'),
-                array('price' => 0.00, 'maxprice' => '', 'instead' => 0.00, 'base_unit' => 'C62', 'taxrate' => '19.00', 'sales_frequency' => 15, 'main_variation_id' => 'Test Id')
-            ),
+                            ]
+                        ]
+                    ]
+                ],
+                ['Test' => ['Test']],
+                ['Test Number', 'Test Model', 'Test Id'],
+                ['price' => 0.00, 'maxprice' => '', 'instead' => 0.00, 'base_unit' => 'C62', 'taxrate' => '19.00', 'sales_frequency' => 15, 'main_variation_id' => 'Test Id']
+            ],
             // Variation prices includes price with configurated sales price id and configurated rrp price id
             // Variation has duplicate identifier id => 'Test Id' so it should be ignored when adding to 'ordernumber' field
-            'Variation has duplicate identifier id' => array(
-                array(
-                    array(
+            'Variation has duplicate identifier id' => [
+                [
+                    [
                         'position' => '1',
                         'isMain' => false,
                         'number' => 'Test Number',
@@ -410,25 +409,25 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'mainVariationId' => 'Test Id',
                         'vatId' => 2,
                         'automaticListVisibility' => 3,
-                        'variationSalesPrices' => array(
-                            array(
+                        'variationSalesPrices' => [
+                            [
                                 'price' => 15,
                                 'salesPriceId' => 1 // Sales price id
-                            ),
-                            array(
+                            ],
+                            [
                                 'price' => 14,
                                 'salesPriceId' => 2
-                            )
-                        ),
-                        'variationAttributeValues' => array(),
-                        'variationBarcodes' => array(),
-                        'stock' => array(
-                            array(
+                            ]
+                        ],
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [],
+                        'stock' => [
+                            [
                                 'netStock' => 1
-                            )
-                        )
-                    ),
-                    array(
+                            ]
+                        ]
+                    ],
+                    [
                         'position' => '2',
                         'isMain' => true,
                         'number' => 'Test Number 2',
@@ -439,37 +438,37 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'id' => 'Test Id',
                         'mainVariationId' => 'Test',
                         'automaticListVisibility' => 3,
-                        'variationSalesPrices' => array(
-                            array(
+                        'variationSalesPrices' => [
+                            [
                                 'price' => 14,
                                 'salesPriceId' => 1 // Sales price id
-                            ),
-                            array(
+                            ],
+                            [
                                 'price' => 0,
                                 'salesPriceId' => 3
-                            ),
-                            array(
+                            ],
+                            [
                                 'price' => 17,
                                 'salesPriceId' => 4 // Rrp price id
-                            ),
-                        ),
-                        'variationAttributeValues' => array(),
-                        'variationBarcodes' => array(
-                            array(
+                            ],
+                        ],
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [
+                            [
                                 'code' => 'Barcode'
-                            )
-                        ),
-                        'stock' => array(
-                            array(
+                            ]
+                        ],
+                        'stock' => [
+                            [
                                 'netStock' => 1
-                            )
-                        )
-                    )
-                ),
+                            ]
+                        ]
+                    ]
+                ],
                 '',
-                array('Test Number', 'Test Model', 'Test Id', 'Test Number 2', 'Test Model 2', 'Barcode'),
-                array('price' => 14, 'maxprice' => '', 'instead' => 17, 'main_variation_id' => 'Test Id', 'sort' => '2')
-            ),
+                ['Test Number', 'Test Model', 'Test Id', 'Test Number 2', 'Test Model 2', 'Barcode'],
+                ['price' => 14, 'maxprice' => '', 'instead' => 17, 'main_variation_id' => 'Test Id', 'sort' => '2']
+            ],
             'Variation is hidden in category list' => [
                 [
                     [
@@ -693,8 +692,8 @@ class ProductTest extends PHPUnit_Framework_TestCase
                 '',
                 ['Test Number', 'Test Model', 'Test Id', 'Test Number 2', 'Test Model 2', 'Test Id 2'],
                 []
-            ],
-        );
+            ]
+        ];
     }
 
     /**
