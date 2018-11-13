@@ -652,7 +652,7 @@ class Product extends ParserAbstract
             return false;
         }
 
-        if (isset($variation['isHiddenInCategoryList']) && $variation['isHiddenInCategoryList'] === true) {
+        if (isset($variation['automaticListVisibility']) && $variation['automaticListVisibility'] < 1) {
             return false;
         }
 
