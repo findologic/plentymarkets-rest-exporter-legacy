@@ -342,10 +342,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'variationSalesPrices' => array(),
                         'vatId' => 2,
                         'salesRank' => 15,
-                        'isVisibleIfNetStockIsPositive' => false,
-                        'isInvisibleIfNetStockIsNotPositive' => false,
-                        'isAvailableIfNetStockIsPositive' => false,
-                        'isUnavailableIfNetStockIsNotPositive' => false,
+                        'automaticListVisibility' => 3,
                         'variationAttributeValues' => array(
                             array(
                                 'attributeId' => '1',
@@ -374,10 +371,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'mainVariationId' => 'Test Id',
                         'variationSalesPrices' => array(),
                         'vatId' => 2,
-                        'isVisibleIfNetStockIsPositive' => false,
-                        'isInvisibleIfNetStockIsNotPositive' => false,
-                        'isAvailableIfNetStockIsPositive' => false,
-                        'isUnavailableIfNetStockIsNotPositive' => false,
+                        'automaticListVisibility' => 3,
                         'variationAttributeValues' => array(
                             array(
                                 'attributeId' => '3',
@@ -415,10 +409,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'id' => 'Test Id',
                         'mainVariationId' => 'Test Id',
                         'vatId' => 2,
-                        'isVisibleIfNetStockIsPositive' => false,
-                        'isInvisibleIfNetStockIsNotPositive' => false,
-                        'isAvailableIfNetStockIsPositive' => false,
-                        'isUnavailableIfNetStockIsNotPositive' => false,
+                        'automaticListVisibility' => 3,
                         'variationSalesPrices' => array(
                             array(
                                 'price' => 15,
@@ -447,10 +438,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'availableUntil' => null,
                         'id' => 'Test Id',
                         'mainVariationId' => 'Test',
-                        'isVisibleIfNetStockIsPositive' => false,
-                        'isInvisibleIfNetStockIsNotPositive' => false,
-                        'isAvailableIfNetStockIsPositive' => false,
-                        'isUnavailableIfNetStockIsNotPositive' => false,
+                        'automaticListVisibility' => 3,
                         'variationSalesPrices' => array(
                             array(
                                 'price' => 14,
