@@ -648,7 +648,7 @@ class Product extends ParserAbstract
      */
     protected function shouldProcessVariation(array $variation)
     {
-        if ($variation['isActive'] == false) {
+        if ($variation['isActive'] === false) {
             return false;
         }
 
