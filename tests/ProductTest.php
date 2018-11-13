@@ -711,8 +711,13 @@ class ProductTest extends PHPUnit_Framework_TestCase
 
     /**
      * @dataProvider processVariationProvider
+     *
+     * @param array $data
+     * @param array|string $expectedAttributes
+     * @param array|string $expectedIdentifiers
+     * @param array $expectedFields
      */
-    public function testProcessVariation($data, $expectedAttributes, $expectedIdentifiers, $expectedFields)
+    public function testProcessVariation(array $data, $expectedAttributes, $expectedIdentifiers, array $expectedFields)
     {
         $attributesMock = $this->getMockBuilder('Findologic\Plentymarkets\Parser\Attributes')
             ->disableOriginalConstructor()
