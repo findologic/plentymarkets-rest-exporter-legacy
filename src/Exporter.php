@@ -90,6 +90,13 @@ class Exporter
     protected $priceId = false;
 
     /**
+     * Language url prefix
+     *
+     * @var bool|string
+     */
+    protected $languageUrlPrefix = false;
+
+    /**
      * Flag to know if store supports salesRank
      *
      * @var bool
@@ -141,6 +148,7 @@ class Exporter
 
         $this->initCategoriesFullUrls();
         $this->initAttributeValues();
+        $this->initLanguageUrlPrefix();
         $this->getCustomerLog()->info('Finished to initialise necessary data.');
 
         return $this;
@@ -260,6 +268,25 @@ class Exporter
     }
 
     /**
+     * @param string $urlPrefix
+     * @return $this
+     */
+    public function setLanguageUrlPrefix($urlPrefix)
+    {
+        $this->languageUrlPrefix = $urlPrefix;
+
+        return $this;
+    }
+
+    /**
+     * @return bool|string
+     */
+    public function getLanguageUrlPrefix()
+    {
+        return $this->languageUrlPrefix;
+    }
+
+    /**
      * Get all products
      *
      * @param int|null $itemsPerPage
@@ -367,6 +394,7 @@ class Exporter
             ->setAvailabilityIds($this->getConfig()->getAvailabilityId())
             ->setPriceId($this->getPriceId())
             ->setRrpPriceId($this->getRrpId())
+            ->setProductUrlPrefix($this->getLanguageUrlPrefix())
             ->setExportSalesFrequency($this->exportSalesFrequency)
             ->setProductNameFieldId($this->getStoreConfigValue($this->getStorePlentyId(), 'displayItemName'))
             ->processInitialData($productData);
@@ -531,6 +559,31 @@ class Exporter
         }
 
         return null;
+    }
+
+    /**
+     * Check store default and configuration languages to decide if language url prefix is needed
+     *
+     * @return $this
+     */
+    protected function initLanguageUrlPrefix()
+    {
+        /** @var \Findologic\Plentymarkets\Parser\Stores $stores */
+        $stores = $this->getRegistry()->get('Stores');
+
+        $configurationLanguage = strtolower($this->getConfig()->getLanguage());
+        $urlPrefix = '';
+
+        if (
+            $configurationLanguage != $stores->getStoreDefaultLanguage($this->getConfig()->getStorePlentyId()) &&
+            $stores->isLanguageAvailableInStore($this->getConfig()->getStorePlentyId(), $configurationLanguage)
+        ) {
+            $urlPrefix = $configurationLanguage;
+        }
+
+        $this->setLanguageUrlPrefix($urlPrefix);
+
+        return $this;
     }
 
     /**
