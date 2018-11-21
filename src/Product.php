@@ -354,7 +354,7 @@ class Product extends ParserAbstract
         $path = '/' . ltrim($path, '/');
         $path = rtrim($path, '/');
 
-        return $this->protocol . $this->getStoreUrl() . $path . $prefix . '/' . 'a-' . $this->getItemId();
+        return $this->protocol . $this->getStoreUrl() . $prefix . $path . '/' . 'a-' . $this->getItemId();
     }
 
     /**
