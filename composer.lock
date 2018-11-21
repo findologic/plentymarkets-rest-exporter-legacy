@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "2cf82b4674e28472a55b115d6cb20379",
+    "content-hash": "a885a25a142def150f2cba07204bdcbb",
     "packages": [
         {
             "name": "apache/log4php",
@@ -13,6 +13,12 @@
                 "type": "git",
                 "url": "git@github.com:apache/logging-log4php.git",
                 "reference": "092e040418e1c8b78b97811b6eef01d492b97026"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/apache/logging-log4php/zipball/092e040418e1c8b78b97811b6eef01d492b97026",
+                "reference": "092e040418e1c8b78b97811b6eef01d492b97026",
+                "shasum": ""
             },
             "require": {
                 "php": ">=5.2.7"
