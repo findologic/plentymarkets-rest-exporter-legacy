@@ -648,11 +648,11 @@ class Product extends ParserAbstract
      */
     protected function shouldProcessVariation(array $variation)
     {
-        if ($variation['isActive'] == false) {
+        if ($variation['isActive'] === false) {
             return false;
         }
 
-        if (isset($variation['isHiddenInCategoryList']) && $variation['isHiddenInCategoryList'] === true) {
+        if (isset($variation['automaticListVisibility']) && $variation['automaticListVisibility'] < 1) {
             return false;
         }
 
