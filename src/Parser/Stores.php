@@ -17,7 +17,11 @@ class Stores extends ParserAbstract implements ParserInterface
         foreach ($data as $stores) {
             $this->results[$stores['storeIdentifier']] = [
                 'id' => $stores['id'],
+<<<<<<< HEAD
                 'defaultLanguage' => $stores['configuration']['defaultLanguage'],
+=======
+                'defaultLanguage' => isset($stores['configuration']['defaultLanguage']) ? $stores['configuration']['defaultLanguage'] : [],
+>>>>>>> 47245fc1092d2b0ba3590a064619a881a4e065c8
                 'languageList' => array_map('trim', explode(',', $stores['configuration']['languageList']))
             ];
         }
@@ -52,8 +56,13 @@ class Stores extends ParserAbstract implements ParserInterface
     }
 
     /**
+<<<<<<< HEAD
      * @param $identifier
      * @param $language
+=======
+     * @param int $identifier
+     * @param string $language
+>>>>>>> 47245fc1092d2b0ba3590a064619a881a4e065c8
      * @return bool
      */
     public function isLanguageAvailableInStore($identifier, $language)

@@ -268,7 +268,7 @@ class Exporter
     }
 
     /**
-     * @param $urlPrefix
+     * @param string $urlPrefix
      * @return $this
      */
     public function setLanguageUrlPrefix($urlPrefix)
@@ -562,7 +562,7 @@ class Exporter
     }
 
     /**
-     *
+     * Check store default and configuration languages to decide if language url prefix is needed.
      *
      * @return $this
      */
@@ -575,8 +575,8 @@ class Exporter
         $urlPrefix = '';
 
         if (
-            $configurationLanguage != $stores->getStoreDefaultLanguage($this->getConfig()->getMultishopId()) &&
-            $stores->isLanguageAvailableInStore($this->getConfig()->getMultishopId(), $configurationLanguage)
+            $configurationLanguage != $stores->getStoreDefaultLanguage($this->getConfig()->getStorePlentyId()) &&
+            $stores->isLanguageAvailableInStore($this->getConfig()->getStorePlentyId(), $configurationLanguage)
         ) {
             $urlPrefix = $configurationLanguage;
         }

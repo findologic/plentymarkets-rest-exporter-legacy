@@ -14,7 +14,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         return [
             'Config values provided, defaultLanguage is equal to current language' => [1, 2, 3, 4, 3, 4, 'en', 'en', false, ''],
             'Config values provided, defaultLanguage is not current language; current language is not in languageList' => [1, 2, 3, 4, 3, 4, 'en', 'de', false, ''],
-            'Config values provided missing, use store values, defaultLanguage is not current language; current language is in languageList' => [1, 2, false, false, 1, 2, 'en', 'de', true, 'en']
+            'Config values missing, use store values, defaultLanguage is not current language; current language is in languageList' => [1, 2, false, false, 1, 2, 'en', 'de', true, 'en']
         ];
     }
 
