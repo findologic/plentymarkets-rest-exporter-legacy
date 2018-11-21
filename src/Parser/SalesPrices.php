@@ -21,7 +21,8 @@ class SalesPrices extends ParserAbstract implements ParserInterface
             $this->results[$price['type']][] = $price['id'];
         }
 
-        array_multisort($this->results[self::PRICE_TYPE], $this->results[self::RRP_TYPE]);
+        sort($this->results[self::PRICE_TYPE]);
+        sort($this->results[self::RRP_TYPE]);
 
         return $this->results;
     }
