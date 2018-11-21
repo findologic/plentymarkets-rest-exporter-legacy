@@ -3,10 +3,14 @@
 namespace Findologic\PlentymarketsTest\Parser;
 
 use Findologic\Plentymarkets\Parser\Units;
-use Findologic\Plentymarkets\Config;
 
 class UnitsTest extends \PHPUnit_Framework_TestCase
 {
+    /**
+     * @var string
+     */
+    protected $defaultEmptyValue = '';
+
     public function parseProvider()
     {
         return array(
@@ -55,7 +59,7 @@ class UnitsTest extends \PHPUnit_Framework_TestCase
             ),
             array(
                 999,
-                Config::DEFAULT_EMPTY_VALUE
+                $this->defaultEmptyValue
             ),
         );
     }

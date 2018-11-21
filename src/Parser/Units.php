@@ -2,8 +2,6 @@
 
 namespace Findologic\Plentymarkets\Parser;
 
-use Findologic\Plentymarkets\Config;
-
 /**
  * Class Units
  * @package Findologic\Plentymarkets\Parser
@@ -31,7 +29,7 @@ class Units extends ParserAbstract implements ParserInterface
      * Map unit id to actual value
      *
      * @param int $id
-     * @return mixed|bool
+     * @return string
      */
     public function getUnitValue($id)
     {
@@ -39,6 +37,6 @@ class Units extends ParserAbstract implements ParserInterface
             return $this->results[$id];
         }
 
-        return Config::DEFAULT_EMPTY_VALUE;
+        return $this->getDefaultEmptyValue();
     }
 }

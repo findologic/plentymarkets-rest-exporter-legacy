@@ -12,8 +12,9 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     public function initProvider()
     {
         return [
-            'Config values provided' => [1, 2, 3, 4, 3, 4],
-            'Config values provided missing, use store values' => [1, 2, false, false, 1, 2]
+            'Config values provided, defaultLanguage is equal to current language' => [1, 2, 3, 4, 3, 4, 'en', 'en', false, ''],
+            'Config values provided, defaultLanguage is not current language; current language is not in languageList' => [1, 2, 3, 4, 3, 4, 'en', 'de', false, ''],
+            'Config values missing, use store values, defaultLanguage is not current language; current language is in languageList' => [1, 2, false, false, 1, 2, 'en', 'de', true, 'en']
         ];
     }
 
@@ -29,8 +30,16 @@ class ExporterTest extends PHPUnit_Framework_TestCase
      *
      * @dataProvider initProvider
      */
-    public function testInit($priceId, $rrpId, $configPriceId, $configRrpId, $expectedPriceId, $expectedRrpId)
+    public function testInit($priceId, $rrpId, $configPriceId, $configRrpId, $expectedPriceId, $expectedRrpId, $configurationLanguage, $storeDefaultLanguage, $isAvailable, $expectedPrefix)
     {
+        $storesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Stores')
+            ->disableOriginalConstructor()
+            ->setMethods(['getStoreDefaultLanguage', 'isLanguageAvailableInStore'])
+            ->getMock();
+
+        $storesMock->expects($this->any())->method('getStoreDefaultLanguage')->willReturn($storeDefaultLanguage);
+        $storesMock->expects($this->any())->method('isLanguageAvailableInStore')->willReturn($isAvailable);
+
         $salesPricesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\SalesPrices')
             ->disableOriginalConstructor()
             ->setMethods(['getDefaultPrice', 'getDefaultRrp'])
@@ -42,12 +51,14 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $registryMock = $this->getRegistryMock(['get']);
         $registryMock->expects($this->any())->method('get')->willReturnMap([
             ['log', false],
-            ['SalesPrices', $salesPricesMock]
+            ['SalesPrices', $salesPricesMock],
+            ['Stores', $storesMock]
         ]);
 
         $configMock = $this->getConfigMock();
         $configMock->expects($this->any())->method('getPriceId')->willReturn($configPriceId);
         $configMock->expects($this->any())->method('getRrpId')->willReturn($configRrpId);
+        $configMock->expects($this->any())->method('getLanguage')->willReturn($configurationLanguage);
 
         $exporterMock = $this->getExporterMockBuilder();
         $exporterMock->setMethods(['getRegistry', 'getConfig', 'initAdditionalData', 'initCategoriesFullUrls', 'initAttributeValues', 'handleException']);
@@ -65,6 +76,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
 
         $this->assertEquals($expectedPriceId, $exporterMock->getPriceId(), 'Price id is not matching expected value');
         $this->assertEquals($expectedRrpId, $exporterMock->getRrpId(), 'Rrp price id is not matching expected value');
+        $this->assertEquals($expectedPrefix, $exporterMock->getLanguageUrlPrefix(), 'Language url prefix is not matching expected value');
 
         $this->assertInstanceOf('\Findologic\Plentymarkets\Wrapper\WrapperInterface', $exporterMock->getWrapper());
         $this->assertInstanceOf('\Findologic\Plentymarkets\Client', $exporterMock->getClient());
@@ -125,6 +137,11 @@ class ExporterTest extends PHPUnit_Framework_TestCase
      */
     public function testInitAttributeValues()
     {
+        $storesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Stores')
+            ->disableOriginalConstructor()
+            ->setMethods(['getStoreDefaultLanguage', 'isLanguageAvailableInStore'])
+            ->getMock();
+
         $salesPricesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\SalesPrices')
             ->disableOriginalConstructor()
             ->setMethods(['getDefaultPrice', 'getDefaultRrp'])
@@ -143,7 +160,8 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $registryMock = $this->getRegistryMock(['get']);
         $registryMock->expects($this->any())->method('get')->willReturnMap([
             ['attributes', $attributesMock],
-            ['SalesPrices', $salesPricesMock]
+            ['SalesPrices', $salesPricesMock],
+            ['Stores', $storesMock]
         ]);
 
         $exporterMock = $this->getExporterMockBuilder(['registry' => $registryMock]);
