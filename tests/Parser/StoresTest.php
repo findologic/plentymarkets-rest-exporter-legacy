@@ -24,24 +24,32 @@ class StoresTest extends PHPUnit_Framework_TestCase
      */
     public function parseProvider()
     {
-        return array(
-            // No data provided, results should be empty
-            array(
-                array(),
-                array()
-            ),
-            // One store data provided
-            array(
-                array(
-                    array(
+        return [
+            'No data provided, results should be empty' => [
+                [],
+                []
+            ],
+            'One store data provided' => [
+                [
+                    [
                         'id' => 0,
                         'type' => 'plentymarkets',
                         'storeIdentifier' => 31776,
-                    )
-                ),
-                array(31776 => 0)
-            ),
-        );
+                        'configuration' => [
+                            'defaultLanguage' => 'de',
+                            'languageList' => 'en, de'
+                        ]
+                    ]
+                ],
+                [
+                    31776 => [
+                        'id' => 0,
+                        'defaultLanguage' => 'de',
+                        'languageList' => ['en', 'de']
+                    ]
+                ]
+            ],
+        ];
     }
 
     /**
@@ -51,7 +59,7 @@ class StoresTest extends PHPUnit_Framework_TestCase
     {
         $storesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Stores')
             ->disableOriginalConstructor()
-            ->setMethods(array('getLanguageCode'))
+            ->setMethods(['getLanguageCode'])
             ->getMock();
 
         $storesMock->parse($data);
@@ -61,26 +69,26 @@ class StoresTest extends PHPUnit_Framework_TestCase
 
     public function getStoreInternalIdByIdentifierProvider()
     {
-        return array(
+        return [
             // Store by provided identifier is not found
-            array(
-                array(
-                    31776 => 0,
-                    31777 => 1,
-                ),
+            [
+                [
+                    31776 => ['id' => 0],
+                    31777 => ['id' => 1],
+                ],
                 31744,
                 ''
-            ),
+            ],
             // Vat rate was found
-            array(
-                array(
-                    31776 => 0,
-                    31777 => 1,
-                ),
+            [
+                [
+                    31776 => ['id' => 0],
+                    31777 => ['id' => 1],
+                ],
                 31776,
                 0
-            )
-        );
+            ]
+        ];
     }
 
     /**
@@ -90,7 +98,7 @@ class StoresTest extends PHPUnit_Framework_TestCase
     {
         $vatMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Stores')
             ->disableOriginalConstructor()
-            ->setMethods(array('getDefaultEmptyValue'))
+            ->setMethods(['getDefaultEmptyValue'])
             ->getMock();
 
         $vatMock->expects($this->any())->method('getDefaultEmptyValue')->willReturn($this->defaultEmptyValue);

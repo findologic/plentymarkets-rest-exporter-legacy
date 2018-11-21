@@ -77,6 +77,11 @@ class Product extends ParserAbstract
     protected $rrpPriceId;
 
     /**
+     * @var bool|string
+     */
+    protected $productUrlPrefix = false;
+
+    /**
      * Flag to know if store supports salesRank
      *
      * @var bool
@@ -186,6 +191,25 @@ class Product extends ParserAbstract
     public function getExportSalesFrequency()
     {
         return $this->exportSalesFrequency;
+    }
+
+    /**
+     * @return string
+     */
+    public function getProductUrlPrefix()
+    {
+        return $this->productUrlPrefix;
+    }
+
+    /**
+     * @param string $productUrlPrefix
+     * @return $this
+     */
+    public function setProductUrlPrefix($productUrlPrefix)
+    {
+        $this->productUrlPrefix = $productUrlPrefix;
+
+        return $this;
     }
 
     /**
@@ -320,11 +344,17 @@ class Product extends ParserAbstract
             return $this->getDefaultEmptyValue();
         }
 
+        $prefix = '';
+
+        if ($this->getProductUrlPrefix()) {
+            $prefix .= '/' . $this->getProductUrlPrefix();
+        }
+
         // Using trim just in case if path could be passed with and without forward slash
         $path = '/' . ltrim($path, '/');
         $path = rtrim($path, '/');
 
-        return $this->protocol . $this->getStoreUrl() . $path . '/' . 'a-' . $this->getItemId();
+        return $this->protocol . $this->getStoreUrl() . $prefix . $path . '/' . 'a-' . $this->getItemId();
     }
 
     /**
@@ -648,11 +678,11 @@ class Product extends ParserAbstract
      */
     protected function shouldProcessVariation(array $variation)
     {
-        if ($variation['isActive'] == false) {
+        if ($variation['isActive'] === false) {
             return false;
         }
 
-        if (isset($variation['isHiddenInCategoryList']) && $variation['isHiddenInCategoryList'] === true) {
+        if (isset($variation['automaticListVisibility']) && $variation['automaticListVisibility'] < 1) {
             return false;
         }
 
