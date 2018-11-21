@@ -19,5 +19,11 @@
     "psr-4": {
       "Findologic\\Plentymarkets\\": "src/"
     }
-  }
+  },
+  "repositories": [
+    {
+      "type": "git",
+      "url": "git@github.com:apache/logging-log4php.git"
+    }
+  ]
 }

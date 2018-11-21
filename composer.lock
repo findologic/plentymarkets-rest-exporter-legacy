@@ -4,14 +4,14 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#composer-lock-the-lock-file",
         "This file is @generated automatically"
     ],
-    "content-hash": "2c902a30aa75f97a66ec341ab718e83a",
+    "content-hash": "2cf82b4674e28472a55b115d6cb20379",
     "packages": [
         {
             "name": "apache/log4php",
             "version": "2.1.0",
             "source": {
                 "type": "git",
-                "url": "https://git-wip-us.apache.org/repos/asf/logging-log4php.git",
+                "url": "git@github.com:apache/logging-log4php.git",
                 "reference": "092e040418e1c8b78b97811b6eef01d492b97026"
             },
             "require": {
@@ -23,7 +23,6 @@
                     "src/main/php/"
                 ]
             },
-            "notification-url": "https://packagist.org/downloads/",
             "license": [
                 "Apache-2.0"
             ],
@@ -34,6 +33,11 @@
                 "logging",
                 "php"
             ],
+            "support": {
+                "issues": "https://issues.apache.org/jira/browse/LOG4PHP",
+                "source": "https://svn.apache.org/repos/asf/logging/log4php",
+                "email": "log4php-user@logging.apache.org"
+            },
             "time": "2012-10-26T09:12:59+00:00"
         },
         {
