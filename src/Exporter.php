@@ -575,8 +575,8 @@ class Exporter
         $urlPrefix = '';
 
         if (
-            $configurationLanguage != $stores->getStoreDefaultLanguage($this->getConfig()->getStorePlentyId()) &&
-            $stores->isLanguageAvailableInStore($this->getConfig()->getStorePlentyId(), $configurationLanguage)
+            $configurationLanguage != $stores->getStoreDefaultLanguage($this->getStorePlentyId()) &&
+            $stores->isLanguageAvailableInStore($this->getStorePlentyId(), $configurationLanguage)
         ) {
             $urlPrefix = $configurationLanguage;
         }
