@@ -105,12 +105,12 @@ class Client
     protected $lastTimeout = false;
 
     /**
-     * @param \PlentyConfig $config
+     * @param mixed $config Plentymarkets Config object.
      * @param \Logger $log
      * @param \Logger $customerLog
      * @param bool $debug
      */
-    public function __construct(\PlentyConfig $config, Logger $log, Logger $customerLog, $debug = false)
+    public function __construct($config, Logger $log, Logger $customerLog, $debug = false)
     {
         $url = rtrim($config->getDomain(), '/') . '/rest/';
         $this->url = $url;
@@ -122,7 +122,7 @@ class Client
 
     /**
      * @codeCoverageIgnore
-     * @return \PlentyConfig
+     * @return mixed Plentymarkets config.
      */
     public function getConfig()
     {
