@@ -2,7 +2,9 @@
 
 namespace Findologic\PlentymarketsTest\Parser;
 
-class PropertiesTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class PropertiesTest extends TestCase
 {
     public function providerParse()
     {

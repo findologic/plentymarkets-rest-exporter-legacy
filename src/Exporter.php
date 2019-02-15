@@ -8,7 +8,7 @@ use Findologic\Plentymarkets\Exception\ThrottlingException;
 use Findologic\Plentymarkets\Parser\ParserFactory;
 use Findologic\Plentymarkets\Parser\Attributes;
 use Findologic\Plentymarkets\Wrapper\WrapperInterface;
-use \Logger;
+use Log4Php\Logger;
 
 class Exporter
 {
@@ -25,12 +25,12 @@ class Exporter
     protected $wrapper;
 
     /**
-     * @var \Logger
+     * @var Logger
      */
     protected $log;
 
     /**
-     * @var \Logger
+     * @var Logger
      */
     protected $customerLog;
 
@@ -361,7 +361,7 @@ class Exporter
                 $page++;
             }
         } catch (ThrottlingException $e) {
-            $this->log->fatal('Stopping products processing because of throttling exception.');
+            $this->log->alert('Stopping products processing because of throttling exception.');
 
             // Re-throw the exception to ensure that the export fails.
             throw $e;
@@ -615,7 +615,7 @@ class Exporter
         foreach ($this->additionalDataParsers as $type) {
             $methodName = 'get' . ucwords($type);
             if (!method_exists($this->getClient(), $methodName)) {
-                $this->getLog()->warn(
+                $this->getLog()->warning(
                     'Plugin tried to call method from API client which does not exist when initialising parsers. ' .
                     'Parser type: ' . $type .
                     ' Method called: ' . $methodName,

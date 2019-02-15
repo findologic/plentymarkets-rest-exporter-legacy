@@ -7,13 +7,13 @@
     "FINDOLOGIC"
   ],
   "require": {
-    "php": ">=5.5.0",
+    "php": ">=7.2",
     "findologic/http_request2": "2.3.1",
-    "apache/log4php": "2.1.0"
+    "vasily-kartashov/log4php": "4.1.0"
   },
   "require-dev": {
-    "phpunit/phpunit": "^4.0",
-    "mikey179/vfsStream": "^1.6"
+    "mikey179/vfsStream": "^1.6",
+    "phpunit/phpunit": "8.0.2"
   },
   "autoload": {
     "psr-4": {
@@ -24,7 +24,10 @@
     {
       "type": "vcs",
       "no-api": true,
-      "url": "git@github.com:apache/logging-log4php.git"
+      "url": "git@github.com:vasily-kartashov/log4php.git"
     }
-  ]
+  ],
+  "scripts": {
+    "run-tests": "phpunit --configuration phpunit.xml"
+  }
 }
