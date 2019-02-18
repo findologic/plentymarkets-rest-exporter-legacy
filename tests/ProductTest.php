@@ -3,9 +3,10 @@
 namespace Findologic\PlentymarketsTest;
 
 use Findologic\Plentymarkets\Product;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class ProductTest extends PHPUnit_Framework_TestCase
+class ProductTest extends TestCase
 {
     /**
      * @var \Findologic\Plentymarkets\Product
@@ -17,7 +18,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
     /**
      * @inheritDoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $registry = $this->getRegistryMock();
         $this->product = new Product($registry);
@@ -1352,7 +1353,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
     /**
      * @param array $methods
      * @param array|bool $constructorArgs
-     * @return \Findologic\Plentymarkets\Product|\PHPUnit_Framework_MockObject_MockObject
+     * @return \Findologic\Plentymarkets\Product|MockObject
      */
     protected function getProductMock($methods = array(), $constructorArgs = false)
     {
@@ -1379,7 +1380,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
     /**
      * Helper function to get registry mock
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return MockObject
      */
     protected function getRegistryMock()
     {

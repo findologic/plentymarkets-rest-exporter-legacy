@@ -2,10 +2,9 @@
 
 namespace Findologic\PlentymarketsTest\Parser;
 
-use Findologic\Plentymarkets\Parser\SalesPrices;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class SalesPricesTest extends PHPUnit_Framework_TestCase
+class SalesPricesTest extends TestCase
 {
     public function parseProvider()
     {

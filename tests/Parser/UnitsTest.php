@@ -3,8 +3,9 @@
 namespace Findologic\PlentymarketsTest\Parser;
 
 use Findologic\Plentymarkets\Parser\Units;
+use PHPUnit\Framework\TestCase;
 
-class UnitsTest extends \PHPUnit_Framework_TestCase
+class UnitsTest extends TestCase
 {
     /**
      * @var string

@@ -1,13 +1,13 @@
 language: php
 
 php:
-  - 7.0
+  - 7.3
 
 install:
   - composer install
 
 script:
-  - vendor/bin/phpunit --configuration phpunit.xml
+  - composer run-tests
 
 branches:
   only:

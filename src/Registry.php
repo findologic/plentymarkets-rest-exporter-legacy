@@ -2,6 +2,8 @@
 
 namespace Findologic\Plentymarkets;
 
+use Log4Php\Logger;
+
 /**
  * A container for holding objects (parsers with parsed data, loggers and etc.)
  *
@@ -14,10 +16,10 @@ class Registry
      * Require log class for constructor to make sure it exists at all times.
      *
      * @codeCoverageIgnore
-     * @param \Logger $logger
-     * @param \Logger $customerLogger
+     * @param Logger $logger
+     * @param Logger $customerLogger
      */
-    public function __construct(\Logger $logger, \Logger $customerLogger)
+    public function __construct(Logger $logger, Logger $customerLogger)
     {
         $this->set('log', $logger);
         $this->set('customerLogger', $customerLogger);

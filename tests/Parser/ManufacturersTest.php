@@ -2,9 +2,9 @@
 
 namespace Findologic\PlentymarketsTest\Parser;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class ManufacturersTest extends PHPUnit_Framework_TestCase
+class ManufacturersTest extends TestCase
 {
     /**
      * @var string

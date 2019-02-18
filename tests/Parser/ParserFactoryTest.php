@@ -5,9 +5,10 @@ namespace Findologic\PlentymarketsTest\Parser;
 use Findologic\Plentymarkets\Parser\ParserFactory;
 use Findologic\Plentymarkets\Parser\Categories;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class ParserFactoryTest extends PHPUnit_Framework_TestCase
+class ParserFactoryTest extends TestCase
 {
     /**
      * Test creation of parser by provided type
@@ -23,7 +24,7 @@ class ParserFactoryTest extends PHPUnit_Framework_TestCase
      */
     public function testCreateInterfaceException()
     {
-        $this->setExpectedException(\Exception::class);
+        $this->expectException(\Exception::class);
         $parser = ParserFactory::create('ParserFactory', $this->getRegistryMock());
     }
 
@@ -32,14 +33,15 @@ class ParserFactoryTest extends PHPUnit_Framework_TestCase
      */
     public function testCreateNotExistingClass()
     {
-        $this->setExpectedException(\Exception::class);
+        $this->expectException(\Exception::class);
         $parser = ParserFactory::create('TestParser', $this->getRegistryMock());
     }
 
     /**
      * Helper function to get registry mock
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return MockObject
+     * @throws \ReflectionException
      */
     protected function getRegistryMock()
     {

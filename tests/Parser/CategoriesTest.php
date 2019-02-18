@@ -2,9 +2,10 @@
 
 namespace Findologic\PlentymarketsTest\Parser;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class CategoriesTest extends PHPUnit_Framework_TestCase
+class CategoriesTest extends TestCase
 {
     /**
      * @var string
@@ -239,7 +240,8 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
      * Helper function to avoid mock creation code duplication
      *
      * @param array $methods
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return MockObject
+     * @throws \ReflectionException
      */
     protected function getCategoriesMock($methods = array())
     {

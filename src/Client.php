@@ -7,7 +7,7 @@ use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Exception\ThrottlingException;
 use \HTTP_Request2_Response;
 use \HTTP_Request2;
-use \Logger;
+use Log4Php\Logger;
 
 class Client
 {
@@ -106,8 +106,8 @@ class Client
 
     /**
      * @param mixed $config Plentymarkets Config object.
-     * @param \Logger $log
-     * @param \Logger $customerLog
+     * @param Logger $log
+     * @param Logger $customerLog
      * @param bool $debug
      */
     public function __construct($config, Logger $log, Logger $customerLog, $debug = false)
@@ -168,7 +168,7 @@ class Client
 
     /**
      * @codeCoverageIgnore
-     * @return \Logger
+     * @return Logger
      */
     public function getLog()
     {
@@ -177,7 +177,7 @@ class Client
 
     /**
      * @codeCoverageIgnore
-     * @return \Logger
+     * @return Logger
      */
     public function getCustomerLog()
     {
@@ -725,7 +725,7 @@ class Client
                 $timeOut = $timeOut - (time() - $this->getLastTimeout()) + 1;
             }
 
-            $this->log->warn('Throttling limit reached. Will be waiting for ' . $timeOut . ' seconds.');
+            $this->log->warning('Throttling limit reached. Will be waiting for ' . $timeOut . ' seconds.');
             usleep($timeOut * 1000000);
         }
 
@@ -743,7 +743,7 @@ class Client
     {
         if ($response->getHeader(self::GLOBAL_LONG_CALLS_LEFT_COUNT) == 1) {
             //TODO: maybe check if global time out is not so long and wait instead of stopping execution
-            $this->log->fatal('Global throttling limit reached.');
+            $this->log->alert('Global throttling limit reached.');
             throw new ThrottlingException();
         }
 

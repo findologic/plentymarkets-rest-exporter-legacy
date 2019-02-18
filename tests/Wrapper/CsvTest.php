@@ -2,12 +2,12 @@
 
 namespace Findologic\PlentymarketsTest\Wrapper;
 
-use Findologic\Plentymarkets\Wrapper\Csv;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use org\bovigo\vfs\vfsStream;
 use org\bovigo\vfs\vfsStreamFile;
 
-class CsvTest extends PHPUnit_Framework_TestCase
+class CsvTest extends TestCase
 {
     /**
      * @var \org\bovigo\vfs\vfsStreamDirectory
@@ -19,7 +19,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
      */
     protected $fileMock;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->fileSystemMock = vfsStream::setup();
         $this->fileMock = new vfsStreamFile('Export.csv');
@@ -49,7 +49,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
         $url = $this->getMockedFileSystemPath('Export.csv');
         $wrapperMock = $this->getWrapperMock($url, array('getResults'));
         $this->fileMock->chmod(0);
-        $this->setExpectedException('\Findologic\Plentymarkets\Exception\CriticalException');
+        $this->expectException('\Findologic\Plentymarkets\Exception\CriticalException');
         @$wrapperMock->wrapItem($this->getItemDataMock());
     }
 
@@ -79,7 +79,7 @@ class CsvTest extends PHPUnit_Framework_TestCase
     /**
      * @param string $url
      * @param array $methods
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return MockObject
      */
     protected function getWrapperMock($url, $methods)
     {

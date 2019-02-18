@@ -3,9 +3,10 @@
 namespace Findologic\PlentymarketsTest\Parser;
 
 use Findologic\Plentymarkets\Parser\Attributes;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class AttributesTest extends PHPUnit_Framework_TestCase
+class AttributesTest extends TestCase
 {
     /**
      * @var string
@@ -523,7 +524,8 @@ class AttributesTest extends PHPUnit_Framework_TestCase
      * Helper function to construct attributes mock
      *
      * @param array $methods
-     * @return Attributes|\PHPUnit_Framework_MockObject_MockObject
+     * @return Attributes|MockObject
+     * @throws \ReflectionException
      */
     protected function getAttributesMock($methods = array())
     {

@@ -2,9 +2,10 @@
 
 namespace Findologic\PlentymarketsTest\Parser;
 
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class PropertyGroupsTest extends PHPUnit_Framework_TestCase
+class PropertyGroupsTest extends TestCase
 {
     /**
      * @var string
@@ -123,7 +124,7 @@ class PropertyGroupsTest extends PHPUnit_Framework_TestCase
      * Helper function to avoid mock creation code duplication
      *
      * @param array $methods
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return MockObject
      */
     protected function getPropertiesGroupsMock($methods = array())
     {

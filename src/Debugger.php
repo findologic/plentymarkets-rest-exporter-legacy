@@ -4,7 +4,7 @@ namespace Findologic\Plentymarkets;
 
 use \Findologic\Plentymarkets\Exception\InternalException;
 use HTTP_Request2;
-use Logger;
+use Log4Php\Logger;
 
 class Debugger
 {
@@ -31,7 +31,7 @@ class Debugger
     protected $pathsToDebug = array();
 
     /**
-     * @var \Logger $log
+     * @var Logger $log
      */
     protected $log;
 
