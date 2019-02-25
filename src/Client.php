@@ -404,7 +404,13 @@ class Client
      */
     public function getProperties()
     {
-        $response = $this->call('GET', $this->getEndpoint('properties'));
+        try {
+            $response = $this->call('GET', $this->getEndpoint('properties'));
+        } catch (CustomerException $e) {
+            $this->log->warning('Permission for properties is not granted.');
+
+            return [];
+        }
 
         return $this->returnResult($response);
     }

@@ -2,7 +2,9 @@
 
 namespace Findologic\PlentymarketsTest\Parser;
 
-class ItemPropertiesTest extends \PHPUnit_Framework_TestCase
+use PHPUnit\Framework\TestCase;
+
+class ItemPropertiesTest extends TestCase
 {
     protected $defaultEmptyValue = '';
 
