@@ -8,7 +8,7 @@ use Findologic\Plentymarkets\Exception\ThrottlingException;
 use Findologic\Plentymarkets\Parser\ParserFactory;
 use Findologic\Plentymarkets\Parser\Attributes;
 use Findologic\Plentymarkets\Wrapper\WrapperInterface;
-use \Logger;
+use Log4Php\Logger;
 
 class Exporter
 {
@@ -25,12 +25,12 @@ class Exporter
     protected $wrapper;
 
     /**
-     * @var \Logger
+     * @var Logger
      */
     protected $log;
 
     /**
-     * @var \Logger
+     * @var Logger
      */
     protected $customerLog;
 
@@ -76,11 +76,37 @@ class Exporter
     protected $storePlentyId = false;
 
     /**
+     * RRP price id
+     *
+     * @var bool|int
+     */
+    protected $rrpId = false;
+
+    /**
+     * Price id
+     *
+     * @var bool|int
+     */
+    protected $priceId = false;
+
+    /**
+     * Language url prefix
+     *
+     * @var bool|string
+     */
+    protected $languageUrlPrefix = false;
+
+    /**
      * Flag to know if store supports salesRank
      *
      * @var bool
      */
     protected $exportSalesFrequency = false;
+
+    /**
+     * @var array
+     */
+    protected $storesConfiguration = array();
 
     /**
      * @var \PlentyConfig
@@ -113,9 +139,16 @@ class Exporter
     {
         $this->getCustomerLog()->info('Starting to initialise necessary data (categories, attributes, etc.).');
         $this->getClient()->login();
+        $this->setStoresConfiguration($this->getClient()->getWebstores());
         $this->initAdditionalData();
+
+        // Init price configuration after sales price additional data was parsed.
+        $this->setRrpId($this->getConfig()->getRrpId() ? $this->getConfig()->getRrpId() : $this->getRegistry()->get('SalesPrices')->getDefaultRrp());
+        $this->setPriceId($this->getConfig()->getPriceId() ? $this->getConfig()->getPriceId() : $this->getRegistry()->get('SalesPrices')->getDefaultPrice());
+
         $this->initCategoriesFullUrls();
         $this->initAttributeValues();
+        $this->initLanguageUrlPrefix();
         $this->getCustomerLog()->info('Finished to initialise necessary data.');
 
         return $this;
@@ -197,6 +230,63 @@ class Exporter
     }
 
     /**
+     * @return bool|int
+     */
+    public function getRrpId()
+    {
+        return $this->rrpId;
+    }
+
+    /**
+     * @param int $rrpId
+     * @return $this
+     */
+    public function setRrpId($rrpId)
+    {
+        $this->rrpId = $rrpId;
+
+        return $this;
+    }
+
+    /**
+     * @return bool|int
+     */
+    public function getPriceId()
+    {
+        return $this->priceId;
+    }
+
+    /**
+     * @param int $priceId
+     * @return $this
+     */
+    public function setPriceId($priceId)
+    {
+        $this->priceId = $priceId;
+
+        return $this;
+    }
+
+    /**
+     * @param string $urlPrefix
+     * @return $this
+     */
+    public function setLanguageUrlPrefix($urlPrefix)
+    {
+        $this->languageUrlPrefix = $urlPrefix;
+
+        return $this;
+    }
+
+    /**
+     * @return bool|string
+     */
+    public function getLanguageUrlPrefix()
+    {
+        return $this->languageUrlPrefix;
+    }
+
+    /**
      * Get all products
      *
      * @param int|null $itemsPerPage
@@ -270,12 +360,11 @@ class Exporter
 
                 $page++;
             }
-        } catch (\Exception $e) {
-            if ($e instanceof ThrottlingException) {
-                $this->log->fatal('Stopping products processing because of throttling exception.');
-            } else {
-                throw $e;
-            }
+        } catch (ThrottlingException $e) {
+            $this->log->alert('Stopping products processing because of throttling exception.');
+
+            // Re-throw the exception to ensure that the export fails.
+            throw $e;
         }
 
         $this->getCustomerLog()->info(sprintf(
@@ -302,9 +391,11 @@ class Exporter
             ->setStoreUrl($this->getConfig()->getDomain())
             ->setLanguageCode($this->getConfig()->getLanguage())
             ->setAvailabilityIds($this->getConfig()->getAvailabilityId())
-            ->setPriceId($this->getConfig()->getPriceId())
-            ->setRrpPriceId($this->getConfig()->getRrpId())
+            ->setPriceId($this->getPriceId())
+            ->setRrpPriceId($this->getRrpId())
+            ->setProductUrlPrefix($this->getLanguageUrlPrefix())
             ->setExportSalesFrequency($this->exportSalesFrequency)
+            ->setProductNameFieldId($this->getStoreConfigValue($this->getStorePlentyId(), 'displayItemName'))
             ->processInitialData($productData);
 
         return $product;
@@ -407,7 +498,7 @@ class Exporter
         }
 
         if (!$this->standardVat) {
-            $stores = $this->getClient()->getWebstores();
+            $stores = $this->getStoresConfiguration();
             foreach ($stores as $store) {
                 if ($store['id'] == $this->getConfig()->getMultishopId()) {
                     $this->setStorePlentyId($store['storeIdentifier']);
@@ -422,6 +513,80 @@ class Exporter
         }
 
         return $this->standardVat;
+    }
+
+    /**
+     * @param array $configuration
+     * @return $this
+     */
+    public function setStoresConfiguration(array $configuration)
+    {
+        $this->storesConfiguration = $configuration;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getStoresConfiguration()
+    {
+        return $this->storesConfiguration;
+    }
+
+    /**
+     * @param int $storeId
+     * @param string $configKey
+     * @return null|mixed
+     */
+    public function getStoreConfigValue($storeId, $configKey)
+    {
+        if (!$storeId) {
+            return null;
+        }
+
+        $storesConfigurations = $this->getStoresConfiguration();
+
+        if (!is_array($storesConfigurations) || empty($storesConfigurations)) {
+            return null;
+        }
+
+        foreach ($storesConfigurations as $storeConfiguration) {
+            if ($storeConfiguration['storeIdentifier'] !== $storeId) {
+                continue;
+            }
+
+            if (isset($storeConfiguration['configuration'][$configKey])) {
+                return $storeConfiguration['configuration'][$configKey];
+            }
+        }
+
+        return null;
+    }
+
+    /**
+     * Check store default and configuration languages to decide if language url prefix is needed.
+     *
+     * @return $this
+     */
+    protected function initLanguageUrlPrefix()
+    {
+        /** @var \Findologic\Plentymarkets\Parser\Stores $stores */
+        $stores = $this->getRegistry()->get('Stores');
+
+        $configurationLanguage = strtolower($this->getConfig()->getLanguage());
+        $urlPrefix = '';
+
+        if (
+            $configurationLanguage != $stores->getStoreDefaultLanguage($this->getStorePlentyId()) &&
+            $stores->isLanguageAvailableInStore($this->getStorePlentyId(), $configurationLanguage)
+        ) {
+            $urlPrefix = $configurationLanguage;
+        }
+
+        $this->setLanguageUrlPrefix($urlPrefix);
+
+        return $this;
     }
 
     /**
@@ -454,7 +619,7 @@ class Exporter
         foreach ($this->additionalDataParsers as $type) {
             $methodName = 'get' . ucwords($type);
             if (!method_exists($this->getClient(), $methodName)) {
-                $this->getLog()->warn(
+                $this->getLog()->warning(
                     'Plugin tried to call method from API client which does not exist when initialising parsers. ' .
                     'Parser type: ' . $type .
                     ' Method called: ' . $methodName,

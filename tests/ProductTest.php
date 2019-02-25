@@ -2,25 +2,23 @@
 
 namespace Findologic\PlentymarketsTest;
 
-use Findologic\Plentymarkets\Config;
 use Findologic\Plentymarkets\Product;
-use Findologic\Plentymarkets\Registry;
-use Findologic\Plentymarkets\Parser\SalesPrices;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class ProductTest extends PHPUnit_Framework_TestCase
+class ProductTest extends TestCase
 {
     /**
      * @var \Findologic\Plentymarkets\Product
      */
     protected $product;
 
-    protected $defaultEmptyValue = Config::DEFAULT_EMPTY_VALUE;
+    protected $defaultEmptyValue = '';
 
     /**
      * @inheritDoc
      */
-    protected function setUp()
+    protected function setUp(): void
     {
         $registry = $this->getRegistryMock();
         $this->product = new Product($registry);
@@ -202,12 +200,13 @@ class ProductTest extends PHPUnit_Framework_TestCase
     {
         return array(
             // No data given, item object should not have any information
-            array('', array(), array()),
+            array('', '1', array(), array()),
             // Product initial data provided but the texts array is empty
             array(
+                1,
                 '1',
                 array(
-                    'id' => '1',
+                    'id' => 1,
                     'createdAt' => '2001-12-12 14:12:45'
                 ),
                 array()
@@ -215,9 +214,10 @@ class ProductTest extends PHPUnit_Framework_TestCase
             // Product initial data provided but the texts data is not in language configured in export config,
             // texts should be null
             array(
+                1,
                 '1',
                 array(
-                    'id' => '1',
+                    'id' => 1,
                     'createdAt' => '2001-12-12 14:12:45',
                     'texts' => array(
                         array(
@@ -238,14 +238,16 @@ class ProductTest extends PHPUnit_Framework_TestCase
             ),
             // Product initial data provided, item should have an id and appropriate texts fields (description, meta description, etc.)
             array(
-                '1',
+                1,
+                2,
                 array(
-                    'id' => '1',
+                    'id' => 1,
                     'createdAt' => '2001-12-12 14:12:45',
                     'texts' => array(
                         array(
                             'lang' => 'en',
                             'name1' => 'Test',
+                            'name2' => 'Test 2',
                             'shortDescription' => 'Short Description',
                             'description' => 'Description',
                             'keywords' => 'Keyword'
@@ -253,7 +255,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
                     )
                 ),
                 array(
-                    'name' => 'Test',
+                    'name' => 'Test 2',
                     'summary' => 'Short Description',
                     'description' => 'Description',
                     'keywords' => 'Keyword'
@@ -267,9 +269,10 @@ class ProductTest extends PHPUnit_Framework_TestCase
      *
      * @dataProvider processInitialDataProvider
      */
-    public function testProcessInitialData($itemId, $data, $texts)
+    public function testProcessInitialData($itemId, $productNameId, $data, $texts)
     {
         $productMock = $this->getProductMock();
+        $productMock->setProductNameFieldId($productNameId);
         $productMock->processInitialData($data);
 
         $this->assertSame($itemId, $productMock->getItemId());
@@ -313,19 +316,18 @@ class ProductTest extends PHPUnit_Framework_TestCase
 
     public function processVariationProvider()
     {
-        return array(
-            // No variation data provided, item fields should be empty
-            array(
-                array(),
+        return [
+            'No variation data provided' => [
+                [],
                 '',
                 '',
-                array()
-            ),
+                []
+            ],
             // Variation attributes, units and identifiers (barcodes not included) data provided but the prices is missing,
             // second variation will be ignored as it is not active
-            array(
-                array(
-                    array(
+            'Prices is missing' => [
+                [
+                    [
                         'position' => '1',
                         'isMain' => true,
                         'number' => 'Test Number',
@@ -334,31 +336,28 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'availability' => 1,
                         'id' => 'Test Id',
                         'mainVariationId' => null,
-                        'variationSalesPrices' => array(),
+                        'variationSalesPrices' => [],
                         'vatId' => 2,
                         'salesRank' => 15,
-                        'isVisibleIfNetStockIsPositive' => false,
-                        'isInvisibleIfNetStockIsNotPositive' => false,
-                        'isAvailableIfNetStockIsPositive' => false,
-                        'isUnavailableIfNetStockIsNotPositive' => false,
-                        'variationAttributeValues' => array(
-                            array(
+                        'automaticListVisibility' => 3,
+                        'variationAttributeValues' => [
+                            [
                                 'attributeId' => '1',
                                 'valueId' => '2'
-                            ),
-                        ),
-                        'variationBarcodes' => array(),
-                        'unit' => array(
-                            "unitId"=> 1,
-                            "content" => 2
-                        ),
-                        'stock' => array(
-                            array(
+                            ]
+                        ],
+                        'variationBarcodes' => [],
+                        'unit' => [
+                            'unitId' => 1,
+                            'content' => 2
+                        ],
+                        'stock' => [
+                            [
                                 'netStock' => 1
-                            )
-                        )
-                    ),
-                    array(
+                            ]
+                        ]
+                    ],
+                    [
                         'position' => '2',
                         'isMain' => false,
                         'number' => 'Test Number 2',
@@ -367,39 +366,36 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'availability' => 1,
                         'id' => 'Test Id 2',
                         'mainVariationId' => 'Test Id',
-                        'variationSalesPrices' => array(),
+                        'variationSalesPrices' => [],
                         'vatId' => 2,
-                        'isVisibleIfNetStockIsPositive' => false,
-                        'isInvisibleIfNetStockIsNotPositive' => false,
-                        'isAvailableIfNetStockIsPositive' => false,
-                        'isUnavailableIfNetStockIsNotPositive' => false,
-                        'variationAttributeValues' => array(
-                            array(
+                        'automaticListVisibility' => 3,
+                        'variationAttributeValues' => [
+                            [
                                 'attributeId' => '3',
                                 'valueId' => '5'
-                            ),
-                        ),
-                        'variationBarcodes' => array(),
-                        'unit' => array(
-                            "unitId"=> 1,
-                            "content" => 2
-                        ),
-                        'stock' => array(
-                            array(
+                            ]
+                        ],
+                        'variationBarcodes' => [],
+                        'unit' => [
+                            'unitId' => 1,
+                            'content' => 2
+                        ],
+                        'stock' => [
+                            [
                                 'netStock' => 1
-                            )
-                        )
-                    )
-                ),
-                array('Test' => array('Test')),
-                array('Test Number', 'Test Model', 'Test Id'),
-                array('price' => 0.00, 'maxprice' => '', 'instead' => 0.00, 'base_unit' => 'C62', 'taxrate' => '19.00', 'sales_frequency' => 15, 'main_variation_id' => 'Test Id')
-            ),
+                            ]
+                        ]
+                    ]
+                ],
+                ['Test' => ['Test']],
+                ['Test Number', 'Test Model', 'Test Id'],
+                ['price' => 0.00, 'maxprice' => '', 'instead' => 0.00, 'base_unit' => 'C62', 'taxrate' => '19.00', 'sales_frequency' => 15, 'variation_id' => 'Test Id']
+            ],
             // Variation prices includes price with configurated sales price id and configurated rrp price id
             // Variation has duplicate identifier id => 'Test Id' so it should be ignored when adding to 'ordernumber' field
-            array(
-                array(
-                    array(
+            'Variation has duplicate identifier id' => [
+                [
+                    [
                         'position' => '1',
                         'isMain' => false,
                         'number' => 'Test Number',
@@ -410,31 +406,28 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'id' => 'Test Id',
                         'mainVariationId' => 'Test Id',
                         'vatId' => 2,
-                        'isVisibleIfNetStockIsPositive' => false,
-                        'isInvisibleIfNetStockIsNotPositive' => false,
-                        'isAvailableIfNetStockIsPositive' => false,
-                        'isUnavailableIfNetStockIsNotPositive' => false,
-                        'variationSalesPrices' => array(
-                            array(
+                        'automaticListVisibility' => 3,
+                        'variationSalesPrices' => [
+                            [
                                 'price' => 15,
                                 'salesPriceId' => 1 // Sales price id
-                            ),
-                            array(
+                            ],
+                            [
                                 'price' => 14,
                                 'salesPriceId' => 2
-                            )
-                        ),
-                        'variationAttributeValues' => array(),
-                        'variationBarcodes' => array(),
-                        'stock' => array(
-                            array(
+                            ]
+                        ],
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [],
+                        'stock' => [
+                            [
                                 'netStock' => 1
-                            )
-                        )
-                    ),
-                    array(
+                            ]
+                        ]
+                    ],
+                    [
                         'position' => '2',
-                        'isMain' => false,
+                        'isMain' => true,
                         'number' => 'Test Number 2',
                         'model' => 'Test Model 2',
                         'isActive' => true,
@@ -442,48 +435,346 @@ class ProductTest extends PHPUnit_Framework_TestCase
                         'availableUntil' => null,
                         'id' => 'Test Id',
                         'mainVariationId' => 'Test',
-                        'isVisibleIfNetStockIsPositive' => false,
-                        'isInvisibleIfNetStockIsNotPositive' => false,
-                        'isAvailableIfNetStockIsPositive' => false,
-                        'isUnavailableIfNetStockIsNotPositive' => false,
-                        'variationSalesPrices' => array(
-                            array(
+                        'automaticListVisibility' => 3,
+                        'variationSalesPrices' => [
+                            [
                                 'price' => 14,
                                 'salesPriceId' => 1 // Sales price id
-                            ),
-                            array(
+                            ],
+                            [
                                 'price' => 0,
                                 'salesPriceId' => 3
-                            ),
-                            array(
+                            ],
+                            [
                                 'price' => 17,
                                 'salesPriceId' => 4 // Rrp price id
-                            ),
-                        ),
-                        'variationAttributeValues' => array(),
-                        'variationBarcodes' => array(
-                            array(
+                            ],
+                        ],
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [
+                            [
                                 'code' => 'Barcode'
-                            )
-                        ),
-                        'stock' => array(
-                            array(
+                            ]
+                        ],
+                        'stock' => [
+                            [
                                 'netStock' => 1
-                            )
-                        )
-                    )
-                ),
+                            ]
+                        ]
+                    ]
+                ],
                 '',
-                array('Test Number', 'Test Model', 'Test Id', 'Test Number 2', 'Test Model 2', 'Barcode'),
-                array('price' => 14, 'maxprice' => '', 'instead' => 17, 'main_variation_id' => 'Test')
-            ),
-        );
+                ['Test Number', 'Test Model', 'Test Id', 'Test Number 2', 'Test Model 2', 'Barcode'],
+                ['price' => 14, 'maxprice' => '', 'instead' => 17, 'variation_id' => 'Test Id', 'sort' => '2']
+            ],
+            'Variation is hidden in category list' => [
+                [
+                    [
+                        'position' => '1',
+                        'isMain' => true,
+                        'number' => 'Test Number',
+                        'model' => 'Test Model',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'id' => 'Test Id',
+                        'mainVariationId' => null,
+                        'variationSalesPrices' => [],
+                        'vatId' => 2,
+                        'salesRank' => 15,
+                        'automaticListVisibility' => 3,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [],
+                        'unit' => [
+                            'unitId' => 1,
+                            'content' => 2
+                        ],
+                        'stock' => [
+                            [
+                                'netStock' => 1
+                            ]
+                        ]
+                    ],
+                    [
+                        'position' => '2',
+                        'isMain' => false,
+                        'number' => 'Test Number 2',
+                        'model' => 'Test Model 2',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'id' => 'Test Id 2',
+                        'mainVariationId' => 'Test Id',
+                        'variationSalesPrices' => [],
+                        'vatId' => 2,
+                        'automaticListVisibility' => -2,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [],
+                        'unit' => [
+                            'unitId' => 1,
+                            'content' => 2
+                        ],
+                        'stock' => [
+                            [
+                                'netStock' => 1
+                            ]
+                        ]
+                    ]
+                ],
+                '',
+                ['Test Number', 'Test Model', 'Test Id'],
+                []
+            ],
+            'Variation is hidden in item list' => [
+                [
+                    [
+                        'position' => '1',
+                        'isMain' => true,
+                        'number' => 'Test Number',
+                        'model' => 'Test Model',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'id' => 'Test Id',
+                        'mainVariationId' => null,
+                        'variationSalesPrices' => [],
+                        'vatId' => 2,
+                        'salesRank' => 15,
+                        'automaticListVisibility' => 3,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [],
+                        'unit' => [
+                            'unitId' => 1,
+                            'content' => 2
+                        ],
+                        'stock' => [
+                            [
+                                'netStock' => 1
+                            ]
+                        ]
+                    ],
+                    [
+                        'position' => '2',
+                        'isMain' => false,
+                        'number' => 'Test Number 2',
+                        'model' => 'Test Model 2',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'id' => 'Test Id 2',
+                        'mainVariationId' => 'Test Id',
+                        'variationSalesPrices' => [],
+                        'vatId' => 2,
+                        'automaticListVisibility' => 0,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [],
+                        'unit' => [
+                            'unitId' => 1,
+                            'content' => 2
+                        ],
+                        'stock' => [
+                            [
+                                'netStock' => 1
+                            ]
+                        ]
+                    ],
+                    [
+                        'position' => '3',
+                        'isMain' => false,
+                        'number' => 'Test Number 3',
+                        'model' => 'Test Model 3',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'id' => 'Test Id 3',
+                        'mainVariationId' => 'Test Id',
+                        'variationSalesPrices' => [],
+                        'vatId' => 2,
+                        'automaticListVisibility' => -1,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [],
+                        'unit' => [
+                            'unitId' => 1,
+                            'content' => 2
+                        ],
+                        'stock' => [
+                            [
+                                'netStock' => 1
+                            ]
+                        ]
+                    ]
+                ],
+                '',
+                ['Test Number', 'Test Model', 'Test Id'],
+                []
+            ],
+            'Variation is visible in category list' => [
+                [
+                    [
+                        'position' => '1',
+                        'isMain' => true,
+                        'number' => 'Test Number',
+                        'model' => 'Test Model',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'id' => 'Test Id',
+                        'mainVariationId' => null,
+                        'variationSalesPrices' => [],
+                        'vatId' => 2,
+                        'salesRank' => 15,
+                        'automaticListVisibility' => 3,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [],
+                        'unit' => [
+                            'unitId' => 1,
+                            'content' => 2
+                        ],
+                        'stock' => [
+                            [
+                                'netStock' => 1
+                            ]
+                        ]
+                    ]
+                ],
+                '',
+                ['Test Number', 'Test Model', 'Test Id'],
+                []
+            ],
+            'Variation is visible in item list' => [
+                [
+                    [
+                        'position' => '1',
+                        'isMain' => true,
+                        'number' => 'Test Number',
+                        'model' => 'Test Model',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'id' => 'Test Id',
+                        'mainVariationId' => null,
+                        'variationSalesPrices' => [],
+                        'vatId' => 2,
+                        'salesRank' => 15,
+                        'automaticListVisibility' => 2,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [],
+                        'unit' => [
+                            'unitId' => 1,
+                            'content' => 2
+                        ],
+                        'stock' => [
+                            [
+                                'netStock' => 1
+                            ]
+                        ]
+                    ],
+                    [
+                        'position' => '2',
+                        'isMain' => false,
+                        'number' => 'Test Number 2',
+                        'model' => 'Test Model 2',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'id' => 'Test Id 2',
+                        'mainVariationId' => 'Test Id',
+                        'variationSalesPrices' => [],
+                        'vatId' => 2,
+                        'automaticListVisibility' => 1,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [],
+                        'unit' => [
+                            'unitId' => 1,
+                            'content' => 2
+                        ],
+                        'stock' => [
+                            [
+                                'netStock' => 1
+                            ]
+                        ]
+                    ]
+                ],
+                '',
+                ['Test Number', 'Test Model', 'Test Id', 'Test Number 2', 'Test Model 2', 'Test Id 2'],
+                []
+            ],
+            'Main variation is inactive, use fallback variation ID' => [
+                [
+                    [
+                        'position' => '1',
+                        'isMain' => false,
+                        'number' => 'Test Number',
+                        'model' => 'Test Model',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'availableUntil' => '2099-01-01T00:00:00+01:00',
+                        'id' => 'Not the main variation',
+                        'mainVariationId' => 'Test Id',
+                        'vatId' => 2,
+                        'automaticListVisibility' => 3,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => []
+                    ],
+                    [
+                        'position' => '2',
+                        'isMain' => true,
+                        'number' => 'Test Number 2',
+                        'model' => 'Test Model 2',
+                        'isActive' => false,
+                        'availability' => 1,
+                        'availableUntil' => null,
+                        'id' => 'Test Id',
+                        'mainVariationId' => 'Test',
+                        'automaticListVisibility' => 3,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => []
+                    ]
+                ],
+                '',
+                ['Test Number', 'Test Model', 'Not the main variation'],
+                ['price' => 0.0, 'maxprice' => '', 'instead' => 0.0, 'variation_id' => 'Not the main variation', 'sort' => '1']
+            ],
+            "Use the main variation's ID for field, although already set" => [
+                [
+                    [
+                        'position' => '1',
+                        'isMain' => false,
+                        'number' => 'Test Number',
+                        'model' => 'Test Model',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'availableUntil' => '2099-01-01T00:00:00+01:00',
+                        'id' => 'Not the main variation',
+                        'mainVariationId' => 'Test Id',
+                        'vatId' => 2,
+                        'automaticListVisibility' => 3,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => []
+                    ],
+                    [
+                        'position' => '2',
+                        'isMain' => true,
+                        'number' => 'Test Number 2',
+                        'model' => 'Test Model 2',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'availableUntil' => null,
+                        'id' => 'Test Id',
+                        'mainVariationId' => 'Test',
+                        'automaticListVisibility' => 3,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => []
+                    ]
+                ],
+                '',
+                ['Test Number', 'Test Model', 'Not the main variation', 'Test Number 2', 'Test Model 2', 'Test Id'],
+                ['price' => 0.0, 'maxprice' => '', 'instead' => 0.0, 'variation_id' => 'Test Id', 'sort' => '2']
+            ]
+        ];
     }
 
     /**
      * @dataProvider processVariationProvider
+     *
+     * @param array $data
+     * @param array|string $expectedAttributes
+     * @param array|string $expectedIdentifiers
+     * @param array $expectedFields
      */
-    public function testProcessVariation($data, $expectedAttributes, $expectedIdentifiers, $expectedFields)
+    public function testProcessVariation(array $data, $expectedAttributes, $expectedIdentifiers, array $expectedFields)
     {
         $attributesMock = $this->getMockBuilder('Findologic\Plentymarkets\Parser\Attributes')
             ->disableOriginalConstructor()
@@ -572,7 +863,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
         $productMock = $this->getProductMock(
             array(
                 'processVariationIdentifiers',
-                'proccessVariationCategories'
+                'processVariationCategories'
             )
         );
 
@@ -581,7 +872,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
         // Further processing methods should not be called if variation do not pass visibility filtering so it could be
         // used to indicate whether it passes or not
         $productMock->expects($this->never())->method('processVariationIdentifiers');
-        $productMock->expects($this->never())->method('proccessVariationCategories');
+        $productMock->expects($this->never())->method('processVariationCategories');
 
         $productMock->processVariation($data);
     }
@@ -1236,7 +1527,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
     /**
      * @param array $methods
      * @param array|bool $constructorArgs
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return \Findologic\Plentymarkets\Product|MockObject
      */
     protected function getProductMock($methods = array(), $constructorArgs = false)
     {
@@ -1263,7 +1554,7 @@ class ProductTest extends PHPUnit_Framework_TestCase
     /**
      * Helper function to get registry mock
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return MockObject
      */
     protected function getRegistryMock()
     {

@@ -6,8 +6,8 @@
 namespace Findologic\Plentymarkets;
 
 use Findologic\Plentymarkets\Exception\InternalException;
-use PHPUnit_Framework_TestCase;
-use org\bovigo\vfs\vfsStream;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 use org\bovigo\vfs\vfsStreamFile;
 use org\bovigo\vfs\vfsStreamWrapper;
 use org\bovigo\vfs\vfsStreamDirectory;
@@ -20,7 +20,7 @@ function microtime($get_as_float = null)
     return DebuggerTest::$now ? DebuggerTest::$now : \microtime($get_as_float);
 }
 
-class DebuggerTest extends PHPUnit_Framework_TestCase
+class DebuggerTest extends TestCase
 {
     /**
      * @var string
@@ -37,7 +37,7 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
      */
     public static $now;
 
-    public function setUp()
+    public function setUp(): void
     {
         $this->testFilePath = 'tmp';
         vfsStreamWrapper::register();
@@ -49,7 +49,7 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
     /**
      * Reset custom time after test
      */
-    protected function tearDown()
+    protected function tearDown(): void
     {
         self::$now = null;
     }
@@ -136,7 +136,7 @@ class DebuggerTest extends PHPUnit_Framework_TestCase
         $fileMock->chmod(0);
         $this->fileSystemMock->addChild($fileMock);
 
-        $this->setExpectedException(InternalException::class);
+        $this->expectException(InternalException::class);
 
         // Silence fopen warnings for tests
         @$debuggerMock->debugCall($requestMock, false);
@@ -246,7 +246,7 @@ Headers :
      */
     public function testWriteCallTimingLogNoTimingInfo()
     {
-        /** @var \Findologic\Plentymarkets\Debugger|\PHPUnit_Framework_MockObject_MockObject $debuggerMock */
+        /** @var \Findologic\Plentymarkets\Debugger|MockObject $debuggerMock */
         $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
             ->setConstructorArgs(array($this->getLogMock(), $this->fileSystemMock->url(), array()))
             ->setMethods(['createDirectory', 'createFile'])
@@ -293,11 +293,11 @@ Headers :
     /* ------ helper functions ------ */
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return MockObject
      */
     protected function getLogMock($methods = array())
     {
-        $logMock = $this->getMockBuilder('\Logger')
+        $logMock = $this->getMockBuilder('Log4Php\Logger')
             ->disableOriginalConstructor()
             ->setMethods($methods)
             ->getMock();

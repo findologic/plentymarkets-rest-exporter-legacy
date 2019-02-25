@@ -5,9 +5,10 @@ namespace Findologic\PlentymarketsTest;
 use Findologic\Plentymarkets\Exception\CriticalException;
 use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Exception\ThrottlingException;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class ClientTest extends PHPUnit_Framework_TestCase
+class ClientTest extends TestCase
 {
     /**
      * Test when login request was successful and API returns the token
@@ -53,7 +54,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
 
         $clientMock->expects($this->exactly(2))->method('call')->will($this->returnValue($responseMock));
 
-        $this->setExpectedException(\Findologic\Plentymarkets\Exception\CriticalException::class);
+        $this->expectException(\Findologic\Plentymarkets\Exception\CriticalException::class);
 
         $clientMock->login();
     }
@@ -70,7 +71,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
 
         $clientMock->expects($this->once())->method('call')->will($this->returnValue($responseMock));
 
-        $this->setExpectedException(\Findologic\Plentymarkets\Exception\CriticalException::class);
+        $this->expectException(\Findologic\Plentymarkets\Exception\CriticalException::class);
 
         $clientMock->login();
     }
@@ -127,7 +128,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
             ->getMock();
 
         $debugMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')->disableOriginalConstructor()->getMock();
-        $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
+        $logMock = $this->getMockBuilder('Log4Php\Logger')->disableOriginalConstructor()->getMock();
         $configMock = $this->getMockBuilder('PlentyConfig')->setMethods(array('getDomain'))->getMock();
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
@@ -139,7 +140,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $requestMock->expects($this->any())->method('send')->will($this->returnValue($failedResponse));
         $clientMock->expects($this->once())->method('createRequest')->will($this->returnValue($requestMock));
 
-        $this->setExpectedException(CustomerException::class);
+        $this->expectException(CustomerException::class);
 
         $clientMock->getProductVariations(array('1'), '123');
     }
@@ -160,7 +161,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
 
         // Check if debugger is called
         $debugMock->expects($this->atMost(5))->method('debugCall');
-        $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
+        $logMock = $this->getMockBuilder('Log4Php\Logger')->disableOriginalConstructor()->getMock();
         $configMock = $this->getMockBuilder('PlentyConfig')->setMethods(array('getDomain'))->getMock();
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
@@ -173,7 +174,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $requestMock->expects($this->any())->method('send')->will($this->returnValue($failedResponse));
         $clientMock->expects($this->once())->method('createRequest')->will($this->returnValue($requestMock));
 
-        $this->setExpectedException(CriticalException::class);
+        $this->expectException(CriticalException::class);
 
         $clientMock->getProductVariations(array('1'));
     }
@@ -222,7 +223,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
 
         $debugMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')->disableOriginalConstructor()->getMock();
         $debugMock->expects($this->once())->method('logCallTiming');
-        $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
+        $logMock = $this->getMockBuilder('Log4Php\Logger')->disableOriginalConstructor()->getMock();
         $configMock = $this->getMockBuilder('PlentyConfig')->setMethods(array('getDomain'))->getMock();
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
@@ -254,7 +255,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $clientMock = $this->getClientMock(['createRequest']);
         $clientMock->expects($this->once())->method('createRequest')->will($this->returnValue($requestMock));
 
-        $this->setExpectedException(CustomerException::class);
+        $this->expectException(CustomerException::class);
 
         $clientMock->getAttributes();
     }
@@ -277,7 +278,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $clientMock = $this->getClientMock(['createRequest']);
         $clientMock->expects($this->once())->method('createRequest')->will($this->returnValue($requestMock));
 
-        $this->setExpectedException(ThrottlingException::class);
+        $this->expectException(ThrottlingException::class);
 
         $clientMock->getAttributes();
     }
@@ -300,7 +301,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $clientMock = $this->getClientMock(['createRequest']);
         $clientMock->expects($this->once())->method('createRequest')->will($this->returnValue($requestMock));
 
-        $this->setExpectedException(ThrottlingException::class);
+        $this->expectException(ThrottlingException::class);
 
         $clientMock->getAttributes();
     }
@@ -319,8 +320,13 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $response->expects($this->any())->method('getHeader')->willReturnOnConsecutiveCalls(50, 1);
         $requestMock->expects($this->any())->method('send')->will($this->returnValue($response));
 
-        $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
-        $logMock->expects($this->atLeastOnce())->method('warn')->with('Throttling limit reached. Will be waiting for 5 seconds.');
+        $logMock = $this->getMockBuilder('Log4Php\Logger')
+            ->setMethods(['warning'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $logMock->expects($this->atLeastOnce())
+            ->method('warning')
+            ->with('Throttling limit reached. Will be waiting for 5 seconds.');
         $configMock = $this->getMockBuilder('PlentyConfig')->setMethods(array('getDomain'))->getMock();
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
@@ -350,8 +356,14 @@ class ClientTest extends PHPUnit_Framework_TestCase
         $response->expects($this->any())->method('getHeader')->willReturnOnConsecutiveCalls(50, 15, 1);
         $requestMock->expects($this->any())->method('send')->will($this->returnValue($response));
 
-        $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
-        $logMock->expects($this->once())->method('warn')->with('Throttling limit reached. Will be waiting for 5 seconds.');
+        $logMock = $this->getMockBuilder('Log4Php\Logger')
+            ->setMethods(['warning'])
+            ->disableOriginalConstructor()
+            ->getMock();
+        $logMock
+            ->expects($this->once())
+            ->method('warning')
+            ->with('Throttling limit reached. Will be waiting for 5 seconds.');
         $configMock = $this->getMockBuilder('PlentyConfig')->setMethods(array('getDomain'))->getMock();
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
@@ -371,13 +383,14 @@ class ClientTest extends PHPUnit_Framework_TestCase
 
     /**
      * @param $methods
-     * @return \Findologic\Plentymarkets\Client|\PHPUnit_Framework_MockObject_MockObject
+     * @return \Findologic\Plentymarkets\Client|MockObject
+     * @throws \ReflectionException
      */
     protected function getClientMock($methods)
     {
-        $logMock = $this->getMockBuilder('\Logger')
+        $logMock = $this->getMockBuilder('Log4Php\Logger')
             ->disableOriginalConstructor()
-            ->setMethods(array())
+            ->setMethods(['warning', 'info', 'alert'])
             ->getMock();
 
         $configMock = $this->getMockBuilder('PlentyConfig')
@@ -397,7 +410,7 @@ class ClientTest extends PHPUnit_Framework_TestCase
      * @param $body
      * @param $status
      * @param bool $defaultHeaders
-     * @return \HTTP_Request2_Response|\PHPUnit_Framework_MockObject_MockObject
+     * @return \HTTP_Request2_Response|MockObject
      */
     protected function getResponseMock($body, $status, $defaultHeaders = true)
     {

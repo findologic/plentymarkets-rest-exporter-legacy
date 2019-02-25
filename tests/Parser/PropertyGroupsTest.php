@@ -2,12 +2,15 @@
 
 namespace Findologic\PlentymarketsTest\Parser;
 
-use Findologic\Plentymarkets\Config;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class PropertyGroupsTest extends PHPUnit_Framework_TestCase
+class PropertyGroupsTest extends TestCase
 {
-    protected $defaultEmptyValue = Config::DEFAULT_EMPTY_VALUE;
+    /**
+     * @var string
+     */
+    protected $defaultEmptyValue = '';
 
     /**
      *  Method $data property example:
@@ -121,7 +124,7 @@ class PropertyGroupsTest extends PHPUnit_Framework_TestCase
      * Helper function to avoid mock creation code duplication
      *
      * @param array $methods
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return MockObject
      */
     protected function getPropertiesGroupsMock($methods = array())
     {

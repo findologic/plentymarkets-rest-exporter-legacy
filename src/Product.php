@@ -78,11 +78,45 @@ class Product extends ParserAbstract
     protected $rrpPriceId;
 
     /**
+     * @var bool|string
+     */
+    protected $productUrlPrefix = false;
+
+    /**
      * Flag to know if store supports salesRank
      *
      * @var bool
      */
     protected $exportSalesFrequency = false;
+
+    /**
+     * Value for getting correct product name
+     *
+     * @var int
+     */
+    protected $productNameFieldId = 1;
+
+    /**
+     * Available values for product name field configuration
+     *
+     * @var array
+     */
+    protected $availableProductNameFieldIdValues = array(1, 2, 3);
+
+    /**
+     * @param int $productNameFieldId
+     * @return $this
+     */
+    public function setProductNameFieldId($productNameFieldId)
+    {
+        if (!in_array($productNameFieldId, $this->availableProductNameFieldIdValues)) {
+            return $this;
+        }
+
+        $this->productNameFieldId = $productNameFieldId;
+
+        return $this;
+    }
 
     /**
      * @param mixed $ids
@@ -158,6 +192,25 @@ class Product extends ParserAbstract
     public function getExportSalesFrequency()
     {
         return $this->exportSalesFrequency;
+    }
+
+    /**
+     * @return string
+     */
+    public function getProductUrlPrefix()
+    {
+        return $this->productUrlPrefix;
+    }
+
+    /**
+     * @param string $productUrlPrefix
+     * @return $this
+     */
+    public function setProductUrlPrefix($productUrlPrefix)
+    {
+        $this->productUrlPrefix = $productUrlPrefix;
+
+        return $this;
     }
 
     /**
@@ -292,11 +345,17 @@ class Product extends ParserAbstract
             return $this->getDefaultEmptyValue();
         }
 
+        $prefix = '';
+
+        if ($this->getProductUrlPrefix()) {
+            $prefix .= '/' . $this->getProductUrlPrefix();
+        }
+
         // Using trim just in case if path could be passed with and without forward slash
         $path = '/' . ltrim($path, '/');
         $path = rtrim($path, '/');
 
-        return $this->protocol . $this->getStoreUrl() . $path . '/' . 'a-' . $this->getItemId();
+        return $this->protocol . $this->getStoreUrl() . $prefix . $path . '/' . 'a-' . $this->getItemId();
     }
 
     /**
@@ -320,8 +379,7 @@ class Product extends ParserAbstract
         $this->itemId = $this->getFromArray($data, 'id');
 
         $this->setField('id', $this->getItemId())
-            ->setField('date_added', strtotime($this->getFromArray($data, 'createdAt')))
-            ->setField('sort', $this->getFromArray($data, 'position'));
+            ->setField('date_added', strtotime($this->getFromArray($data, 'createdAt')));
 
         $this->processManufacturer($this->getFromArray($data, 'manufacturerId'));
         $this->processTexts($data);
@@ -357,6 +415,10 @@ class Product extends ParserAbstract
     {
         if (!$this->shouldProcessVariation($variation)) {
             return false;
+        }
+
+        if ($variation['isMain'] || $this->getField('sort') === '') {
+            $this->setField('sort', $this->getFromArray($variation, 'position'));
         }
 
         $this->setField(
@@ -663,7 +725,11 @@ class Product extends ParserAbstract
      */
     protected function shouldProcessVariation(array $variation)
     {
-        if ($variation['isActive'] == false) {
+        if ($variation['isActive'] === false) {
+            return false;
+        }
+
+        if (isset($variation['automaticListVisibility']) && $variation['automaticListVisibility'] < 1) {
             return false;
         }
 
@@ -719,18 +785,12 @@ class Product extends ParserAbstract
     {
         $identificators = array('number', 'model', 'id', 'itemId');
 
-        if ($variation['isMain']) {
-            $mainVariationId = $variation['id'];
-        } else {
-            $mainVariationId = $variation['mainVariationId'];
-        }
-
         if (!$this->getField('ordernumber')) {
             $this->setField('ordernumber', array());
         }
 
-        if ($this->getField('main_variation_id') == $this->getDefaultEmptyValue() || $mainVariationId) {
-            $this->setField('main_variation_id', $mainVariationId);
+        if ($this->getField('variation_id') == $this->getDefaultEmptyValue() || $variation['isMain']) {
+            $this->setField('variation_id', $variation['id']);
         }
 
         foreach ($identificators as $identificator) {
@@ -890,7 +950,7 @@ class Product extends ParserAbstract
                 continue;
             }
 
-            $this->setField('name', $this->getFromArray($texts, 'name1'))
+            $this->setField('name', $this->getFromArray($texts, 'name' . $this->productNameFieldId))
                 ->setField('summary', $this->getFromArray($texts, 'shortDescription'))
                 ->setField('description', $this->getFromArray($texts, 'description'))
                 ->setField('url', $this->getProductFullUrl($this->getFromArray($texts, 'urlPath')))

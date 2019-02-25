@@ -2,12 +2,15 @@
 
 namespace Findologic\PlentymarketsTest\Parser;
 
-use Findologic\Plentymarkets\Config;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class CategoriesTest extends PHPUnit_Framework_TestCase
+class CategoriesTest extends TestCase
 {
-    protected $defaultEmptyValue = Config::DEFAULT_EMPTY_VALUE;
+    /**
+     * @var string
+     */
+    protected $defaultEmptyValue = '';
 
     /**
      *  Method $data property example:
@@ -35,33 +38,43 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
     public function parseProvider()
     {
         return array(
-            // No categories given, results should be empty
-            array(array(), array()),
-            // Categories data given but there is no results for configured language
-            array(
+            'No categories given' => array(array(), array()),
+            'No categories given for configured language' => array(
                 array(
                     'entries' => array(
                         array(
                             'details' => array(
-                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'lt', 'nameUrl' => 'test', 'previewUrl' => 'http://example.com/test/')
+                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'lt', 'plentyId' => '1', 'nameUrl' => 'test', 'previewUrl' => 'http://example.com/test/')
                             )
                         )
                     )
                 ),
                 array()
             ),
-            // Categories data given, results should contain array with category id => name
-            array(
+            'Categories data given' => array(
                 array(
                     'entries' => array(
                         array(
                             'details' => array(
-                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'en', 'nameUrl' => 'test', 'previewUrl' => 'http://example.com/test/')
+                                array('categoryId' => 1, 'name' => 'Test 2', 'lang' => 'en', 'plentyId' => '2', 'nameUrl' => 'test-2', 'previewUrl' => 'http://example.com/test-2/'),
+                                array('categoryId' => 1, 'name' => 'Test', 'lang' => 'en', 'plentyId' => '1', 'nameUrl' => 'test', 'previewUrl' => 'http://example.com/test/')
                             )
-                        )
+                        ),
                     )
                 ),
                 array(1 => array('name' => 'Test', 'urlKey' => 'test', 'fullPath' => '/test/'))
+            ),
+            'No categories given for configured plenty ID' => array(
+                array(
+                    'entries' => array(
+                        array(
+                            'details' => array(
+                                array('categoryId' => 1, 'name' => 'Test 2', 'lang' => 'en', 'plentyId' => '2', 'nameUrl' => 'test-2', 'previewUrl' => 'http://example.com/test-2/'),
+                            )
+                        ),
+                    )
+                ),
+                array(1 => array('name' => 'Test 2', 'urlKey' => 'test-2', 'fullPath' => '/test-2/'))
             )
         );
     }
@@ -71,9 +84,10 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
      */
     public function testParse($data, $expectedResult)
     {
-        $categoriesMock = $this->getCategoriesMock(array('getLanguageCode'));
+        $categoriesMock = $this->getCategoriesMock(array('getLanguageCode', 'getStorePlentyId'));
 
         $categoriesMock->expects($this->any())->method('getLanguageCode')->willReturn('EN');
+        $categoriesMock->expects($this->any())->method('getStorePlentyId')->willReturn('1');
 
         $categoriesMock->parse($data);
         $this->assertSame($expectedResult, $categoriesMock->getResults());
@@ -226,7 +240,8 @@ class CategoriesTest extends PHPUnit_Framework_TestCase
      * Helper function to avoid mock creation code duplication
      *
      * @param array $methods
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return MockObject
+     * @throws \ReflectionException
      */
     protected function getCategoriesMock($methods = array())
     {

@@ -2,12 +2,14 @@
 
 namespace Findologic\PlentymarketsTest\Parser;
 
-use Findologic\Plentymarkets\Config;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\TestCase;
 
-class VatTest extends PHPUnit_Framework_TestCase
+class VatTest extends TestCase
 {
-    protected $defaultEmptyValue = Config::DEFAULT_EMPTY_VALUE;
+    /**
+     * @var string
+     */
+    protected $defaultEmptyValue = '';
 
     /**
      *  array (

@@ -1,0 +1,237 @@
+<?php
+
+/**
+ * Holds all shop-specific configuration necessary to run a Plentymarkets export via SOAP API.
+ */
+class PlentyConfig
+{
+    /**
+     * @var string
+     */
+    private $domain;
+
+    /**
+     * @var string
+     */
+    private $username;
+
+    /**
+     * @var string
+     */
+    private $password;
+
+    /**
+     * @var string
+     */
+    private $wsdlUrl;
+
+    /**
+     * @var string
+     */
+    private $language;
+
+    /**
+     * @var int|null
+     */
+    private $multishopId;
+
+    /**
+     * @var int
+     */
+    private $availabilityId;
+
+    /**
+     * @var int
+     */
+    private $priceId;
+
+    /**
+     * @var int
+     */
+    private $rrpId;
+
+    /**
+     * @var string
+     */
+    private $exporter;
+
+    /**
+     * @return string The domain of this store.
+     */
+    public function getDomain()
+    {
+        return $this->domain;
+    }
+
+    /**
+     * @param string $domain
+     * @return PlentyConfig
+     */
+    public function setDomain($domain)
+    {
+        $this->domain = $domain;
+        return $this;
+    }
+
+    /**
+     * @return string The SOAP API username.
+     */
+    public function getUsername()
+    {
+        return $this->username;
+    }
+
+    /**
+     * @param string $username
+     * @return PlentyConfig
+     */
+    public function setUsername($username)
+    {
+        $this->username = $username;
+        return $this;
+    }
+
+    /**
+     * @return string The SOAP API password.
+     */
+    public function getPassword()
+    {
+        return $this->password;
+    }
+
+    /**
+     * @param string $password
+     * @return PlentyConfig
+     */
+    public function setPassword($password)
+    {
+        $this->password = $password;
+        return $this;
+    }
+
+    /**
+     * @return string The WSDL URL for the SOAP Client in use.
+     */
+    public function getWsdlUrl()
+    {
+        return $this->wsdlUrl;
+    }
+
+    /**
+     * @param string $wsdlUrl
+     * @return PlentyConfig
+     */
+    public function setWsdlUrl($wsdlUrl)
+    {
+        $this->wsdlUrl = $wsdlUrl;
+        return $this;
+    }
+
+    /**
+     * @return string The language of this store, eg. 'DE'.
+     */
+    public function getLanguage()
+    {
+        return $this->language;
+    }
+
+    /**
+     * @param string $language
+     * @return PlentyConfig
+     */
+    public function setLanguage($language)
+    {
+        $this->language = $language;
+        return $this;
+    }
+
+    /**
+     * @return int|null The store ID of this store. If null, items from all stores will be exported.
+     */
+    public function getMultishopId()
+    {
+        return $this->multishopId;
+    }
+
+    /**
+     * @param int|null $multishopId
+     * @return PlentyConfig
+     */
+    public function setMultishopId($multishopId)
+    {
+        $this->multishopId = $multishopId;
+        return $this;
+    }
+
+    /**
+     * @return int The availability ID  of items that should not be exported.
+     */
+    public function getAvailabilityId()
+    {
+        return $this->availabilityId;
+    }
+
+    /**
+     * @param int $availabilityId
+     * @return PlentyConfig
+     */
+    public function setAvailabilityId($availabilityId)
+    {
+        $this->availabilityId = $availabilityId;
+        return $this;
+    }
+
+    /**
+     * @return int ID of the price to export, as there can be multiple ones and there is no canonical ID for the default
+     *      price.
+     */
+    public function getPriceId()
+    {
+        return $this->priceId;
+    }
+
+    /**
+     * @param int $priceId
+     * @return PlentyConfig
+     */
+    public function setPriceId($priceId)
+    {
+        $this->priceId = $priceId;
+        return $this;
+    }
+
+    /**
+     * @return int ID of the recommended retail price to export, as there can be multiple ones and there is no canonical
+     *      ID for the default price.
+     */
+    public function getRrpId()
+    {
+        return $this->rrpId;
+    }
+
+    /**
+     * @param int $rrpId
+     * @return PlentyConfig
+     */
+    public function setRrpId($rrpId)
+    {
+        $this->rrpId = $rrpId;
+        return $this;
+    }
+
+    /**
+     * @return string Type of exporter to use to get product data out of a Plentymarkets API.
+     */
+    public function getExporter()
+    {
+        return $this->exporter;
+    }
+
+    /**
+     * @param string $exporter
+     */
+    public function setExporter($exporter)
+    {
+        $this->exporter = $exporter;
+    }
+}

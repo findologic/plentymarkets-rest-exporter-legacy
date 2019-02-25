@@ -3,8 +3,9 @@
 namespace Findologic\PlentymarketsTest\Parser;
 
 use Findologic\Plentymarkets\Parser\Properties;
+use PHPUnit\Framework\TestCase;
 
-class PropertiesTest extends \PHPUnit_Framework_TestCase
+class PropertiesTest extends TestCase
 {
     protected $defaultEmptyValue = '';
 

@@ -1,6 +1,11 @@
 phpunit
 Export.csv
-Config.php
+PlentyConfig.php
+phpunit
+awd.sh
+docker-compose.env
+docker-compose.yml
+docker/
 vendor/
 composer.phar
 build/

@@ -5,26 +5,80 @@ namespace Findologic\PlentymarketsTest;
 use Findologic\Plentymarkets\Exception\CriticalException;
 use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Exception\ThrottlingException;
-use PHPUnit_Framework_TestCase;
+use PHPUnit\Framework\MockObject\MockBuilder;
+use PHPUnit\Framework\MockObject\MockObject;
+use PHPUnit\Framework\TestCase;
 
-class ExporterTest extends PHPUnit_Framework_TestCase
+class ExporterTest extends TestCase
 {
-    /**
-     * Init method should call necessary methods for initialising data for mapping ids to actuals values
-     */
-    public function testInit()
+    public function initProvider()
     {
+        return [
+            'Config values provided, defaultLanguage is equal to current language' => [1, 2, 3, 4, 3, 4, 'en', 'en', false, ''],
+            'Config values provided, defaultLanguage is not current language; current language is not in languageList' => [1, 2, 3, 4, 3, 4, 'en', 'de', false, ''],
+            'Config values missing, use store values, defaultLanguage is not current language; current language is in languageList' => [1, 2, false, false, 1, 2, 'en', 'de', true, 'en']
+        ];
+    }
+
+    /**
+     * Init method should call necessary methods for initialising data for mapping ids to actual values.
+     *
+     * @param int $priceId
+     * @param int $rrpId
+     * @param int|bool $configPriceId
+     * @param int|bool $configRrpId
+     * @param int $expectedPriceId
+     * @param int $expectedRrpId
+     *
+     * @dataProvider initProvider
+     */
+    public function testInit($priceId, $rrpId, $configPriceId, $configRrpId, $expectedPriceId, $expectedRrpId, $configurationLanguage, $storeDefaultLanguage, $isAvailable, $expectedPrefix)
+    {
+        $storesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Stores')
+            ->disableOriginalConstructor()
+            ->setMethods(['getStoreDefaultLanguage', 'isLanguageAvailableInStore'])
+            ->getMock();
+
+        $storesMock->expects($this->any())->method('getStoreDefaultLanguage')->willReturn($storeDefaultLanguage);
+        $storesMock->expects($this->any())->method('isLanguageAvailableInStore')->willReturn($isAvailable);
+
+        $salesPricesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\SalesPrices')
+            ->disableOriginalConstructor()
+            ->setMethods(['getDefaultPrice', 'getDefaultRrp'])
+            ->getMock();
+
+        $salesPricesMock->expects($this->any())->method('getDefaultPrice')->willReturn($priceId);
+        $salesPricesMock->expects($this->any())->method('getDefaultRrp')->willReturn($rrpId);
+
+        $registryMock = $this->getRegistryMock(['get']);
+        $registryMock->expects($this->any())->method('get')->willReturnMap([
+            ['log', false],
+            ['SalesPrices', $salesPricesMock],
+            ['Stores', $storesMock]
+        ]);
+
+        $configMock = $this->getConfigMock();
+        $configMock->expects($this->any())->method('getPriceId')->willReturn($configPriceId);
+        $configMock->expects($this->any())->method('getRrpId')->willReturn($configRrpId);
+        $configMock->expects($this->any())->method('getLanguage')->willReturn($configurationLanguage);
+
         $exporterMock = $this->getExporterMockBuilder();
-        $exporterMock->setMethods(array('initAdditionalData', 'initCategoriesFullUrls', 'initAttributeValues', 'handleException'));
+        $exporterMock->setMethods(['getRegistry', 'getConfig', 'initAdditionalData', 'initCategoriesFullUrls', 'initAttributeValues', 'handleException']);
         $exporterMock = $exporterMock->getMock();
 
         /**
-         * @var $exporterMock \PHPUnit_Framework_MockObject_MockObject
+         * @var $exporterMock \Findologic\Plentymarkets\Exporter|MockObject
          */
+        $exporterMock->expects($this->any())->method('getRegistry')->willReturn($registryMock);
+        $exporterMock->expects($this->any())->method('getConfig')->willReturn($configMock);
         $exporterMock->expects($this->once())->method('initAdditionalData');
         $exporterMock->expects($this->once())->method('initCategoriesFullUrls');
         $exporterMock->expects($this->once())->method('initAttributeValues');
         $exporterMock->init();
+
+        $this->assertEquals($expectedPriceId, $exporterMock->getPriceId(), 'Price id is not matching expected value');
+        $this->assertEquals($expectedRrpId, $exporterMock->getRrpId(), 'Rrp price id is not matching expected value');
+        $this->assertEquals($expectedPrefix, $exporterMock->getLanguageUrlPrefix(), 'Language url prefix is not matching expected value');
 
         $this->assertInstanceOf('\Findologic\Plentymarkets\Wrapper\WrapperInterface', $exporterMock->getWrapper());
         $this->assertInstanceOf('\Findologic\Plentymarkets\Client', $exporterMock->getClient());
@@ -40,7 +94,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $exporterMock = $exporterMock->getMock();
         $exporterMock->expects($this->once())->method('initAdditionalData')->will($this->throwException(new CustomerException()));
 
-        $this->setExpectedException(CustomerException::class);
+        $this->expectException(CustomerException::class);
 
         $exporterMock->init();
     }
@@ -51,13 +105,14 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     public function testInitAdditionalData()
     {
         $configMock = $this->getConfigMock();
-        $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
+        $logMock = $this->getMockBuilder('Log4Php\Logger')->disableOriginalConstructor()->getMock();
         $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
             ->setConstructorArgs(array($configMock, $logMock, $logMock))
             ->setMethods(array())
             ->getMock();
 
         $clientMock->expects($this->any())->method('setItemsPerPage')->willReturn($clientMock);
+        $clientMock->expects($this->any())->method('getWebstores')->willReturn(array());
         // Check if category branches will be parsed
         $clientMock->expects($this->once())->method('getCategoriesBranches');
 
@@ -84,18 +139,35 @@ class ExporterTest extends PHPUnit_Framework_TestCase
      */
     public function testInitAttributeValues()
     {
+        $storesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Stores')
+            ->disableOriginalConstructor()
+            ->setMethods(['getStoreDefaultLanguage', 'isLanguageAvailableInStore'])
+            ->getMock();
+
+        $salesPricesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\SalesPrices')
+            ->disableOriginalConstructor()
+            ->setMethods(['getDefaultPrice', 'getDefaultRrp'])
+            ->getMock();
+
+        $salesPricesMock->expects($this->any())->method('getDefaultPrice')->willReturn(1);
+        $salesPricesMock->expects($this->any())->method('getDefaultRrp')->willReturn(2);
+
         $attributesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Attributes')
             ->disableOriginalConstructor()
-            ->setMethods(array('getResults', 'parseValues'))
+            ->setMethods(['getResults', 'parseValues'])
             ->getMock();
-        $attributesMock->expects($this->once())->method('getResults')->willReturn(array('1' => 'Test Attribute'));
-        $attributesMock->expects($this->once())->method('parseValues')->willReturn(array('1' => 'Test Value', '2' => 'Test Value'));
+        $attributesMock->expects($this->once())->method('getResults')->willReturn(['1' => 'Test Attribute']);
+        $attributesMock->expects($this->once())->method('parseValues')->willReturn(['1' => 'Test Value', '2' => 'Test Value']);
 
-        $registryMock = $this->getRegistryMock(array('get'));
-        $registryMock->expects($this->any())->method('get')->willReturn($attributesMock);
+        $registryMock = $this->getRegistryMock(['get']);
+        $registryMock->expects($this->any())->method('get')->willReturnMap([
+            ['attributes', $attributesMock],
+            ['SalesPrices', $salesPricesMock],
+            ['Stores', $storesMock]
+        ]);
 
-        $exporterMock = $this->getExporterMockBuilder(array('registry' => $registryMock));
-        $exporterMock->setMethods(array('initAdditionalData', 'initCategoriesFullUrls', 'handleException'));
+        $exporterMock = $this->getExporterMockBuilder(['registry' => $registryMock]);
+        $exporterMock->setMethods(['initAdditionalData', 'initCategoriesFullUrls', 'handleException']);
         $exporterMock = $exporterMock->getMock();
 
         $exporterMock->init();
@@ -123,7 +195,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     public function testGetProducts($products)
     {
         $configMock = $this->getConfigMock();
-        $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
+        $logMock = $this->getMockBuilder('Log4Php\Logger')->disableOriginalConstructor()->getMock();
         $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
             ->setConstructorArgs(array($configMock, $logMock, $logMock))
             ->setMethods(array('getProducts', 'getProductVariations'))
@@ -146,7 +218,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     public function testGetProductsThrottlingException()
     {
         $configMock = $this->getConfigMock();
-        $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
+        $logMock = $this->getMockBuilder('Log4Php\Logger')->disableOriginalConstructor()->getMock();
         $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
             ->setConstructorArgs(array($configMock, $logMock, $logMock))
             ->setMethods(array('getProducts'))
@@ -158,8 +230,9 @@ class ExporterTest extends PHPUnit_Framework_TestCase
             ->setMethods(array('init'))
             ->getMock();
 
-        $logMock->expects($this->once())->method('fatal');
+        $logMock->expects($this->once())->method('alert');
 
+        $this->expectException('\Findologic\Plentymarkets\Exception\ThrottlingException');
         $exporterMock->getProducts();
     }
 
@@ -169,7 +242,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     public function testGetProductsException()
     {
         $configMock = $this->getConfigMock();
-        $logMock = $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock();
+        $logMock = $this->getMockBuilder('Log4Php\Logger')->disableOriginalConstructor()->getMock();
         $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
             ->setConstructorArgs(array($configMock, $logMock, $logMock))
             ->setMethods(array('getProducts'))
@@ -181,7 +254,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
             ->setMethods(array('init'))
             ->getMock();
 
-        $this->setExpectedException(CustomerException::class);
+        $this->expectException(CustomerException::class);
 
         $exporterMock->getProducts();
     }
@@ -191,11 +264,9 @@ class ExporterTest extends PHPUnit_Framework_TestCase
      */
     public function testCreateProductItem()
     {
-        $exporterMock = $this->getExporterMockBuilder()->setMethods(array('getConfig'))->getMock();
-        $exporterMock->expects($this->any())->method('getConfig')->willReturn($this->getConfigMock());
+        $exporterMock = $this->getExporterMockBuilder()->setMethods(null)->getMock();
 
-        $product = $exporterMock->createProductItem(array());
-
+        $product = $exporterMock->createProductItem([]);
         $this->assertInstanceOf('\Findologic\Plentymarkets\Product', $product);
     }
 
@@ -350,7 +421,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     public function getStandartVatProvider()
     {
         return array(
-            array(array(), false, 'GB', 2, 'GB'),
+            array(array(), null, 'GB', 2, 'GB'),
             array(array(array('id' => 1, 'storeIdentifier' => 2, 'itemSortByMonthlySales' => 1, 'configuration' => array('itemSortByMonthlySales' => 15))), 1, 'GB', 2, 'AT')
         );
     }
@@ -362,7 +433,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     {
         $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
             ->disableOriginalConstructor()
-            ->setMethods(array('getConfig', 'getStandardVat', 'getWebstores'))
+            ->setMethods(array('getConfig', 'getStandardVat'))
             ->getMock();
 
         $configMock = $this->getConfigMock();
@@ -370,14 +441,59 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $configMock->expects($this->any())->method('getCountry')->willReturn($configCountry);
 
         $clientMock->expects($this->any())->method('getStandardVat')->willReturn(array('countryId' => $apiCountryId));
-        $clientMock->expects($this->any())->method('getWebstores')->willReturn($webstores);
         $clientMock->expects($this->any())->method('getConfig')->willReturn($configMock);
 
         $exporterMock = $this->getExporterMockBuilder(['client' => $clientMock]);
         $exporterMock->setMethods(null);
         $exporterMock = $exporterMock->getMock();
+        $exporterMock->setStoresConfiguration($webstores);
 
         $this->assertEquals($expectedResult, $exporterMock->getStandardVatCountry());
+    }
+
+    public function getStoreConfigValueProvider()
+    {
+        return array(
+            'No store id provided' => array(
+                array(),
+                null,
+                'displayItemName',
+                null
+            ),
+            'No store configuration available' => array(
+                array(),
+                11,
+                'displayItemName',
+                null
+            ),
+            'Get configuration value' => array(
+                array(
+                    array(
+                        'storeIdentifier' => 11,
+                        'configuration' => array(
+                            'displayItemName' => '2'
+                        )
+                    )
+                ),
+                11,
+                'displayItemName',
+                2
+            )
+        );
+    }
+
+    /**
+     * @dataProvider getStoreConfigValueProvider
+     */
+    public function testGetStoreConfigValue($storesConfiguration, $storeId, $configField, $expectedValue)
+    {
+        $exporterMock = $this->getExporterMockBuilder(array())
+            ->setMethods(null)
+            ->getMock();
+
+        $exporterMock->setStoresConfiguration($storesConfiguration);
+
+        $this->assertEquals($expectedValue, $exporterMock->getStoreConfigValue($storeId, $configField));
     }
 
     /* ------ helper functions ------ */
@@ -386,7 +502,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
      * Helper function for building exporter mock if setting default mocks for constructor
      *
      * @param array $mocks
-     * @return \PHPUnit_Framework_MockObject_MockBuilder
+     * @return MockBuilder
      */
     protected function getExporterMockBuilder($mocks = array())
     {
@@ -394,12 +510,13 @@ class ExporterTest extends PHPUnit_Framework_TestCase
         $clientMock->expects($this->any())->method('setItemsPerPage')->willReturn($clientMock);
         $clientMock->expects($this->any())->method('getConfig')->willReturn($this->getConfigMock());
         $clientMock->expects($this->any())->method('getAttributeValues')->willReturn(array());
+        $clientMock->expects($this->any())->method('getWebstores')->willReturn(array());
 
         $defaultMocks = array(
             'client' => $clientMock,
             'wrapper' => $this->getMockBuilder('Findologic\Plentymarkets\Wrapper\Csv')->getMock(),
-            'log' => $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock(),
-            'customerLog' => $this->getMockBuilder('\Logger')->disableOriginalConstructor()->getMock(),
+            'log' => $this->getMockBuilder('Log4Php\Logger')->disableOriginalConstructor()->getMock(),
+            'customerLog' => $this->getMockBuilder('Log4Php\Logger')->disableOriginalConstructor()->getMock(),
             'registry' => $this->getMockBuilder('Findologic\Plentymarkets\Registry')->disableOriginalConstructor()->getMock(),
         );
 
@@ -414,7 +531,8 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     /**
      * Helper function to get exporter mock
      *
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return \Findologic\Plentymarkets\Exporter|MockObject
+     * @throws \ReflectionException
      */
     protected function getExporterMock()
     {
@@ -426,7 +544,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
     }
 
     /**
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return MockObject
      */
     protected function getConfigMock()
     {
@@ -454,7 +572,7 @@ class ExporterTest extends PHPUnit_Framework_TestCase
      * Helper function to get registry mock
      *
      * @param array|null $methods
-     * @return \PHPUnit_Framework_MockObject_MockObject
+     * @return MockObject
      */
     protected function getRegistryMock($methods = null)
     {
