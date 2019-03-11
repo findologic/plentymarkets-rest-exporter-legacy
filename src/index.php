@@ -6,9 +6,11 @@ require_once '../vendor/autoload.php';
 require_once 'PlentyConfig.php';
 
 use Findologic\Plentymarkets\Debugger;
+use Log4Php\Logger;
+use Log4Php\Configurators\LoggerConfigurationAdapterXML;
 
-Logger::configure('Logger/import.xml');
-Logger::initialize();
+$configurationAdapter = new LoggerConfigurationAdapterXML();
+Logger::configure($configurationAdapter->convert('Logger/import.xml'));
 
 $log = Logger::getLogger('import.php');
 $customerLogger = Logger::getLogger('import.php');

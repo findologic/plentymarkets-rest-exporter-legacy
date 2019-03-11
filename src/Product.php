@@ -556,11 +556,16 @@ class Product extends ParserAbstract
     {
         if (!is_array($data) || empty($data)) {
             $this->handleEmptyData();
+
             return $this;
         }
 
         /** @var Properties $properties */
-        $properties = $this->registry->get('Properties');
+        if (!$properties = $this->getVariationSpecificPropertiesFromRegistry()) {
+            $this->handleEmptyData('Variation properties are missing');
+
+            return $this;
+        }
 
         foreach ($data as $property) {
             if ($property['relationTypeIdentifier'] != ItemProperties::PROPERTY_TYPE_ITEM) {
@@ -618,6 +623,20 @@ class Product extends ParserAbstract
         }
 
         return $this;
+    }
+
+    /**
+     * @return Properties|null
+     */
+    protected function getVariationSpecificPropertiesFromRegistry()
+    {
+        $properties = $this->registry->get('Properties');
+
+        if (!$properties || empty($properties->getResults())) {
+            return null;
+        }
+
+        return $properties;
     }
 
     /**

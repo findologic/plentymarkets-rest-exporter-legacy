@@ -2,7 +2,9 @@
 
 namespace Findologic\PlentymarketsTest;
 
+use Findologic\Plentymarkets\Parser\Properties;
 use Findologic\Plentymarkets\Product;
+use Findologic\Plentymarkets\Registry;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -1462,6 +1464,42 @@ class ProductTest extends TestCase
         $productMock->processVariationSpecificProperties($data);
 
         $this->assertSame($expectedResult, $productMock->getField('attributes'));
+    }
+
+    public function testDoesNotProcessVariationSpecificPropertiesWhenDataIsUnavailable()
+    {
+        $registryMock = $this->getMockBuilder(Registry::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['get'])
+            ->getMock();
+        $registryMock->expects($this->once())->method('get')->willReturn(false);
+
+        $productMock = $this->getProductMock(['handleEmptyData'], ['registry' => $registryMock]);
+        $productMock->expects($this->once())->method('handleEmptyData')->with('Variation properties are missing');
+
+        $productMock->processVariationSpecificProperties(['test' => 'test']);
+        $this->assertNotSame($productMock->getAttributeField('test'), 'test');
+    }
+
+    public function testDoesNotProcessVariationSpecificPropertiesWhenNoneExist()
+    {
+        $propertiesMock = $this->getMockBuilder(Properties::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getResults'])
+            ->getMock();
+        $propertiesMock->expects($this->once())->method('getResults')->willReturn([]);
+
+        $registryMock = $this->getMockBuilder(Registry::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['get'])
+            ->getMock();
+        $registryMock->expects($this->once())->method('get')->willReturn($propertiesMock);
+
+        $productMock = $this->getProductMock(['handleEmptyData'], ['registry' => $registryMock]);
+        $productMock->expects($this->once())->method('handleEmptyData')->with('Variation properties are missing');
+
+        $productMock->processVariationSpecificProperties(['test' => 'test']);
+        $this->assertNotSame($productMock->getAttributeField('test'), 'test');
     }
 
     /**
