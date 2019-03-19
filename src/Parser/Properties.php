@@ -8,6 +8,8 @@ namespace Findologic\Plentymarkets\Parser;
  */
 class Properties extends ParserAbstract implements ParserInterface
 {
+    const PROPERTY_TYPE_ITEM = 'item';
+
     /**
      * @inheritdoc
      */
@@ -19,17 +21,46 @@ class Properties extends ParserAbstract implements ParserInterface
         }
 
         foreach ($data['entries'] as $property) {
+            if (isset($property['typeIdentifier']) && $property['typeIdentifier'] != self::PROPERTY_TYPE_ITEM) {
+                continue;
+            }
+
             $this->results[$property['id']] = [
-                'backendName' => $property['backendName'],
-                'propertyGroupId' => $property['propertyGroupId']
+                'propertyGroupId' => $property['propertyGroupId'],
+                'propertyGroups' => array()
             ];
 
             if (isset($property['names'])) {
                 foreach ($property['names'] as $propertyName) {
-                    $this->results[$property['id']]['names'][strtoupper($propertyName['lang'])] = [
-                        'name' => $propertyName['name'],
-                        'description' => $propertyName['description']
-                    ];
+                    $this->results[$property['id']]['names'][strtoupper($propertyName['lang'])] = $propertyName['name'];
+                }
+            }
+
+            if (isset($property['groups']) && !empty($property['groups'])) {
+                foreach ($property['groups'] as $propertyGroup) {
+                    $names = [];
+
+                    foreach ($propertyGroup['names'] as $propertyGroupName) {
+                        $names[strtoupper($propertyGroupName['lang'])] = $propertyGroupName['name'];
+                    }
+
+                    $this->results[$property['id']]['propertyGroups'][$propertyGroup['id']] = $names;
+                }
+            }
+
+            if ($property['cast'] == 'selection' && !empty($property['selections'])) {
+                $this->results[$property['id']]['selections'] = [];
+
+                foreach ($property['selections'] as $selection) {
+                    $this->results[$property['id']]['selections'][$selection['id']] = [];
+
+                    if (!isset($selection['relation']['relationValues'])) {
+                        continue;
+                    }
+
+                    foreach ($selection['relation']['relationValues'] as $value){
+                        $this->results[$property['id']]['selections'][$selection['id']][strtoupper($value['lang'])] = $value['value'];
+                    }
                 }
             }
         }
@@ -44,9 +75,47 @@ class Properties extends ParserAbstract implements ParserInterface
     public function getPropertyName($propertyId)
     {
         if (isset($this->results[$propertyId]['names'][strtoupper($this->getLanguageCode())])) {
-            return $this->results[$propertyId]['names'][strtoupper($this->getLanguageCode())]['name'];
-        } else if (isset($this->results[$propertyId]['backendName'])) {
-            return $this->results[$propertyId]['backendName'];
+            return $this->results[$propertyId]['names'][strtoupper($this->getLanguageCode())];
+        }
+
+        return $this->getDefaultEmptyValue();
+    }
+
+    /**
+     * @param int $propertyId
+     * @param int|null $groupId
+     * @return string
+     */
+    public function getPropertyGroupName($propertyId, $groupId = null)
+    {
+        if (!$groupId) {
+            if (isset($this->results[$propertyId]['propertyGroups'])) {
+                foreach ($this->results[$propertyId]['propertyGroups'] as $propertyGroup) {
+                    foreach ($propertyGroup as $languageCode => $value) {
+                        if (strtoupper($languageCode) != strtoupper($this->getLanguageCode())) {
+                            continue;
+                        }
+
+                        return $value;
+                    }
+                }
+            }
+        } else if (isset($this->results[$propertyId]['propertyGroups'][$groupId][strtoupper($this->getLanguageCode())])) {
+            return $this->results[$propertyId]['propertyGroups'][$groupId][strtoupper($this->getLanguageCode())];
+        }
+
+        return $this->getDefaultEmptyValue();
+    }
+
+    /**
+     * @param int $propertyId
+     * @param int $selectionId
+     * @return string
+     */
+    public function getPropertySelectionValue($propertyId, $selectionId)
+    {
+        if (isset($this->results[$propertyId]['selections'][$selectionId][strtoupper($this->getLanguageCode())])) {
+            return $this->results[$propertyId]['selections'][$selectionId][strtoupper($this->getLanguageCode())];
         }
 
         return $this->getDefaultEmptyValue();

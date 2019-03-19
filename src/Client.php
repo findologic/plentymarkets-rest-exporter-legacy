@@ -404,6 +404,23 @@ class Client
      */
     public function getProperties()
     {
+        try {
+            $response = $this->call('GET', $this->getEndpoint('properties'));
+        } catch (CustomerException $e) {
+            $this->log->warning('Permission for properties is not granted.');
+
+            return [];
+        }
+
+        return $this->returnResult($response);
+    }
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
+     * @return array
+     */
+    public function getItemProperties()
+    {
         $response = $this->call('GET', $this->getEndpoint('items/properties', array('with' => 'names')));
 
         return $this->returnResult($response);
@@ -500,6 +517,7 @@ class Client
                     'variationAttributeValues',
                     'variationClients',
                     'variationProperties',
+                    'properties',
                     'itemImages',
                     'unit',
                     'stock'
