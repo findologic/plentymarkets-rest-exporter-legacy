@@ -2,7 +2,9 @@
 
 namespace Findologic\PlentymarketsTest;
 
+use Findologic\Plentymarkets\Parser\Properties;
 use Findologic\Plentymarkets\Product;
+use Findologic\Plentymarkets\Registry;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -1051,6 +1053,23 @@ class ProductTest extends TestCase
                 ),
                 ''
             ),
+            // Variation has 'text' type property but value is "null", results should be empty
+            array(
+                array(
+                    array(
+                        'property' => array(
+                            'id' => '1',
+                            'backendName' => 'Test Property',
+                            'valueType' => 'text',
+                            'propertyGroupId' => null
+                        ),
+                        'valueTexts' => array(
+                            array('value' => 'null', 'lang' => 'lt')
+                        )
+                    )
+                ),
+                ''
+            ),
             // Variation has 'text' and 'selection' type properties but the language of those properties is not the same
             // as in export config, results should be empty
             array(
@@ -1268,7 +1287,7 @@ class ProductTest extends TestCase
             return is_null($gid) ? '' : 'Test';
         }));
 
-        $propertiesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Properties')
+        $propertiesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\ItemProperties')
             ->disableOriginalConstructor()
             ->setMethods(array('getLanguageCode'))
             ->getMock();
@@ -1282,12 +1301,205 @@ class ProductTest extends TestCase
             ->getMock();
 
         $registryMock->set('PropertyGroups', $propertyGroupsMock);
-        $registryMock->set('Properties', $propertiesMock);
+        $registryMock->set('ItemProperties', $propertiesMock);
 
         $productMock = $this->getProductMock(array('handleEmptyData'), array('registry' => $registryMock));
         $productMock->processVariationsProperties($data);
 
         $this->assertSame($expectedResult, $productMock->getField('attributes'));
+    }
+
+    public function providerProcessVariationSpecificProperties()
+    {
+        return array(
+            'No data provided' => array(
+                array(),
+                array(),
+                ''
+            ),
+            'No item properties provided' => array(
+                array(),
+                array(
+                    array(
+                        'property' => array(
+                            'id' => '1',
+                        ),
+                        'relationTypeIdentifier' => 'Test'
+                    )
+                ),
+                ''
+            ),
+            'Empty type property' => array(
+                array(
+                    '1' => array(
+                        'names' => array(
+                            'EN' => 'Test Property EN'
+                        ),
+                        'propertyGroups' => array(
+                            '1' => array('DE' => 'Test DE', 'EN' => 'Test EN')
+                        )
+                    )
+                ),
+                array(
+                    array(
+                        'property' => array(
+                            'id' => '1',
+                        ),
+                        'propertyId' => '1',
+                        'relationTypeIdentifier' => 'item',
+                        'propertyRelation' => array(
+                            'cast' => 'empty'
+                        ),
+                        'propertyGroups' => array(
+                            '1' => array(
+                                'DE' => 'Test DE',
+                                'EN' => 'Test EN'
+                            )
+                        )
+                    )
+                ),
+                array('Test EN' => array('Test Property EN')),
+            ),
+            'Text type property' => array(
+                array(
+                    '1' => array(
+                        'names' => array(
+                            'EN' => 'Test Property'
+                        )
+                    )
+                ),
+                array(
+                    array(
+                        'property' => array(
+                            'id' => '1',
+                        ),
+                        'propertyId' => '1',
+                        'relationTypeIdentifier' => 'item',
+                        'propertyRelation' => array(
+                            'cast' => 'shortText'
+                        ),
+                        'relationValues' => array(
+                            array('lang' => 'DE', 'value' => 'Test DE'),
+                            array('lang' => 'EN', 'value' => 'Test EN'),
+                        )
+                    )
+                ),
+                array('Test Property' => array('Test EN')),
+            ),
+            'Int type property' => array(
+                array(
+                    '1' => array(
+                        'names' => array(
+                            'EN' => 'Test Property'
+                        )
+                    )
+                ),
+                array(
+                    array(
+                        'property' => array(
+                            'id' => '1',
+                        ),
+                        'propertyId' => '1',
+                        'relationTypeIdentifier' => 'item',
+                        'propertyRelation' => array(
+                            'cast' => 'int'
+                        ),
+                        'relationValues' => array(
+                            array('lang' => 0, 'value' => 12),
+                        )
+                    )
+                ),
+                array('Test Property' => array(12)),
+            ),
+            'Selection type property' => array(
+                array(
+                    '1' => array(
+                        'names' => array(
+                            'EN' => 'Test Property'
+                        ),
+                        'selections' => array(
+                            '1' => array(
+                                'EN' => 'Selecttion Value'
+                            )
+                        )
+                    )
+                ),
+                array(
+                    array(
+                        'property' => array(
+                            'id' => '1',
+                        ),
+                        'propertyId' => '1',
+                        'relationTypeIdentifier' => 'item',
+                        'propertyRelation' => array(
+                            'cast' => 'selection'
+                        ),
+                        'relationValues' => array(
+                            array('value' => 1)
+                        )
+                    )
+                ),
+                array('Test Property' => array('Selecttion Value')),
+            ),
+        );
+    }
+
+    /**
+     * @dataProvider providerProcessVariationSpecificProperties
+     */
+    public function testProcessVariationSpecificProperties($previouslyParsedData, $data, $expectedResult)
+    {
+        $propertiesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Properties')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getLanguageCode'))
+            ->getMock();
+
+        $propertiesMock->expects($this->any())->method('getLanguageCode')->willReturn('EN');
+        $propertiesMock->setResults($previouslyParsedData);
+
+        $registryMock = $this->getRegistryMock();
+        $registryMock->set('Properties', $propertiesMock);
+
+        $productMock = $this->getProductMock(array('handleEmptyData'), array('registry' => $registryMock));
+        $productMock->processVariationSpecificProperties($data);
+
+        $this->assertSame($expectedResult, $productMock->getField('attributes'));
+    }
+
+    public function testDoesNotProcessVariationSpecificPropertiesWhenDataIsUnavailable()
+    {
+        $registryMock = $this->getMockBuilder(Registry::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['get'])
+            ->getMock();
+        $registryMock->expects($this->once())->method('get')->willReturn(false);
+
+        $productMock = $this->getProductMock(['handleEmptyData'], ['registry' => $registryMock]);
+        $productMock->expects($this->once())->method('handleEmptyData')->with('Variation properties are missing');
+
+        $productMock->processVariationSpecificProperties(['test' => 'test']);
+        $this->assertNotSame($productMock->getAttributeField('test'), 'test');
+    }
+
+    public function testDoesNotProcessVariationSpecificPropertiesWhenNoneExist()
+    {
+        $propertiesMock = $this->getMockBuilder(Properties::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getResults'])
+            ->getMock();
+        $propertiesMock->expects($this->once())->method('getResults')->willReturn([]);
+
+        $registryMock = $this->getMockBuilder(Registry::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['get'])
+            ->getMock();
+        $registryMock->expects($this->once())->method('get')->willReturn($propertiesMock);
+
+        $productMock = $this->getProductMock(['handleEmptyData'], ['registry' => $registryMock]);
+        $productMock->expects($this->once())->method('handleEmptyData')->with('Variation properties are missing');
+
+        $productMock->processVariationSpecificProperties(['test' => 'test']);
+        $this->assertNotSame($productMock->getAttributeField('test'), 'test');
     }
 
     /**

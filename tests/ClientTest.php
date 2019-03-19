@@ -237,6 +237,23 @@ class ClientTest extends TestCase
         $clientMock->getCategories();
     }
 
+    public function testGetPropertiesReturnsEmptyArrayOnCustomerException()
+    {
+        $clientMock = $this->getClientMock(array('call'));
+        $clientMock->expects($this->once())->method('call')->will($this->throwException(new CustomerException()));
+
+        $this->assertSame($clientMock->getProperties(), []);
+    }
+
+    public function testGetPropertiesThrowsThrottlingException()
+    {
+        $clientMock = $this->getClientMock(array('call'));
+        $clientMock->expects($this->once())->method('call')->will($this->throwException(new ThrottlingException()));
+        $this->expectException(ThrottlingException::class);
+
+        $clientMock->getProperties();
+    }
+
     /**
      * Should throw exception if api method requires permissions (403 status code is returned)
      */
