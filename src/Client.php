@@ -508,23 +508,23 @@ class Client
      */
     public function getProductVariations(array $productIds, $storePlentyId = false)
     {
-        $params = array(
-            'with' =>
-                array(
-                    'variationSalesPrices',
-                    'variationBarcodes',
-                    'variationCategories',
-                    'variationAttributeValues',
-                    'variationClients',
-                    'variationProperties',
-                    'properties',
-                    'itemImages',
-                    'unit',
-                    'stock'
-                ),
+        $params = [
+            'with' => [
+                'variationSalesPrices',
+                'variationBarcodes',
+                'variationCategories',
+                'variationAttributeValues',
+                'variationClients',
+                'variationProperties',
+                'properties',
+                'itemImages',
+                'unit',
+                'stock',
+                'tags'
+            ],
             'isActive' => true,
             'itemId' => $productIds
-        );
+        ];
 
         if ($storePlentyId) {
             $params['plentyId'] = $storePlentyId;
