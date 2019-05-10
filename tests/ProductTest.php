@@ -2,7 +2,10 @@
 
 namespace Findologic\PlentymarketsTest;
 
+use Findologic\Plentymarkets\Parser\Attributes;
 use Findologic\Plentymarkets\Parser\Properties;
+use Findologic\Plentymarkets\Parser\Units;
+use Findologic\Plentymarkets\Parser\Vat;
 use Findologic\Plentymarkets\Product;
 use Findologic\Plentymarkets\Registry;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -284,6 +287,132 @@ class ProductTest extends TestCase
         }
     }
 
+    public function mergeKeywordsAndTagsProvider()
+    {
+        return [
+            'Texts keywords is set;Tag is of type variation and is set' => [
+                [
+                    'id' => 1,
+                    'createdAt' => '2001-12-12 14:12:45',
+                    'texts' => [
+                        [
+                            'lang' => 'en',
+                            'name1' => 'Test',
+                            'name2' => 'Test 2',
+                            'shortDescription' => 'Short Description',
+                            'description' => 'Description',
+                            'keywords' => 'Keyword'
+                        ]
+                    ]
+                ],
+                [
+                    'position' => '1',
+                    'isMain' => false,
+                    'number' => 'Test Number',
+                    'model' => 'Test Model',
+                    'isActive' => true,
+                    'availability' => 1,
+                    'availableUntil' => '2099-01-01T00:00:00+01:00',
+                    'id' => 'Not the main variation',
+                    'mainVariationId' => 'Test Id',
+                    'vatId' => 2,
+                    'automaticListVisibility' => 3,
+                    'variationAttributeValues' => [],
+                    'variationBarcodes' => [],
+                    'tags' => [
+                        [
+                            'tagId' => 1,
+                            'tagType' => 'variation',
+                            'relationshipValue' => '1000',
+                            'relationshipUUID5' => '',
+                            'createdAt' => '2019-04-19T15:14:39+02:00',
+                            'updatedAt' => '2019-04-19T15:14:39+02:00',
+                            'tag' => [
+                                'id' => 1,
+                                'tagName' => 'Ich bin ein Tag',
+                                'color' => '#ffffff',
+                                'createdAt' => '2019-04-19T15:14:39+02:00',
+                                'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                'names' => [
+                                    [
+                                        'id' => 1,
+                                        'tagId' => '1',
+                                        'tagLang' => 'de',
+                                        'tagName' => 'Ich bin ein Tag'
+                                    ],
+                                    [
+                                        'id' => 2,
+                                        'tagId' => '1',
+                                        'tagLang' => 'en',
+                                        'tagName' => 'I am a Tag'
+                                    ],
+                                    [
+                                        'id' => 3,
+                                        'tagId' => '1',
+                                        'tagLang' => 'fr',
+                                        'tagName' => 'Le France'
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                'Keyword,I am a Tag'
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider mergeKeywordsAndTagsProvider
+     *
+     * @param array $initialData
+     * @param array $variationData
+     * @param string $expectedResult
+     * @throws \ReflectionException
+     */
+    public function testProcessVariationKeywordsAndTagsFromRequestAreMergedToKeywordsField(array $initialData, array $variationData, $expectedResult)
+    {
+        $attributesMock = $this->getMockBuilder(Attributes::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['attributeValueExists', 'getAttributeName', 'getAttributeValueName'])
+            ->getMock();
+
+        $attributesMock->expects($this->any())->method('attributeValueExists')->willReturn(true);
+        $attributesMock->expects($this->any())->method('getAttributeName')->willReturn('Test');
+        $attributesMock->expects($this->any())->method('getAttributeValueName')->willReturn('Test');
+
+        $vatMock = $this->getMockBuilder(Vat::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getVatRateByVatId'])
+            ->getMock();
+
+        $vatMock->expects($this->any())->method('getVatRateByVatId')->willReturn('19.00');
+
+        $unitsMock = $this->getMockBuilder(Units::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getUnitValue'])
+            ->getMock();
+
+        $unitsMock->expects($this->any())->method('getUnitValue')->willReturn('C62');
+
+        $registry = $this->getRegistryMock();
+        $registry->set('Attributes', $attributesMock);
+        $registry->set('Vat', $vatMock);
+        $registry->set('Units', $unitsMock);
+
+        $productMock = $this->getProductMock(['getItemId', 'getLanguageCode', 'getStorePlentyId', 'processVariationGroups'], [$registry]);
+        $productMock->expects($this->any())->method('processVariationGroups')->willReturn($productMock);
+        $productMock->expects($this->any())->method('getStorePlentyId')->willReturn(1);
+        $productMock->setExportSalesFrequency(true);
+        $productMock->setPriceId(1);
+        $productMock->setRrpPriceId(4);
+        $productMock->processInitialData($initialData);
+
+        $productMock->processVariation($variationData);
+
+        $this->assertSame($productMock->getField('keywords'), $expectedResult);
+    }
+
     public function getManufacturerProvider()
     {
         return array(
@@ -357,7 +486,8 @@ class ProductTest extends TestCase
                             [
                                 'netStock' => 1
                             ]
-                        ]
+                        ],
+                        'tags' => []
                     ],
                     [
                         'position' => '2',
@@ -386,7 +516,8 @@ class ProductTest extends TestCase
                             [
                                 'netStock' => 1
                             ]
-                        ]
+                        ],
+                        'tags' => []
                     ]
                 ],
                 ['Test' => ['Test']],
@@ -425,7 +556,8 @@ class ProductTest extends TestCase
                             [
                                 'netStock' => 1
                             ]
-                        ]
+                        ],
+                        'tags' => []
                     ],
                     [
                         'position' => '2',
@@ -462,7 +594,8 @@ class ProductTest extends TestCase
                             [
                                 'netStock' => 1
                             ]
-                        ]
+                        ],
+                        'tags' => []
                     ]
                 ],
                 '',
@@ -494,7 +627,8 @@ class ProductTest extends TestCase
                             [
                                 'netStock' => 1
                             ]
-                        ]
+                        ],
+                        'tags' => []
                     ],
                     [
                         'position' => '2',
@@ -518,7 +652,8 @@ class ProductTest extends TestCase
                             [
                                 'netStock' => 1
                             ]
-                        ]
+                        ],
+                        'tags' => []
                     ]
                 ],
                 '',
@@ -550,7 +685,8 @@ class ProductTest extends TestCase
                             [
                                 'netStock' => 1
                             ]
-                        ]
+                        ],
+                        'tags' => []
                     ],
                     [
                         'position' => '2',
@@ -574,7 +710,8 @@ class ProductTest extends TestCase
                             [
                                 'netStock' => 1
                             ]
-                        ]
+                        ],
+                        'tags' => []
                     ],
                     [
                         'position' => '3',
@@ -598,7 +735,8 @@ class ProductTest extends TestCase
                             [
                                 'netStock' => 1
                             ]
-                        ]
+                        ],
+                        'tags' => []
                     ]
                 ],
                 '',
@@ -630,7 +768,8 @@ class ProductTest extends TestCase
                             [
                                 'netStock' => 1
                             ]
-                        ]
+                        ],
+                        'tags' => []
                     ]
                 ],
                 '',
@@ -662,7 +801,8 @@ class ProductTest extends TestCase
                             [
                                 'netStock' => 1
                             ]
-                        ]
+                        ],
+                        'tags' => []
                     ],
                     [
                         'position' => '2',
@@ -686,7 +826,8 @@ class ProductTest extends TestCase
                             [
                                 'netStock' => 1
                             ]
-                        ]
+                        ],
+                        'tags' => []
                     ]
                 ],
                 '',
@@ -708,7 +849,8 @@ class ProductTest extends TestCase
                         'vatId' => 2,
                         'automaticListVisibility' => 3,
                         'variationAttributeValues' => [],
-                        'variationBarcodes' => []
+                        'variationBarcodes' => [],
+                        'tags' => []
                     ],
                     [
                         'position' => '2',
@@ -722,7 +864,8 @@ class ProductTest extends TestCase
                         'mainVariationId' => 'Test',
                         'automaticListVisibility' => 3,
                         'variationAttributeValues' => [],
-                        'variationBarcodes' => []
+                        'variationBarcodes' => [],
+                        'tags' => []
                     ]
                 ],
                 '',
@@ -744,7 +887,8 @@ class ProductTest extends TestCase
                         'vatId' => 2,
                         'automaticListVisibility' => 3,
                         'variationAttributeValues' => [],
-                        'variationBarcodes' => []
+                        'variationBarcodes' => [],
+                        'tags' => []
                     ],
                     [
                         'position' => '2',
@@ -758,12 +902,369 @@ class ProductTest extends TestCase
                         'mainVariationId' => 'Test',
                         'automaticListVisibility' => 3,
                         'variationAttributeValues' => [],
-                        'variationBarcodes' => []
+                        'variationBarcodes' => [],
+                        'tags' => []
                     ]
                 ],
                 '',
                 ['Test Number', 'Test Model', 'Not the main variation', 'Test Number 2', 'Test Model 2', 'Test Id'],
                 ['price' => 0.0, 'maxprice' => '', 'instead' => 0.0, 'variation_id' => 'Test Id', 'sort' => '2']
+            ],
+            'Tag list is empty; field for keywords is empty' => [
+                [
+                    [
+                        'position' => '1',
+                        'isMain' => false,
+                        'number' => 'Test Number',
+                        'model' => 'Test Model',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'availableUntil' => '2099-01-01T00:00:00+01:00',
+                        'id' => 'Not the main variation',
+                        'mainVariationId' => 'Test Id',
+                        'vatId' => 2,
+                        'automaticListVisibility' => 3,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [],
+                        'tags' => []
+                    ],
+                    [
+                        'position' => '2',
+                        'isMain' => true,
+                        'number' => 'Test Number 2',
+                        'model' => 'Test Model 2',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'availableUntil' => null,
+                        'id' => 'Test Id',
+                        'mainVariationId' => 'Test',
+                        'automaticListVisibility' => 3,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [],
+                        'tags' => []
+                    ]
+                ],
+                '',
+                ['Test Number', 'Test Model', 'Not the main variation', 'Test Number 2', 'Test Model 2', 'Test Id'],
+                ['price' => 0.0, 'maxprice' => '', 'instead' => 0.0, 'variation_id' => 'Test Id', 'sort' => '2', 'keywords' => '']
+            ],
+            'Tag list contains tags of not type variation; field for keywords is empty' => [
+                [
+                    [
+                        'position' => '1',
+                        'isMain' => false,
+                        'number' => 'Test Number',
+                        'model' => 'Test Model',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'availableUntil' => '2099-01-01T00:00:00+01:00',
+                        'id' => 'Not the main variation',
+                        'mainVariationId' => 'Test Id',
+                        'vatId' => 2,
+                        'automaticListVisibility' => 3,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [],
+                        'tags' => [
+                            [
+                                'tagId' => 1,
+                                'tagType' => 'simple',
+                                'relationshipValue' => '1000',
+                                'relationshipUUID5' => '',
+                                'createdAt' => '2019-04-19T15:14:39+02:00',
+                                'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                'tag' => [
+                                    'id' => 1,
+                                    'tagName' => 'Ich bin ein Tag',
+                                    'color' => '#ffffff',
+                                    'createdAt' => '2019-04-19T15:14:39+02:00',
+                                    'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                    'names' => [
+                                        [
+                                            'id' => 1,
+                                            'tagId' => '1',
+                                            'tagLang' => 'de',
+                                            'tagName' => 'Ich bin ein Tag'
+                                        ],
+                                        [
+                                            'id' => 2,
+                                            'tagId' => '1',
+                                            'tagLang' => 'en',
+                                            'tagName' => 'I am a Tag'
+                                        ],
+                                        [
+                                            'id' => 3,
+                                            'tagId' => '1',
+                                            'tagLang' => 'fr',
+                                            'tagName' => 'Le France'
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
+                    [
+                        'position' => '2',
+                        'isMain' => true,
+                        'number' => 'Test Number 2',
+                        'model' => 'Test Model 2',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'availableUntil' => null,
+                        'id' => 'Test Id',
+                        'mainVariationId' => 'Test',
+                        'automaticListVisibility' => 3,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [],
+                        'tags' => [
+                            [
+                                'tagId' => 1,
+                                'tagType' => 'simple',
+                                'relationshipValue' => '1000',
+                                'relationshipUUID5' => '',
+                                'createdAt' => '2019-04-19T15:14:39+02:00',
+                                'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                'tag' => [
+                                    'id' => 1,
+                                    'tagName' => 'Ich bin ein Tag',
+                                    'color' => '#ffffff',
+                                    'createdAt' => '2019-04-19T15:14:39+02:00',
+                                    'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                    'names' => [
+                                        [
+                                            'id' => 1,
+                                            'tagId' => '1',
+                                            'tagLang' => 'de',
+                                            'tagName' => 'Ich bin ein Tag'
+                                        ],
+                                        [
+                                            'id' => 2,
+                                            'tagId' => '1',
+                                            'tagLang' => 'en',
+                                            'tagName' => 'I am a Tag'
+                                        ],
+                                        [
+                                            'id' => 3,
+                                            'tagId' => '1',
+                                            'tagLang' => 'fr',
+                                            'tagName' => 'Le France'
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                '',
+                ['Test Number', 'Test Model', 'Not the main variation', 'Test Number 2', 'Test Model 2', 'Test Id'],
+                ['price' => 0.0, 'maxprice' => '', 'instead' => 0.0, 'variation_id' => 'Test Id', 'sort' => '2', 'keywords' => '']
+            ],
+            'Tag list contains tags of type variation; field for keywords is set with tag value' => [
+                [
+                    [
+                        'position' => '1',
+                        'isMain' => false,
+                        'number' => 'Test Number',
+                        'model' => 'Test Model',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'availableUntil' => '2099-01-01T00:00:00+01:00',
+                        'id' => 'Not the main variation',
+                        'mainVariationId' => 'Test Id',
+                        'vatId' => 2,
+                        'automaticListVisibility' => 3,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [],
+                        'tags' => [
+                            [
+                                'tagId' => 1,
+                                'tagType' => 'variation',
+                                'relationshipValue' => '1000',
+                                'relationshipUUID5' => '',
+                                'createdAt' => '2019-04-19T15:14:39+02:00',
+                                'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                'tag' => [
+                                    'id' => 1,
+                                    'tagName' => 'Ich bin ein Tag',
+                                    'color' => '#ffffff',
+                                    'createdAt' => '2019-04-19T15:14:39+02:00',
+                                    'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                    'names' => [
+                                        [
+                                            'id' => 1,
+                                            'tagId' => '1',
+                                            'tagLang' => 'de',
+                                            'tagName' => 'Ich bin ein Tag'
+                                        ],
+                                        [
+                                            'id' => 2,
+                                            'tagId' => '1',
+                                            'tagLang' => 'en',
+                                            'tagName' => 'I am a Tag'
+                                        ],
+                                        [
+                                            'id' => 3,
+                                            'tagId' => '1',
+                                            'tagLang' => 'fr',
+                                            'tagName' => 'Le France'
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
+                    [
+                        'position' => '2',
+                        'isMain' => true,
+                        'number' => 'Test Number 2',
+                        'model' => 'Test Model 2',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'availableUntil' => null,
+                        'id' => 'Test Id',
+                        'mainVariationId' => 'Test',
+                        'automaticListVisibility' => 3,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [],
+                        'tags' => [
+                            [
+                                'tagId' => 1,
+                                'tagType' => 'simple',
+                                'relationshipValue' => '1000',
+                                'relationshipUUID5' => '',
+                                'createdAt' => '2019-04-19T15:14:39+02:00',
+                                'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                'tag' => [
+                                    'id' => 1,
+                                    'tagName' => 'Ich bin ein Tag',
+                                    'color' => '#ffffff',
+                                    'createdAt' => '2019-04-19T15:14:39+02:00',
+                                    'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                    'names' => [
+                                        [
+                                            'id' => 1,
+                                            'tagId' => '1',
+                                            'tagLang' => 'de',
+                                            'tagName' => 'Ich bin ein Tag'
+                                        ],
+                                        [
+                                            'id' => 2,
+                                            'tagId' => '1',
+                                            'tagLang' => 'en',
+                                            'tagName' => 'I am a Tag'
+                                        ],
+                                        [
+                                            'id' => 3,
+                                            'tagId' => '1',
+                                            'tagLang' => 'fr',
+                                            'tagName' => 'Le France'
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                '',
+                ['Test Number', 'Test Model', 'Not the main variation', 'Test Number 2', 'Test Model 2', 'Test Id'],
+                ['price' => 0.0, 'maxprice' => '', 'instead' => 0.0, 'variation_id' => 'Test Id', 'sort' => '2', 'keywords' => 'I am a Tag']
+            ],
+            'Tag list contains tags for irrelevant language; field for keywords is set with main tag name' => [
+                [
+                    [
+                        'position' => '1',
+                        'isMain' => false,
+                        'number' => 'Test Number',
+                        'model' => 'Test Model',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'availableUntil' => '2099-01-01T00:00:00+01:00',
+                        'id' => 'Not the main variation',
+                        'mainVariationId' => 'Test Id',
+                        'vatId' => 2,
+                        'automaticListVisibility' => 3,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [],
+                        'tags' => [
+                            [
+                                'tagId' => 1,
+                                'tagType' => 'variation',
+                                'relationshipValue' => '1000',
+                                'relationshipUUID5' => '',
+                                'createdAt' => '2019-04-19T15:14:39+02:00',
+                                'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                'tag' => [
+                                    'id' => 1,
+                                    'tagName' => 'Main Tag',
+                                    'color' => '#ffffff',
+                                    'createdAt' => '2019-04-19T15:14:39+02:00',
+                                    'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                    'names' => [
+                                        [
+                                            'id' => 1,
+                                            'tagId' => '1',
+                                            'tagLang' => 'de',
+                                            'tagName' => 'Ich bin ein Tag'
+                                        ],
+                                        [
+                                            'id' => 2,
+                                            'tagId' => '2',
+                                            'tagLang' => 'fr',
+                                            'tagName' => 'Le France'
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
+                    [
+                        'position' => '2',
+                        'isMain' => true,
+                        'number' => 'Test Number 2',
+                        'model' => 'Test Model 2',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'availableUntil' => null,
+                        'id' => 'Test Id',
+                        'mainVariationId' => 'Test',
+                        'automaticListVisibility' => 3,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [],
+                        'tags' => [
+                            [
+                                'tagId' => 1,
+                                'tagType' => 'simple',
+                                'relationshipValue' => '1000',
+                                'relationshipUUID5' => '',
+                                'createdAt' => '2019-04-19T15:14:39+02:00',
+                                'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                'tag' => [
+                                    'id' => 1,
+                                    'tagName' => 'Main Tag',
+                                    'color' => '#ffffff',
+                                    'createdAt' => '2019-04-19T15:14:39+02:00',
+                                    'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                    'names' => [
+                                        [
+                                            'id' => 1,
+                                            'tagId' => '1',
+                                            'tagLang' => 'de',
+                                            'tagName' => 'Ich bin ein Tag'
+                                        ],
+                                        [
+                                            'id' => 2,
+                                            'tagId' => '2',
+                                            'tagLang' => 'fr',
+                                            'tagName' => 'Le France'
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                '',
+                ['Test Number', 'Test Model', 'Not the main variation', 'Test Number 2', 'Test Model 2', 'Test Id'],
+                ['price' => 0.0, 'maxprice' => '', 'instead' => 0.0, 'variation_id' => 'Test Id', 'sort' => '2', 'keywords' => 'Main Tag']
             ]
         ];
     }

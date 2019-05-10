@@ -331,20 +331,50 @@ class ExporterTest extends TestCase
 
     public function providerProcessProductDataProductDoNotHaveData()
     {
-        return array(
-            array(
-                array(
-                    'entries' => array(array('id' => 'Test', 'isMain' => false, 'itemId' => '1', 'mainVariationId' => 'Test', 'isActive' => false, 'availability' => 1, 'variationCategories' => array(array('categoryId' => '1')))),
+        return [
+            [
+                [
+                    'entries' => [
+                        [
+                            'id' => 'Test',
+                            'isMain' => false,
+                            'itemId' => '1',
+                            'mainVariationId' => 'Test',
+                            'isActive' => false,
+                            'availability' => 1,
+                            'variationCategories' => [
+                                [
+                                    'categoryId' => '1'
+                                ]
+                            ],
+                            'tags' => []
+                        ]
+                    ],
                     'isLastPage' => true
-                )
-            ),
-            array(
-                array(
-                    'entries' => array(array('id' => 'Test', 'isMain' => false, 'itemId' => '1', 'mainVariationId' => 'Test', 'isActive' => true, 'availability' => 1, 'variationCategories' => array(array('categoryId' => '1')))),
+                ]
+            ],
+            [
+                [
+                    'entries' => [
+                        [
+                            'id' => 'Test',
+                            'isMain' => false,
+                            'itemId' => '1',
+                            'mainVariationId' => 'Test',
+                            'isActive' => true,
+                            'availability' => 1,
+                            'variationCategories' => [
+                                [
+                                    'categoryId' => '1'
+                                ]
+                            ],
+                            'tags' => []
+                        ]
+                    ],
                     'isLastPage' => true
-                )
-            )
-        );
+                ]
+            ]
+        ];
     }
 
     /**
