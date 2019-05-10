@@ -12,7 +12,3 @@ install:
 
 script:
   - composer run-tests
-
-branches:
-  only:
-    - master
