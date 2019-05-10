@@ -5,6 +5,7 @@ namespace Findologic\PlentymarketsTest;
 use Findologic\Plentymarkets\Exception\CriticalException;
 use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Exception\ThrottlingException;
+use HTTP_Request2;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 
@@ -273,6 +274,26 @@ class ClientTest extends TestCase
         $clientMock->expects($this->once())->method('createRequest')->will($this->returnValue($requestMock));
 
         $this->expectException(CustomerException::class);
+
+        $clientMock->getAttributes();
+    }
+
+    public function testApiMethodResponseBodyIsEmpty()
+    {
+        $requestMock = $this->getMockBuilder(HTTP_Request2::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['send'])
+            ->getMock();
+
+        $response = $this->getResponseMock('', 200, false);
+        $response->expects($this->any())->method('getHeader')->willReturn('1');
+        $requestMock->expects($this->any())->method('send')->willReturn($response);
+
+        $clientMock = $this->getClientMock(['createRequest']);
+        $clientMock->expects($this->once())->method('createRequest')->willReturn($requestMock);
+
+        $this->expectException(CustomerException::class);
+        $this->expectExceptionMessage("API responded with 200 but didn't return any data.");
 
         $clientMock->getAttributes();
     }

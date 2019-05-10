@@ -683,6 +683,10 @@ class Client
             throw new CustomerException('Could not reach API method for ' . $response->getEffectiveUrl());
         }
 
+        if ($this->returnResult($response) === null) {
+            throw new CustomerException("API responded with " . $response->getStatus() . " but didn't return any data.");
+        }
+
         return true;
     }
 
