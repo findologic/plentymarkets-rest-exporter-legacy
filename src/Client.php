@@ -508,23 +508,23 @@ class Client
      */
     public function getProductVariations(array $productIds, $storePlentyId = false)
     {
-        $params = array(
-            'with' =>
-                array(
-                    'variationSalesPrices',
-                    'variationBarcodes',
-                    'variationCategories',
-                    'variationAttributeValues',
-                    'variationClients',
-                    'variationProperties',
-                    'properties',
-                    'itemImages',
-                    'unit',
-                    'stock'
-                ),
+        $params = [
+            'with' => [
+                'variationSalesPrices',
+                'variationBarcodes',
+                'variationCategories',
+                'variationAttributeValues',
+                'variationClients',
+                'variationProperties',
+                'properties',
+                'itemImages',
+                'unit',
+                'stock',
+                'tags'
+            ],
             'isActive' => true,
             'itemId' => $productIds
-        );
+        ];
 
         if ($storePlentyId) {
             $params['plentyId'] = $storePlentyId;
@@ -681,6 +681,10 @@ class Client
         // Method is not reachable, maybe server is down
         if ($response->getStatus() != 200) {
             throw new CustomerException('Could not reach API method for ' . $response->getEffectiveUrl());
+        }
+
+        if ($this->returnResult($response) === null) {
+            throw new CustomerException("API responded with " . $response->getStatus() . " but didn't return any data.");
         }
 
         return true;

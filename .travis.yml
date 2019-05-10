@@ -3,12 +3,12 @@ language: php
 php:
   - 7.3
 
+cache:
+  directories:
+    - ${HOME}/.composer/cache/files
+
 install:
   - composer install
 
 script:
   - composer run-tests
-
-branches:
-  only:
-    - master

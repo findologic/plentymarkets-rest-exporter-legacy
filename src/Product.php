@@ -431,7 +431,8 @@ class Product extends ParserAbstract
             ->processVariationGroups($this->getFromArray($variation, 'variationClients'))
             ->processVariationPrices($this->getFromArray($variation, 'variationSalesPrices'))
             ->processVariationAttributes($this->getFromArray($variation, 'variationAttributeValues'))
-            ->processUnits($this->getFromArray($variation, 'unit'));
+            ->processUnits($this->getFromArray($variation, 'unit'))
+            ->processTags($this->getFromArray($variation, 'tags'));
 
         if ($this->getExportSalesFrequency() && isset($variation['salesRank']) && $this->getField('sales_frequency') < $variation['salesRank']) {
             $this->setField('sales_frequency', $variation['salesRank']);
@@ -975,6 +976,50 @@ class Product extends ParserAbstract
                 ->setField('url', $this->getProductFullUrl($this->getFromArray($texts, 'urlPath')))
                 ->setField('keywords', $this->getFromArray($texts, 'keywords'));
         }
+
+        return $this;
+    }
+
+    /**
+     * @param array $data
+     * @return $this
+     */
+    protected function processTags(array $data)
+    {
+        if (empty($data)) {
+            $this->handleEmptyData();
+
+            return $this;
+        }
+
+        $keywordsArray = [];
+
+        $keywords = $this->getField('keywords');
+        if ($keywords !== $this->getDefaultEmptyValue()) {
+            $keywordsArray[] = $keywords;
+        }
+
+        foreach ($data as $tag) {
+            if ($tag['tagType'] !== 'variation') {
+                continue;
+            }
+
+            $correctTagName = $tag['tag']['tagName'];
+
+            if (!empty($tag['tag']['names'])) {
+                foreach ($tag['tag']['names'] as $tagName) {
+                    if ($tagName['tagLang'] === strtolower($this->getLanguageCode())) {
+                        $correctTagName = $tagName['tagName'];
+
+                        break;
+                    }
+                }
+            }
+
+            $keywordsArray[] = $correctTagName;
+        }
+
+        $this->setField('keywords', implode(',', $keywordsArray));
 
         return $this;
     }
