@@ -309,7 +309,7 @@ class ClientTest extends TestCase
             ->setMethods(array('send'))
             ->getMock();
 
-        $response = $this->getResponseMock('Failed', 200, false);
+        $response = $this->getResponseMock('{}', 200, false);
         $response->expects($this->any())->method('getHeader')->willReturn('1');
         $requestMock->expects($this->any())->method('send')->will($this->returnValue($response));
 
@@ -354,7 +354,7 @@ class ClientTest extends TestCase
             ->setMethods(array('send'))
             ->getMock();
 
-        $response = $this->getResponseMock('Failed', 200, false);
+        $response = $this->getResponseMock('{}', 200, false);
         $response->expects($this->any())->method('getHeader')->willReturnOnConsecutiveCalls(50, 1);
         $requestMock->expects($this->any())->method('send')->will($this->returnValue($response));
 
@@ -390,7 +390,7 @@ class ClientTest extends TestCase
             ->setMethods(array('send'))
             ->getMock();
 
-        $response = $this->getResponseMock('Failed', 200, false);
+        $response = $this->getResponseMock('{}', 200, false);
         $response->expects($this->any())->method('getHeader')->willReturnOnConsecutiveCalls(50, 15, 1);
         $requestMock->expects($this->any())->method('send')->will($this->returnValue($response));
 
