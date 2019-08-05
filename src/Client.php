@@ -2,9 +2,11 @@
 
 namespace Findologic\Plentymarkets;
 
+use Exception;
 use Findologic\Plentymarkets\Exception\CriticalException;
 use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Exception\ThrottlingException;
+use Findologic\Plentymarkets\Exception\AuthorizationException;
 use \HTTP_Request2_Response;
 use \HTTP_Request2;
 use Log4Php\Logger;
@@ -31,7 +33,7 @@ class Client
      *
      * @var string
      */
-    protected $token;
+    protected $accessToken;
 
     /**
      * REST login refresh token
@@ -152,9 +154,25 @@ class Client
      *
      * @return null|string
      */
-    public function getToken()
+    public function getAccessToken()
     {
-        return $this->token;
+        return $this->accessToken;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getRefreshToken()
+    {
+        return $this->refreshToken;
+    }
+
+    /**
+     * @return bool
+     */
+    public function getLoginFlag()
+    {
+        return $this->loginFlag;
     }
 
     /**
@@ -268,7 +286,7 @@ class Client
                     'password' => $this->config->getPassword()
                 )
             );
-        } catch (\Exception $e) {
+        } catch (Exception $e) {
             $response = false;
         }
 
@@ -294,10 +312,28 @@ class Client
             throw new CriticalException('Incorrect login to API, response does not have an access token!');
         }
 
-        $this->token = $data->accessToken;
+        $this->accessToken = $data->accessToken;
+        $this->refreshToken = $data->refreshToken;
         $this->loginFlag = false;
 
         return $this;
+    }
+
+    public function refreshLogin()
+    {
+        try {
+            $response = $this->call('POST', $this->getEndpoint('login/refresh'), array(
+                    'refresh_token' => $this->refreshToken
+                )
+            );
+        } catch (Exception $e) {
+            return;
+        }
+
+        $data = json_decode($response->getBody());
+
+        $this->accessToken = $data->accessToken;
+        $this->refreshToken = $data->refreshToken;
     }
 
     /**
@@ -604,6 +640,7 @@ class Client
      * @param array|null $params
      * @return bool|mixed
      * @throws ThrottlingException
+     * @throws AuthorizationException
      */
     protected function call($method, $uri, $params = null)
     {
@@ -634,7 +671,14 @@ class Client
                 $this->checkThrottling($response);
 
                 $continue = false;
-            } catch (\Exception $e) {
+            } catch (AuthorizationException $e) {
+                if ($this->getLoginFlag()) {
+                    throw $e;
+                }
+
+                $this->refreshLogin();
+                $this->setDefaultParams($request);
+            } catch (Exception $e) {
                 if ($e instanceof ThrottlingException || $count >= self::RETRY_COUNT) {
                     // Throw exception instantly if it is throttling exception
                     // or check if retry limit was reached to stop retry cycle
@@ -659,15 +703,15 @@ class Client
      *
      * @param HTTP_Request2_Response $response
      * @return bool
-     * @throws CriticalException
      * @throws CustomerException
      * @throws ThrottlingException
+     * @throws AuthorizationException
      */
     protected function isResponseValid(HTTP_Request2_Response $response)
     {
         // Method is not reachable because provided API user do not have appropriate access rights
         if ($response->getStatus() == 401 && $response->getReasonPhrase() == 'Unauthorized') {
-            throw new CriticalException('Provided REST client is not logged in!');
+            throw new AuthorizationException('Provided REST client is not logged in!');
         }
 
         if ($response->getStatus() == 403) {
@@ -704,7 +748,7 @@ class Client
         $request->setAdapter('curl');
 
         // Ignore setting default params for login method as it not required
-        if (!$this->loginFlag) {
+        if (!$this->getLoginFlag()) {
             $this->setDefaultParams($request);
         }
 
@@ -725,11 +769,11 @@ class Client
      */
     protected function setDefaultParams(HTTP_Request2 $request)
     {
-        if (!$this->getToken()) {
+        if (!$this->getAccessToken()) {
             $this->login();
         }
 
-        $request->setHeader('Authorization', 'Bearer ' . $this->getToken());
+        $request->setHeader('Authorization', 'Bearer ' . $this->getAccessToken());
 
         return $this;
     }
