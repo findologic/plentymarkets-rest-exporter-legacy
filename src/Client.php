@@ -677,6 +677,8 @@ class Client
                 }
 
                 $this->refreshLogin();
+
+                // Since the access token changed, this method will update the current request's authorization header.
                 $this->setDefaultParams($request);
             } catch (Exception $e) {
                 if ($e instanceof ThrottlingException || $count >= self::RETRY_COUNT) {
