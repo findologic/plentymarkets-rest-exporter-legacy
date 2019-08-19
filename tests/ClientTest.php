@@ -2,7 +2,7 @@
 
 namespace Findologic\PlentymarketsTest;
 
-use Findologic\Plentymarkets\Exception\CriticalException;
+use Findologic\Plentymarkets\Exception\AuthorizationException;
 use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Exception\ThrottlingException;
 use HTTP_Request2;
@@ -24,7 +24,58 @@ class ClientTest extends TestCase
         $clientMock->expects($this->once())->method('call')->will($this->returnValue($responseMock));
         $clientMock->login();
 
-        $this->assertEquals('TEST_TOKEN', $clientMock->getToken());
+        $this->assertEquals('TEST_TOKEN', $clientMock->getAccessToken());
+    }
+
+    public function testRefreshLogin()
+    {
+        $clientMock = $this->getClientMock(array('call', 'getEndpoint'));
+
+        $body = '{"accessToken":"TEST_TOKEN","tokenType":"Bearer","expiresIn":86400,"refreshToken":"REFERSH_TOKEN"}';
+        $responseMock = $this->getResponseMock($body, 200);
+
+        $clientMock->expects($this->once())->method('getEndpoint')->with('login/refresh')->willReturn('http://testing.com/rest/login/refresh');
+        $clientMock->expects($this->once())->method('call')->with('POST', 'http://testing.com/rest/login/refresh')->willReturn($responseMock);
+        $clientMock->refreshLogin();
+
+        $this->assertEquals('TEST_TOKEN', $clientMock->getAccessToken());
+        $this->assertEquals('REFERSH_TOKEN', $clientMock->getRefreshToken());
+    }
+
+    public function testTokensAreRefreshed()
+    {
+        $refreshRequestMock = $this->getRequestMock(['send']);
+        $webstoresRequestMock = $this->getRequestMock(['send']);
+
+        $clientMock = $this->getClientMock(['createRequest', 'getUrl']);
+
+        $refreshBody = '{"accessToken":"TEST_TOKEN","tokenType":"Bearer","expiresIn":86400,"refreshToken":"REFERSH_TOKEN"}';
+        $refreshResponse = $this->getResponseMock($refreshBody, 200);
+        $refreshRequestMock->expects($this->once())->method('send')->willReturn($refreshResponse);
+
+        $webstoresUnauthorizedResponse = $this->getResponseMock('Failed', 401);
+        $webstoresUnauthorizedResponse->expects($this->any())->method('getReasonPhrase')->willReturn('Unauthorized');
+
+        $webstoresAuthorizedResponse = $this->getResponseMock('{"test": "success"}', 200);
+
+        $webstoresRequestMock->expects($this->at(0))->method('send')->willReturn($webstoresUnauthorizedResponse);
+        $webstoresRequestMock->expects($this->at(1))->method('send')->willReturn($webstoresAuthorizedResponse);
+
+        $clientMock->expects($this->any())->method('getUrl')->willReturn('test.com/');
+
+        $clientMock->method('createRequest')
+            ->withConsecutive(
+                ['GET', 'https://test.com/webstores', null],
+                ['POST', 'https://test.com/login/refresh', ['refresh_token' => null]]
+            )->willReturnOnConsecutiveCalls(
+                $webstoresRequestMock,
+                $refreshRequestMock
+            );
+
+        $clientMock->getWebstores();
+
+        $this->assertEquals('TEST_TOKEN', $clientMock->getAccessToken());
+        $this->assertEquals('REFERSH_TOKEN', $clientMock->getRefreshToken());
     }
 
     /**
@@ -40,7 +91,7 @@ class ClientTest extends TestCase
         $clientMock->expects($this->exactly(2))->method('call')->will($this->onConsecutiveCalls($this->throwException(new \Exception()), $responseMock));
         $clientMock->login();
 
-        $this->assertEquals('TEST_TOKEN', $clientMock->getToken());
+        $this->assertEquals('TEST_TOKEN', $clientMock->getAccessToken());
     }
 
     /**
@@ -167,15 +218,16 @@ class ClientTest extends TestCase
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
             ->setConstructorArgs(array($configMock, $logMock, $logMock, $debugMock))
-            ->setMethods(array('createRequest'))
+            ->setMethods(array('createRequest', 'getLoginFlag'))
             ->getMock();
 
         $failedResponse = $this->getResponseMock('Failed', 401);
         $failedResponse->expects($this->any())->method('getReasonPhrase')->willReturn('Unauthorized');
         $requestMock->expects($this->any())->method('send')->will($this->returnValue($failedResponse));
-        $clientMock->expects($this->once())->method('createRequest')->will($this->returnValue($requestMock));
+        $clientMock->expects($this->any())->method('getLoginFlag')->willReturn(true);
+        $clientMock->expects($this->any())->method('createRequest')->will($this->returnValue($requestMock));
 
-        $this->expectException(CriticalException::class);
+        $this->expectException(AuthorizationException::class);
 
         $clientMock->getProductVariations(array('1'));
     }
@@ -185,12 +237,12 @@ class ClientTest extends TestCase
      */
     public function testCreateRequest()
     {
-        $clientMock = $this->getClientMock(array('handleException', 'getToken', 'login'));
+        $clientMock = $this->getClientMock(array('handleException', 'getAccessToken', 'login'));
         // Set return value to false so method would call login() which sets the token
-        $clientMock->expects($this->at(0))->method('getToken')->will($this->returnValue(false));
+        $clientMock->expects($this->at(0))->method('getAccessToken')->will($this->returnValue(false));
         $clientMock->expects($this->once())->method('login');
         // Token was set by login() method
-        $clientMock->expects($this->at(1))->method('getToken')->will($this->returnValue('TEST_TOKEN'));
+        $clientMock->expects($this->at(1))->method('getAccessToken')->will($this->returnValue('TEST_TOKEN'));
 
         // To test protected method create reflection class
         $reflection = new \ReflectionClass(get_class($clientMock));
@@ -465,5 +517,18 @@ class ClientTest extends TestCase
         }
 
         return $responseMock;
+    }
+
+    /**
+     * @param array|null $methods
+     * @return \HTTP_Request2|MockObject
+     * @throws \ReflectionException
+     */
+    protected function getRequestMock($methods = null)
+    {
+        return $this->getMockBuilder(HTTP_Request2::class)
+            ->disableOriginalConstructor()
+            ->setMethods($methods)
+            ->getMock();
     }
 }
