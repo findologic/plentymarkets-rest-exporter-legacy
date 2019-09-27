@@ -20,14 +20,14 @@ $log->info('Initialising the plugin with DEBUG mode ON.');
 
 $config = new PlentyConfig();
 
-$config->setUsername('username')
-    ->setPassword('password')
-    ->setDomain('www.store.com')
+$config->setUsername('FINDOLOGIC API USER')
+    ->setPassword('secure')
+    ->setDomain('findologic.plentymarkets-cloud02.com')
     ->setMultishopId(0)
-    ->setAvailabilityId(5)
+    ->setAvailabilityId(null)
     ->setPriceId(1)
-    ->setRrpId(7) // price id for 'instead' field
-    ->setLanguage('EN'); // Language code for texts
+    ->setRrpId(2) // price id for 'instead' field
+    ->setLanguage('DE'); // Language code for texts
 
 $registry = new \Findologic\Plentymarkets\Registry($log, $customerLogger);
 $client = new \Findologic\Plentymarkets\Client($config, $log, $customerLogger, $debug);
