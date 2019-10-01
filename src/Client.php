@@ -539,25 +539,13 @@ class Client
 
     /**
      * @param array $productIds
+     * @param array $with
      * @param bool|int $storePlentyId
-     * @return array
      */
-    public function getProductVariations(array $productIds, $storePlentyId = false)
+    public function getProductVariations(array $productIds, array $with, $storePlentyId = false): array
     {
         $params = [
-            'with' => [
-                'variationSalesPrices',
-                'variationBarcodes',
-                'variationCategories',
-                'variationAttributeValues',
-                'variationClients',
-                'variationProperties',
-                'properties',
-                'itemImages',
-                'unit',
-                'stock',
-                'tags'
-            ],
+            'with' => $with,
             'isActive' => true,
             'itemId' => $productIds
         ];
