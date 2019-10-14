@@ -1,17 +1,47 @@
 <?php
 
-namespace Findologic\Plentymarkets;
+namespace Findologic\Plentymarkets\Response;
 
-use Findologic\Plentymarkets\Parser\ParserAbstract;
+use Findologic\Plentymarkets\Client;
 use Findologic\Plentymarkets\Parser\Units;
 use Findologic\Plentymarkets\Parser\ItemProperties;
 use Findologic\Plentymarkets\Parser\Properties;
+use Findologic\Plentymarkets\Registry;
+use JsonStreamingParser\Listener\RegexListener;
+use JsonStreamingParser\Parser;
+use Psr\Http\Message\StreamInterface;
 
-class Product extends ParserAbstract
+class Product extends Response
 {
     const CATEGORY_ATTRIBUTE_FIELD = 'cat';
     const CATEGORY_URLS_ATTRIBUTE_FIELD = 'cat_url';
     const MANUFACTURER_ATTRIBUTE_FIELD = 'vendor';
+
+    protected $fieldNames = [
+        'id',
+        'ordernumber',
+        'name',
+        'summary',
+        'description',
+        'price',
+        'instead',
+        'maxprice',
+        'taxrate',
+        'url',
+        'image',
+        'base_unit',
+        'package_size',
+        'price_id',
+        'attributes',
+        'keywords',
+        'groups',
+        'bonus',
+        'sales_frequency',
+        'date_added',
+        'sort',
+        'main_variation_id',
+        'variation_id'
+    ];
 
     /**
      * Item id in shops system
@@ -52,7 +82,8 @@ class Product extends ParserAbstract
         'sales_frequency' => null,
         'date_added' => '',
         'sort' => '',
-        'main_variation_id' => ''
+        'main_variation_id' => '',
+        'variation_id' => ''
     );
 
     /**
@@ -102,6 +133,136 @@ class Product extends ParserAbstract
      * @var array
      */
     protected $availableProductNameFieldIdValues = array(1, 2, 3);
+
+    /**
+     * Holds the parsed values
+     *
+     * @var array
+     */
+    protected $results = array();
+
+    /**
+     * @var string
+     */
+    protected $storeUrl = '';
+
+    /**
+     * @var string
+     */
+    protected $languageCode = '';
+
+    /**
+     * @var string
+     */
+    protected $countryCode = '';
+
+    /**
+     * @var bool|int
+     */
+    protected $storePlentyId;
+
+    /**
+     * Product constructor.
+     * @param StreamInterface $stream
+     * @param Registry $registry
+     * @param Client $client
+     * @param int $index
+     */
+    public function __construct(StreamInterface $stream, Registry $registry, Client $client, int $index)
+    {
+        parent::__construct($stream, $registry, $client, $index);
+
+        $this->itemId = $this->getIdFromStream($index);
+        $this->index = $index;
+
+        $this->processManufacturer($this->getFromStream('manufacturerId'));
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getFieldNames()
+    {
+        return $this->fieldNames;
+    }
+
+    /**
+     * @return string|null
+     */
+    public function getProductPositionInStream()
+    {
+        $openedStream = $this->openStream($this->stream);
+
+        $callbackResult = null;
+
+        $getProductListener = new RegexListener();
+        $parser = new Parser($openedStream, $getProductListener);
+        $getProductListener->setMatch([
+            "(/entries/.*/id)" => function ($result, $path) use ($parser, &$callbackResult) {
+                if ($result === $this->itemId) {
+                    $callbackResult = explode('/', $path)[2];
+
+                    $parser->stop();
+                }
+            }
+        ]);
+
+        $parser->parse();
+
+        $this->closeStream($openedStream);
+
+        return $callbackResult;
+    }
+
+    public function getIdFromStream($index)
+    {
+        $openedStream = $this->openStream($this->stream);
+
+        $callbackResult = null;
+
+        $getProductListener = new RegexListener();
+        $parser = new Parser($openedStream, $getProductListener);
+        $getProductListener->setMatch([
+            "/entries/$index/id" => function ($result) use ($parser, &$callbackResult) {
+                $callbackResult = $result;
+
+                $parser->stop();
+            }
+        ]);
+
+        $parser->parse();
+
+        $this->closeStream($openedStream);
+
+        return $callbackResult;
+    }
+
+    public function getFromStream($field)
+    {
+        $positionInStream = $this->getProductPositionInStream();
+
+        $openedStream = $this->openStream($this->stream);
+
+        $callbackResult = null;
+
+        $getProductListener = new RegexListener();
+        $parser = new Parser($openedStream, $getProductListener);
+        $getProductListener->setMatch([
+            "(/entries/$positionInStream/$field)" => function ($result) use ($parser, &$callbackResult) {
+                $callbackResult = $result;
+
+                $parser->stop();
+            }
+        ]);
+
+        $parser->parse();
+
+        $this->closeStream($openedStream);
+
+        return $callbackResult;
+    }
 
     /**
      * @param int $productNameFieldId
@@ -366,25 +527,6 @@ class Product extends ParserAbstract
     public function getResults()
     {
         return $this->fields;
-    }
-
-    /**
-     * Process initial data from '/items' call response
-     *
-     * @param array $data
-     * @return $this
-     */
-    public function processInitialData(array $data)
-    {
-        $this->itemId = $this->getFromArray($data, 'id');
-
-        $this->setField('id', $this->getItemId())
-            ->setField('date_added', strtotime($this->getFromArray($data, 'createdAt')));
-
-        $this->processManufacturer($this->getFromArray($data, 'manufacturerId'));
-        $this->processTexts($data);
-
-        return $this;
     }
 
     /**
@@ -958,32 +1100,6 @@ class Product extends ParserAbstract
      * @param array $data
      * @return $this
      */
-    protected function processTexts(array $data)
-    {
-        if (!isset($data['texts']) || !count($data['texts'])) {
-            $this->handleEmptyData();
-            return $this;
-        }
-
-        foreach ($data['texts'] as $texts) {
-            if (strtoupper($texts['lang']) != $this->getLanguageCode()) {
-                continue;
-            }
-
-            $this->setField('name', $this->getFromArray($texts, 'name' . $this->productNameFieldId))
-                ->setField('summary', $this->getFromArray($texts, 'shortDescription'))
-                ->setField('description', $this->getFromArray($texts, 'description'))
-                ->setField('url', $this->getProductFullUrl($this->getFromArray($texts, 'urlPath')))
-                ->setField('keywords', $this->getFromArray($texts, 'keywords'));
-        }
-
-        return $this;
-    }
-
-    /**
-     * @param array $data
-     * @return $this
-     */
     protected function processTags(array $data)
     {
         if (empty($data)) {
@@ -1022,5 +1138,391 @@ class Product extends ParserAbstract
         $this->setField('keywords', implode(',', $keywordsArray));
 
         return $this;
+    }
+
+    /**
+     * Set results, only should be used for testing and mocking
+     *
+     * @param array $data
+     * @return $this
+     */
+    public function setResults(array $data)
+    {
+        $this->results = $data;
+
+        return $this;
+    }
+
+    /**
+     * Get method name which is missing some data and pass the message to log class
+     *
+     * @param string $additionalInfo
+     * @return $this
+     */
+    protected function handleEmptyData($additionalInfo = '')
+    {
+        /**
+         * @var \Logger $log
+         */
+        if ($this->registry && ($log = $this->registry->get('log'))) {
+            $method = debug_backtrace();
+            $method = $method[1]['function'];
+            $message = 'Class ' . get_class($this) . ' method: ' . $method . ' is missing some data.';
+
+            if ($additionalInfo) {
+                $message .= ' Class message: ' . $additionalInfo;
+            }
+
+            $log->trace($message);
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param string $lang
+     * @return $this
+     */
+    public function setLanguageCode($lang)
+    {
+        $this->languageCode = strtoupper($lang);
+
+        return $this;
+    }
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as it used for better mocking
+     */
+    public function getLanguageCode()
+    {
+        return $this->languageCode;
+    }
+
+    /**
+     * @param string $country
+     * @return $this
+     */
+    public function setTaxRateCountryCode($country)
+    {
+        $this->countryCode = strtoupper($country);
+
+        return $this;
+    }
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as it used for better mocking
+     */
+    public function getTaxRateCountryCode()
+    {
+        return $this->countryCode;
+    }
+
+    /**
+     * @param string $url
+     * @return $this
+     */
+    public function setStoreUrl($url)
+    {
+        $this->storeUrl = rtrim($url, '/');
+
+        return $this;
+    }
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as it used for better mocking
+     */
+    public function getStoreUrl()
+    {
+        return $this->storeUrl;
+    }
+
+    /**
+     * @param int $storePlentyId
+     * @return $this
+     */
+    public function setStorePlentyId($storePlentyId)
+    {
+        $this->storePlentyId = $storePlentyId;
+
+        return $this;
+    }
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as it used for better mocking
+     */
+    public function getStorePlentyId()
+    {
+        return $this->storePlentyId;
+    }
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as it used for better mocking
+     */
+    public function getDefaultEmptyValue()
+    {
+        return '';
+    }
+
+    /**
+     * @return string
+     */
+    public function getFieldId()
+    {
+        return $this->itemId;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFieldOrdernumber()
+    {
+        return $this->fields['ordernumber'];
+    }
+
+    /**
+     * @return string
+     */
+    public function getFieldName()
+    {
+        $name = '';
+
+        $textsResponse = $this->getFromStream('texts');
+
+        if (!isset($textsResponse) || !count($textsResponse)) {
+            $this->handleEmptyData();
+
+            return '';
+        }
+
+        foreach ($textsResponse as $texts) {
+            if (strtoupper($texts['lang']) != $this->getLanguageCode()) {
+                continue;
+            }
+
+            $name = $texts['name' . $this->productNameFieldId];
+
+            break;
+        }
+
+        return $name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFieldSummary()
+    {
+        $summary = '';
+
+        $textsResponse = $this->getFromStream('texts');
+
+        if (!isset($textsResponse) || !count($textsResponse)) {
+            $this->handleEmptyData();
+
+            return '';
+        }
+
+        foreach ($textsResponse as $texts) {
+            if (strtoupper($texts['lang']) != $this->getLanguageCode()) {
+                continue;
+            }
+
+            $summary = $texts['shortDescription'];
+
+            break;
+        }
+
+        return $summary;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFieldDescription()
+    {
+        $description = '';
+
+        $textsResponse = $this->getFromStream('texts');
+
+        if (!isset($textsResponse) || !count($textsResponse)) {
+            $this->handleEmptyData();
+
+            return '';
+        }
+
+        foreach ($textsResponse as $texts) {
+            if (strtoupper($texts['lang']) != $this->getLanguageCode()) {
+                continue;
+            }
+
+            $description = $texts['description'];
+
+            break;
+        }
+
+        return $description;
+    }
+
+    /**
+     * @return float
+     */
+    public function getFieldPrice()
+    {
+        return $this->fields['price'];
+    }
+
+    /**
+     * @return float
+     */
+    public function getFieldInstead()
+    {
+        return $this->fields['instead'];
+    }
+
+    /**
+     * @return null
+     */
+    public function getFieldMaxprice()
+    {
+        return null;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFieldTaxrate()
+    {
+        return $this->fields['taxrate'];
+    }
+
+    /**
+     * @return string
+     */
+    public function getFieldUrl()
+    {
+        $url = '';
+
+        $textsResponse = $this->getFromStream('texts');
+
+        if (!isset($textsResponse) || !count($textsResponse)) {
+            $this->handleEmptyData();
+
+            return '';
+        }
+
+        foreach ($textsResponse as $texts) {
+            if (strtoupper($texts['lang']) != $this->getLanguageCode()) {
+                continue;
+            }
+
+            $url = $this->getProductFullUrl($texts['urlPath']);
+            break;
+        }
+
+        return $url;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFieldImage()
+    {
+        return $this->fields['image'];
+    }
+
+    /**
+     * @return string
+     */
+    public function getFieldBaseUnit()
+    {
+        return $this->fields['base_unit'];
+    }
+
+    /**
+     * @return string
+     */
+    public function getFieldPackageSize()
+    {
+        return $this->fields['package_size'];
+    }
+
+    /**
+     * @return string
+     */
+    public function getFieldPriceId()
+    {
+        return $this->fields['price_id'];
+    }
+
+    /**
+     * @return string
+     */
+    public function getFieldAttributes()
+    {
+        return $this->fields['attributes'];
+    }
+
+    /**
+     * @return string
+     */
+    public function getFieldKeywords()
+    {
+        return $this->fields['keywords'];
+    }
+
+    /**
+     * @return string
+     */
+    public function getFieldGroups()
+    {
+        return $this->fields['groups'];
+    }
+
+    /**
+     * @return null
+     */
+    public function getFieldBonus()
+    {
+        return null;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFieldSalesFrequency()
+    {
+        return $this->fields['sales_frequency'];
+    }
+
+    /**
+     * @return int
+     */
+    public function getFieldDateAdded()
+    {
+        return strtotime($this->getFromStream('createdAt'));
+    }
+
+    /**
+     * @return string
+     */
+    public function getFieldSort()
+    {
+        return $this->fields['sort'];
+    }
+
+    /**
+     * @return null
+     */
+    public function getFieldMainVariationId()
+    {
+        return null;
+    }
+
+    /**
+     * @return string
+     */
+    public function getFieldVariationId()
+    {
+        return $this->fields['variation_id'];
     }
 }

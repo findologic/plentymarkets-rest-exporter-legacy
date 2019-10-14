@@ -2,15 +2,17 @@
 
 namespace Findologic\Plentymarkets\Wrapper;
 
+use Findologic\Plentymarkets\Response\Product;
+
 interface WrapperInterface
 {
     /**
      * Method which writes the data to destination
      *
-     * @param array $data
+     * @param Product $product
      * @return mixed
      */
-    public function wrapItem(array $data);
+    public function wrapItem(Product $product);
 
     /**
      * Function called after all products has been processed so each wrapper

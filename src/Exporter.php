@@ -7,15 +7,19 @@ use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Exception\ThrottlingException;
 use Findologic\Plentymarkets\Parser\ParserFactory;
 use Findologic\Plentymarkets\Parser\Attributes;
+use Findologic\Plentymarkets\Response\Product;
+use Findologic\Plentymarkets\Stream\GetProductsStreamer;
 use Findologic\Plentymarkets\Wrapper\WrapperInterface;
+use GuzzleHttp\Exception\GuzzleException;
 use Log4Php\Logger;
+use Psr\Http\Message\StreamInterface;
 
 class Exporter
 {
     const NUMBER_OF_ITEMS_PER_PAGE = 100;
 
     /**
-     * @var \Findologic\Plentymarkets\Client $client
+     * @var Client $client
      */
     protected $client;
 
@@ -35,7 +39,7 @@ class Exporter
     protected $customerLog;
 
     /**
-     * @var \Findologic\Plentymarkets\Registry
+     * @var Registry
      */
     protected $registry;
 
@@ -114,19 +118,32 @@ class Exporter
     protected $config;
 
     /**
-     * @param \Findologic\Plentymarkets\Client $client
-     * @param \Findologic\Plentymarkets\Wrapper\WrapperInterface $wrapper
-     * @param \Logger $log
-     * @param \Logger $customerLog
-     * @param \Findologic\Plentymarkets\Registry $registry
+     * @var GetProductsStreamer
      */
-    public function __construct(Client $client, WrapperInterface $wrapper, Logger $log, Logger $customerLog, Registry $registry)
-    {
+    protected $getProductsStreamer;
+
+    /**
+     * @param Client $client
+     * @param WrapperInterface $wrapper
+     * @param Logger $log
+     * @param Logger $customerLog
+     * @param Registry $registry
+     * @param GetProductsStreamer $getProductsStreamer
+     */
+    public function __construct(
+        Client $client,
+        WrapperInterface $wrapper,
+        Logger $log,
+        Logger $customerLog,
+        Registry $registry,
+        GetProductsStreamer $getProductsStreamer
+    ) {
         $this->client = $client;
         $this->wrapper = $wrapper;
         $this->log = $log;
         $this->customerLog = $customerLog;
         $this->registry = $registry;
+        $this->getProductsStreamer = $getProductsStreamer;
         $this->config = $client->getConfig();
     }
 
@@ -293,8 +310,9 @@ class Exporter
      * @param int $page
      * @return mixed
      * @throws CustomerException
+     * @throws Exception\AuthorizationException
      * @throws ThrottlingException
-     * @throws \Exception
+     * @throws GuzzleException
      */
     public function getProducts($itemsPerPage = null, $page = 1)
     {
@@ -310,53 +328,28 @@ class Exporter
             // Cycle the call for products to API until all we have all products
             while ($continue) {
                 $this->getClient()->setItemsPerPage($itemsPerPage)->setPage($page);
-                $results = $this->getClient()->getProducts($this->getConfig()->getLanguage());
 
-                // Check if there is any results. Products is contained in 'entries' value of response array
-                if (!$results || !isset($results['entries'])) {
-                    throw new CustomerException('Could not find any results!');
-                }
+                $stream = $this->getClient()->getProducts($this->getConfig()->getLanguage(), $this->getProductsStreamer);
 
-                $count = 0;
-                $products = array();
+                $metadata = $this->getProductsStreamer->getMetadata($stream);
 
-                while (($product = array_shift($results['entries']))) {
-                    if ($product['id'] > 0) {
-                        $products[$product['id']] = $product;
-                    } else {
-                        $this->trackSkippedProducts($product['id']);
-                        $this->getLog()->trace('Product was skipped as it has no id.');
-                    }
-
-                    unset($product);
-
-                    $count++;
+                if ($metadata[GetProductsStreamer::METADATA_IS_LAST_PAGE]) {
+                    $count = $metadata[GetProductsStreamer::METADATA_TOTALS_COUNT];
+                } else {
+                    $count = $itemsPerPage * ($page + 1);
                 }
 
                 $start = (($page - 1) * $itemsPerPage);
                 $this->getCustomerLog()->info(sprintf(
                     'Processing items from %d to %d out of %d',
-                    $start, ($start + $count), $results['totalsCount']
+                    $start, $count, $metadata[GetProductsStreamer::METADATA_TOTALS_COUNT]
                 ));
 
-                if (!empty($products)) {
-                    $this->processProductData($products);
-                }
+                $this->processProductData($stream);
 
-                if (!empty($this->skippedProductsIds)) {
-                    $this->getLog()->debug(sprintf(
-                        'Products with ids %s were skipped as they have no correct data (all variations could be inactive or etc.)',
-                        implode(',', $this->skippedProductsIds)
-                    ));
-                    $this->skippedProductsIds = array();
-                }
-
-                if (!isset($results['isLastPage']) || $results['isLastPage'] === true) {
+                if ($metadata[GetProductsStreamer::METADATA_IS_LAST_PAGE]) {
                     $continue = false;
                 }
-
-                unset($results);
-                unset($products);
 
                 $page++;
             }
@@ -378,14 +371,14 @@ class Exporter
     }
 
     /**
-     * Create new product item with initial request data
+     * @param StreamInterface $stream
+     * @param int $i Index of product in the stream
      *
-     * @param array $productData
      * @return Product
      */
-    public function createProductItem($productData)
+    public function createProductItemFromStream($stream, $i)
     {
-        $product = new Product($this->getRegistry());
+        $product = new Product($stream, $this->getRegistry(), $this->getClient(), $i);
         $product->setStorePlentyId($this->getStorePlentyId())
             ->setProtocol($this->getClient()->getProtocol())
             ->setStoreUrl($this->getConfig()->getDomain())
@@ -395,8 +388,7 @@ class Exporter
             ->setRrpPriceId($this->getRrpId())
             ->setProductUrlPrefix($this->getLanguageUrlPrefix())
             ->setExportSalesFrequency($this->exportSalesFrequency)
-            ->setProductNameFieldId($this->getStoreConfigValue($this->getStorePlentyId(), 'displayItemName'))
-            ->processInitialData($productData);
+            ->setProductNameFieldId($this->getStoreConfigValue($this->getStorePlentyId(), 'displayItemName'));
 
         return $product;
     }
@@ -404,15 +396,15 @@ class Exporter
     /**
      * Process product data
      *
-     * @param array $productsData
+     * @param $stream
      * @return $this
      */
-    public function processProductData($productsData)
+    public function processProductData($stream)
     {
         $page = 1;
         $continue = true;
-        $variations = array();
-        $itemIds = array_keys($productsData);
+        $variations = [];
+        $itemIds = $this->getProductsStreamer->getProductsIds($stream);
 
         while ($continue) {
             $this->getClient()->setItemsPerPage(self::NUMBER_OF_ITEMS_PER_PAGE)->setPage($page);
@@ -427,7 +419,7 @@ class Exporter
                     if (array_key_exists($variation['itemId'], $variations)) {
                         $variations[$variation['itemId']][] = $variation;
                     } else {
-                        $variations[$variation['itemId']] = array($variation);
+                        $variations[$variation['itemId']] = [$variation];
                     }
 
                     unset($variation);
@@ -447,10 +439,20 @@ class Exporter
 
         $this->trackSkippedProducts(array_diff($itemIds, $validItemIds));
 
-        foreach ($validItemIds as $itemId) {
-            $product = $this->createProductItem($productsData[$itemId]);
+        $productsCount = $this->getProductsStreamer->getProductsCount($stream);
 
-            unset($productsData[$itemId]);
+        if ($productsCount <= 0) {
+            return $this;
+        }
+
+        $trackSkippedProductsIds = [];
+
+        for ($i = 0; $i < $productsCount; $i++) {
+            $product = $this->createProductItemFromStream($stream, $i);
+
+            if (!in_array($product->getItemId(), $validItemIds)) {
+                continue;
+            }
 
             while (($variation = array_shift($variations[$product->getItemId()]))) {
                 $continueProcess = $product->processVariation($variation);
@@ -470,22 +472,26 @@ class Exporter
                 if (isset($variation['properties'])) {
                     $product->processVariationSpecificProperties($variation['properties']);
                 }
-
-                unset($variation);
             }
 
             if ($product->hasValidData()) {
-                $this->getWrapper()->wrapItem($product->getResults());
+                $this->wrapper->wrapItem($product);
             } else {
-                $this->trackSkippedProducts($product->getItemId());
+                $trackSkippedProductsIds[] = $product->getItemId();
             }
-
-            unset($variations[$product->getItemId()]);
-            unset($product);
         }
 
-        unset($productsData);
+        $this->trackSkippedProducts($trackSkippedProductsIds);
+
         unset($variations);
+
+        if (!empty($this->skippedProductsIds)) {
+            $this->getLog()->debug(sprintf(
+                'Products with ids %s were skipped as they have no correct data (all variations could be inactive or etc.)',
+                implode(',', $this->skippedProductsIds)
+            ));
+            $this->skippedProductsIds = array();
+        }
 
         return $this;
     }

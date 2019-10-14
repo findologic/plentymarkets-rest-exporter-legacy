@@ -15,6 +15,7 @@ use PHPUnit\Framework\TestCase;
 use org\bovigo\vfs\vfsStreamFile;
 use org\bovigo\vfs\vfsStreamWrapper;
 use org\bovigo\vfs\vfsStreamDirectory;
+use Psr\Http\Message\StreamInterface;
 
 /**
  * Override microtime function for easier testing
@@ -103,6 +104,11 @@ class DebuggerTest extends TestCase
         $requestMock = $this->getRequestMock('/rest/items');
         $responseMock = $this->getResponseMock(['getStatus', 'getReasonPhrase', 'getHeader', 'getBody']);
 
+        $streamMock = $this->getStreamMock();
+
+        $responseMock->expects($this->once())->method('getBody')->willReturn($streamMock);
+
+        /** @var Debugger|MockObject $debuggerMock */
         $debuggerMock = $this->getMockBuilder(Debugger::class)
             ->setConstructorArgs([$this->getLogMock(), $this->fileSystemMock->url(), ['items']])
             ->setMethods(null)
@@ -312,7 +318,8 @@ Headers :
 
     /**
      * @param string $path
-     * @return mixed
+     * @return Request|MockObject
+     * @throws \ReflectionException
      */
     protected function getRequestMock($path)
     {
@@ -327,8 +334,9 @@ Headers :
     }
 
     /**
-     * @param string $path
-     * @return mixed
+     * @param array $methods
+     * @return Response|MockObject
+     * @throws \ReflectionException
      */
     protected function getResponseMock($methods = [])
     {
@@ -340,10 +348,23 @@ Headers :
         return $responseMock;
     }
 
+    /**
+     * @return StreamInterface|MockObject
+     * @throws \ReflectionException
+     */
+    protected function getStreamMock()
+    {
+        $streamMock = $this->getMockBuilder(StreamInterface::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        return $streamMock;
+    }
 
     /**
      * @param string $path
-     * @return mixed
+     * @return Net_URL2|MockObject
+     * @throws \ReflectionException
      */
     protected function getUrlMock($path)
     {

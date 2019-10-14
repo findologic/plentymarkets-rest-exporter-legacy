@@ -3,11 +3,11 @@
 namespace Findologic\Plentymarkets;
 
 use \Findologic\Plentymarkets\Exception\InternalException;
+use Findologic\Plentymarkets\Stream\StreamerInterface;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Request;
-use HTTP_Request2_Exception;
-use HTTP_Request2_Response;
 use Log4Php\Logger;
+use Psr\Http\Message\StreamInterface;
 
 class Debugger
 {
@@ -80,9 +80,12 @@ class Debugger
     /**
      * @param Request $request
      * @param Response $response
+     * @param string|null $accessToken
+     * @param StreamInterface|null $stream
      * @return bool
+     * @throws InternalException
      */
-    public function debugCall(Request $request, $response)
+    public function debugCall(Request $request, $response, $accessToken = null, $stream = null)
     {
         if (!$this->isPathDebuggable($request->getUri()->getPath())) {
             return false;
@@ -93,7 +96,7 @@ class Debugger
         $this->createDirectory($path);
         $fileHandle = $this->createFile($path, $filePrefix . 'Request.txt');
         $this->debugRequest($request, $fileHandle);
-        $this->debugResponse($response, $fileHandle);
+        $this->debugResponse($response, $fileHandle, $accessToken, $stream);
         fclose($fileHandle);
 
         return true;
@@ -262,19 +265,67 @@ class Debugger
      *
      * @param Response $response
      * @param resource $fileHandle
+     * @param string|null $accessToken
+     * @param StreamInterface|null $stream
      * @return bool
-     * @throws HTTP_Request2_Exception
      */
-    protected function debugResponse($response, $fileHandle)
+    protected function debugResponse($response, $fileHandle, $accessToken = null, $stream = null)
     {
         $this->addSeparatorToFile($fileHandle, 'Response');
 
         $this->writeToFile($fileHandle, 'Response Status', $response->getStatusCode());
         $this->writeToFile($fileHandle, 'Response Phrase', $response->getReasonPhrase());
         $this->writeToFile($fileHandle, 'Headers', $response->getHeaders());
-        $this->writeToFile($fileHandle, 'Body', $response->getBody());
+
+        if ($stream && $accessToken) {
+            $this->writeStreamToFile($fileHandle, $stream, $accessToken);
+
+            return true;
+        }
+
+        $this->writeToFile($fileHandle, 'Body', $response->getBody()->getContents());
 
         return true;
+    }
+
+    /**
+     * @param $destination
+     * @param $stream
+     * @param $accessToken
+     * @return mixed
+     */
+    protected function writeStreamToFile($destination, $stream, $accessToken) {
+        $source = $this->openStream($stream, $accessToken);
+
+        stream_copy_to_stream($source, $destination);
+
+        $this->closeStream($source);
+
+        return $destination;
+    }
+
+    /**
+     * @param $stream
+     * @param $accessToken
+     * @return bool|resource
+     */
+    protected function openStream($stream, $accessToken) {
+        $streamContext = stream_context_create([
+                'http' => [
+                    'header' => ['Authorization: Bearer ' . $accessToken]
+                ]
+            ]
+        );
+
+        return fopen($stream->getMetadata()['uri'], 'r', null, $streamContext);
+    }
+
+    /**
+     * @param resource $stream
+     * @return bool
+     */
+    protected function closeStream($stream) {
+        return fclose($stream);
     }
 
     /**

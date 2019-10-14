@@ -11,12 +11,12 @@ use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Exception\ThrottlingException;
 use Findologic\Plentymarkets\Tests\ClientHelper;
 use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 use Log4Php\Logger;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use PlentyConfig;
 use ReflectionClass;
-use ReflectionException;
 
 class ClientTest extends TestCase
 {
@@ -159,13 +159,13 @@ class ClientTest extends TestCase
      */
     public function testGetProducts()
     {
-        $clientMock = $this->getClientMock(['call']);
-        $body = '{"Test":"Test"}';
-        $responseMock = $this->buildResponseMock($body, 200);
+        $testStreamedFileName = 'test.json';
 
-        $clientMock->expects($this->once())->method('call')->will($this->returnValue($responseMock));
+        $clientMock = $this->getClientMock(['call']);
+        $clientMock->expects($this->once())->method('call')->willReturn($testStreamedFileName);
         $clientMock->setItemsPerPage(50)->setpage(1);
-        $this->assertSame(['Test' => 'Test'], $clientMock->getProducts('EN'));
+
+        $this->assertSame($testStreamedFileName, $clientMock->getProducts('EN'));
     }
 
     /**
@@ -175,6 +175,8 @@ class ClientTest extends TestCase
     {
         $successResponse = $this->buildResponseMock('{"Test": "Test"}', 200);
         $failedResponse = $this->buildResponseMock('Failed', 404);
+
+        $maxRetries = Client::RETRY_COUNT;
 
         $logMock = $this->getMockBuilder(Logger::class)
             ->disableOriginalConstructor()
@@ -197,12 +199,12 @@ class ClientTest extends TestCase
                     'getCountry'
                 ]
             )->getMock();
+
         $httpClientMock = $this->getHttpClientMock(['send']);
 
-        $maxRetries = Client::RETRY_COUNT;
-        // Fail for four out of five times, so we can succeed on the final attempt.
-        for ($i = 0; $i < $maxRetries - 1; $i++) {
-            $httpClientMock->expects($this->at($i))->method('send')->will($this->returnValue($failedResponse));
+        //Fail for four out of five times, so we can succeed on final attempt.
+        for($i = 0; $i < $maxRetries - 1; $i++) {
+            $httpClientMock->expects($this->at($i))->method('send')->willReturn($failedResponse);
         }
 
         $httpClientMock->expects($this->at(($maxRetries - 1)))->method('send')->willReturn($successResponse);
@@ -239,7 +241,7 @@ class ClientTest extends TestCase
 
         $this->expectException(CustomerException::class);
 
-        $clientMock->getProductVariations(['1'], [], '123');
+        $clientMock->getProductVariations(['1'], '123');
     }
 
     /**
@@ -261,7 +263,6 @@ class ClientTest extends TestCase
         $httpClientMock = $this->getHttpClientMock(['send']);
         $httpClientMock->expects($this->any())->method('send')->willReturn($failedResponse);
 
-        /** @var Client|MockObject $clientMock */
         $clientMock = $this->getMockBuilder(Client::class)
             ->setConstructorArgs([$configMock, $logMock, $logMock, $httpClientMock, $debugMock])
             ->setMethods(['createRequest', 'getLoginFlag'])
@@ -272,7 +273,7 @@ class ClientTest extends TestCase
 
         $this->expectException(AuthorizationException::class);
 
-        $clientMock->getProductVariations(array('1'), []);
+        $clientMock->getProductVariations(['1']);
     }
 
     /**
@@ -652,8 +653,8 @@ class ClientTest extends TestCase
 
     /**
      * @param $methods
-     * @return \Findologic\Plentymarkets\Client|MockObject
-     * @throws ReflectionException
+     * @return Client|MockObject
+     * @throws \ReflectionException
      */
     protected function getClientMock($methods): Client
     {

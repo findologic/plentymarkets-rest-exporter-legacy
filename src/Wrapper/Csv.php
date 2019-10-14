@@ -3,6 +3,7 @@
 namespace Findologic\Plentymarkets\Wrapper;
 
 use Findologic\Plentymarkets\Exception\CriticalException;
+use Findologic\Plentymarkets\Response\Product;
 
 class Csv implements WrapperInterface
 {
@@ -134,7 +135,6 @@ class Csv implements WrapperInterface
         return $this->stream;
     }
 
-
     /**
      * Because result for this wrapper is written to file return only a message
      *
@@ -149,15 +149,40 @@ class Csv implements WrapperInterface
     /**
      * Write item data to file
      *
-     * @param array $data
+     * @param Product $product
      * @return $this
+     * @throws CriticalException
      */
-     public function wrapItem(array $data)
+     public function wrapItem(Product $product)
      {
          // Check if headers already set
          if (!$this->headersSetFlag) {
-             $this->setHeaders($data);
+             $this->setHeaders($product->getFieldNames());
          }
+
+         $data['id'] = $product->getFieldId();
+         $data['ordernumber'] = $product->getFieldOrdernumber();
+         $data['name'] = $product->getFieldName();
+         $data['summary'] = $product->getFieldSummary();
+         $data['description'] = $product->getFieldDescription();
+         $data['price'] = $product->getFieldPrice();
+         $data['instead'] = $product->getFieldInstead();
+         $data['maxprice'] = $product->getFieldMaxprice();
+         $data['taxrate'] = $product->getFieldTaxrate();
+         $data['url'] = $product->getFieldUrl();
+         $data['image'] = $product->getFieldImage();
+         $data['base_unit'] = $product->getFieldBaseUnit();
+         $data['package_size'] = $product->getFieldPackageSize();
+         $data['price_id'] = $product->getFieldPriceId();
+         $data['attributes'] = $product->getFieldAttributes();
+         $data['keywords'] = $product->getFieldKeywords();
+         $data['groups'] = $product->getFieldGroups();
+         $data['bonus'] = $product->getFieldBonus();
+         $data['sales_frequency'] = $product->getFieldSalesFrequency();
+         $data['date_added'] = $product->getFieldDateAdded();
+         $data['sort'] = $product->getFieldSort();
+         $data['main_variation_id'] = $product->getFieldMainVariationId();
+         $data['variation_id'] = $product->getFieldVariationId();
 
          $data = $this->convertData($data);
 
@@ -182,13 +207,10 @@ class Csv implements WrapperInterface
      }
 
     /**
-     * Convert arrays fields before rendering to csv to appropriate format
-     *
-     * @param array $data
-     * @return array
+     * @param $data
+     * @return mixed
      */
-    public function convertData(array $data)
-    {
+    protected function convertData($data) {
         // Fields which values can not contain html
         $htmlFields = array('ordernumber', 'name', 'summary', 'description', 'keywords');
 
@@ -212,11 +234,11 @@ class Csv implements WrapperInterface
      * Set the header line of csv
      *
      * @param array $headersData
+     * @throws CriticalException
      */
     protected function setHeaders(array $headersData)
     {
-        $headers = array_keys($headersData);
-        fputcsv($this->getStream(), $headers, self::CSV_DELIMITER, self::CSV_ENCLOSURE);
+        fputcsv($this->getStream(), $headersData, self::CSV_DELIMITER, self::CSV_ENCLOSURE);
         $this->headersSetFlag = true;
     }
 
