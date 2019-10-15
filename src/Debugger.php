@@ -4,6 +4,8 @@ namespace Findologic\Plentymarkets;
 
 use \Findologic\Plentymarkets\Exception\InternalException;
 use HTTP_Request2;
+use HTTP_Request2_Exception;
+use HTTP_Request2_Response;
 use Log4Php\Logger;
 
 class Debugger
@@ -260,6 +262,7 @@ class Debugger
      * @param HTTP_Request2_Response $response
      * @param resource $fileHandle
      * @return bool
+     * @throws HTTP_Request2_Exception
      */
     protected function debugResponse($response, $fileHandle)
     {
