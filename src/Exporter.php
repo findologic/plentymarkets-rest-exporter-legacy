@@ -416,7 +416,11 @@ class Exporter
 
         while ($continue) {
             $this->getClient()->setItemsPerPage(self::NUMBER_OF_ITEMS_PER_PAGE)->setPage($page);
-            $result = $this->getClient()->getProductVariations($itemIds, $this->getStorePlentyId());
+            $result = $this->getClient()->getProductVariations(
+                $itemIds,
+                $this->getRequiredVariationValues(),
+                $this->getStorePlentyId()
+            );
 
             if (isset($result['entries'])) {
                 while (($variation = array_shift($result['entries']))) {
@@ -682,6 +686,47 @@ class Exporter
         }
 
         return $this;
+    }
+
+    protected function getRequiredVariationValues():array
+    {
+        $variationValues = [];
+
+        $categories = $this->registry->get('categories');
+        if ($categories && !empty($categories->getResults())) {
+            $variationValues[] = 'variationCategories';
+        }
+
+        $salesPrices = $this->registry->get('salesprices');
+        if ($salesPrices && !empty($salesPrices->getResults())) {
+            $variationValues[] = 'variationSalesPrices';
+        }
+
+        $attributes = $this->registry->get('attributes');
+        if ($attributes && !empty($attributes->getResults())) {
+            $variationValues[] = 'variationAttributeValues';
+        }
+
+        $properties = $this->registry->get('properties');
+        if ($properties && !empty($properties->getResults())) {
+            $variationValues[] = 'variationProperties';
+            $variationValues[] = 'properties';
+        }
+
+        $units = $this->registry->get('units');
+        if ($units && !empty($units->getResults())) {
+            $variationValues[] = 'units';
+        }
+
+        array_push(
+            $variationValues,
+            'variationBarcodes',
+            'variationClients',
+            'itemImages',
+            'tags'
+        );
+
+        return $variationValues;
     }
 
     /**

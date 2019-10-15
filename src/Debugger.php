@@ -5,6 +5,8 @@ namespace Findologic\Plentymarkets;
 use \Findologic\Plentymarkets\Exception\InternalException;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Request;
+use HTTP_Request2_Exception;
+use HTTP_Request2_Response;
 use Log4Php\Logger;
 
 class Debugger
@@ -261,6 +263,7 @@ class Debugger
      * @param Response $response
      * @param resource $fileHandle
      * @return bool
+     * @throws HTTP_Request2_Exception
      */
     protected function debugResponse($response, $fileHandle)
     {

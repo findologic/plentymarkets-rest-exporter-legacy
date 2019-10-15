@@ -11,12 +11,12 @@ use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Exception\ThrottlingException;
 use Findologic\Plentymarkets\Tests\ClientHelper;
 use GuzzleHttp\Psr7\Request;
-use GuzzleHttp\Psr7\Response;
 use Log4Php\Logger;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use PlentyConfig;
 use ReflectionClass;
+use ReflectionException;
 
 class ClientTest extends TestCase
 {
@@ -176,8 +176,6 @@ class ClientTest extends TestCase
         $successResponse = $this->buildResponseMock('{"Test": "Test"}', 200);
         $failedResponse = $this->buildResponseMock('Failed', 404);
 
-        $maxRetries = Client::RETRY_COUNT;
-
         $logMock = $this->getMockBuilder(Logger::class)
             ->disableOriginalConstructor()
             ->setMethods(['warning', 'info', 'alert'])
@@ -199,12 +197,12 @@ class ClientTest extends TestCase
                     'getCountry'
                 ]
             )->getMock();
-
         $httpClientMock = $this->getHttpClientMock(['send']);
 
-        //Fail for four out of five times, so we can succeed on final attempt.
-        for($i = 0; $i < $maxRetries - 1; $i++) {
-            $httpClientMock->expects($this->at($i))->method('send')->willReturn($failedResponse);
+        $maxRetries = Client::RETRY_COUNT;
+        // Fail for four out of five times, so we can succeed on the final attempt.
+        for ($i = 0; $i < $maxRetries - 1; $i++) {
+            $httpClientMock->expects($this->at($i))->method('send')->will($this->returnValue($failedResponse));
         }
 
         $httpClientMock->expects($this->at(($maxRetries - 1)))->method('send')->willReturn($successResponse);
@@ -241,7 +239,7 @@ class ClientTest extends TestCase
 
         $this->expectException(CustomerException::class);
 
-        $clientMock->getProductVariations(['1'], '123');
+        $clientMock->getProductVariations(['1'], [], '123');
     }
 
     /**
@@ -263,6 +261,7 @@ class ClientTest extends TestCase
         $httpClientMock = $this->getHttpClientMock(['send']);
         $httpClientMock->expects($this->any())->method('send')->willReturn($failedResponse);
 
+        /** @var Client|MockObject $clientMock */
         $clientMock = $this->getMockBuilder(Client::class)
             ->setConstructorArgs([$configMock, $logMock, $logMock, $httpClientMock, $debugMock])
             ->setMethods(['createRequest', 'getLoginFlag'])
@@ -273,7 +272,7 @@ class ClientTest extends TestCase
 
         $this->expectException(AuthorizationException::class);
 
-        $clientMock->getProductVariations(['1']);
+        $clientMock->getProductVariations(array('1'), []);
     }
 
     /**
@@ -586,14 +585,77 @@ class ClientTest extends TestCase
         $clientMock->getAttributes();
     }
 
+    public function providerGetProductVariationsSetsWithParameter(): array
+    {
+        return [
+            'With parameter is an empty array' => [
+                [],
+                []
+            ],
+            'With parameter is not an empty array' => [
+                [
+                    'variationCategories',
+                    'variationSalesPrices',
+                    'variationAttributeValues',
+                    'variationProperties',
+                    'properties',
+                    'units'
+                ],
+                [
+                    'variationCategories',
+                    'variationSalesPrices',
+                    'variationAttributeValues',
+                    'variationProperties',
+                    'properties',
+                    'units'
+                ]
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider providerGetProductVariationsSetsWithParameter
+     *
+     * @param array $with
+     * @param array $expectedWith
+     * @throws ReflectionException
+     */
+    public function testGetProductVariationsSetsWithParameter(array $with, array $expectedWith)
+    {
+        $debugMock = $this->getMockBuilder(Debugger::class)->disableOriginalConstructor()->getMock();
+        $logMock = $this->getMockBuilder(Logger::class)->disableOriginalConstructor()->getMock();
+        $configMock = $this->getMockBuilder(PlentyConfig::class)->setMethods(['getDomain'])->getMock();
+        $httpClientMock = $this->getHttpClientMock(['send']);
+
+        $clientMock = $this->getMockBuilder(Client::class)
+            ->setConstructorArgs([$configMock, $logMock, $logMock, $httpClientMock, $debugMock])
+            ->setMethods(['getEndpoint', 'call'])
+            ->getMock();
+
+        $response = $this->buildResponseMock('{}', 200);
+
+        $clientMock->expects($this->once())->method('getEndpoint')->with(
+            'items/variations',
+            [
+                'with' => $expectedWith,
+                'isActive' => true,
+                'itemId' => ['1']
+            ]
+        );
+
+        $clientMock->expects($this->any())->method('call')->willReturn($response);
+
+        $clientMock->getProductVariations(['1'], $with);
+    }
+
     /* ------ helper functions ------ */
 
     /**
      * @param $methods
-     * @return Client|MockObject
-     * @throws \ReflectionException
+     * @return \Findologic\Plentymarkets\Client|MockObject
+     * @throws ReflectionException
      */
-    protected function getClientMock($methods)
+    protected function getClientMock($methods): Client
     {
         $logMock = $this->getMockBuilder(Logger::class)
             ->disableOriginalConstructor()
