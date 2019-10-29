@@ -7,6 +7,7 @@ use Findologic\Plentymarkets\Exception\CriticalException;
 use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Exception\ThrottlingException;
 use Findologic\Plentymarkets\Exception\AuthorizationException;
+use Findologic\Plentymarkets\Stream\StreamerInterface;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
@@ -121,8 +122,13 @@ class Client
      * @param GuzzleClient $client
      * @param bool $debug
      */
-    public function __construct($config, Logger $log, Logger $customerLog, GuzzleClient $client = null, $debug = false)
-    {
+    public function __construct(
+        $config,
+        Logger $log,
+        Logger $customerLog,
+        GuzzleClient $client = null,
+        $debug = false
+    ) {
         $url = rtrim($config->getDomain(), '/') . '/rest/';
         $this->url = $url;
         $this->log = $log;
@@ -534,19 +540,26 @@ class Client
 
     /**
      * @param string|null $language
-     * @return array
+     * @param StreamerInterface|null $streamer
+     * @return resource
+     * @throws AuthorizationException
+     * @throws GuzzleException
+     * @throws ThrottlingException
      */
-    public function getProducts($language = null)
+    public function getProducts($language = null, $streamer = null)
     {
-        $params = array();
+        $params = [];
 
         if ($language) {
             $params['lang'] = $language;
         }
 
-        $response = $this->call('GET', $this->getEndpoint('items/', $params));
-
-        return $this->returnResult($response);
+        return $this->call(
+            'GET',
+            $this->getEndpoint('items/', $params),
+            null,
+            $streamer
+        );
     }
 
     /**
@@ -638,18 +651,21 @@ class Client
      * @param string $method
      * @param string $uri
      * @param array|null $params
+     * @param StreamerInterface|null $streamer
      * @return bool|mixed
-     * @throws ThrottlingException
      * @throws AuthorizationException
      * @throws GuzzleException
+     * @throws ThrottlingException
      */
-    protected function call($method, $uri, $params = null)
+    protected function call($method, $uri, $params = null, $streamer = null)
     {
         $begin = microtime(true);
 
         $response = false;
         $continue = true;
         $count = 0;
+
+        $streamedFileName = null;
 
         /** @var Request $request */
         $request = $this->createRequest($method, $uri);
@@ -661,13 +677,26 @@ class Client
 
                 $this->handleThrottling();
 
-                $response = $this->client->send($request, [RequestOptions::FORM_PARAMS => $params]);
+                $requestOptions = [];
 
-                if ($this->debug) {
-                    $this->debug->debugCall($request, $response);
+                if ($params) {
+                    $requestOptions[RequestOptions::FORM_PARAMS] = $params;
+                }
+                if ($streamer) {
+                    $requestOptions[RequestOptions::STREAM] = true;
                 }
 
-                $this->isResponseValid($request, $response);
+                $response = $this->client->send($request, $requestOptions);
+
+                if ($streamer) {
+                    $streamedFileName = $streamer->streamToFile($response);
+                }
+
+                if ($this->debug) {
+                    $this->debug->debugCall($request, $response, $streamer, $streamedFileName);
+                }
+
+                $this->isResponseValid($request, $response, $streamer, $streamedFileName);
                 $this->checkThrottling($response);
 
                 $continue = false;
@@ -697,6 +726,10 @@ class Client
             $this->debug->logCallTiming($uri, $begin, $end);
         }
 
+        if ($streamedFileName) {
+            return $streamedFileName;
+        }
+
         return $response;
     }
 
@@ -705,12 +738,14 @@ class Client
      *
      * @param Request $request
      * @param Response $response
+     * @param StreamerInterface|null $streamer
+     * @param string|null $streamedFileName
      * @return bool
      * @throws AuthorizationException
      * @throws CustomerException
      * @throws ThrottlingException
      */
-    protected function isResponseValid(Request $request, Response $response)
+    protected function isResponseValid(Request $request, Response $response, $streamer = null, $streamedFileName = null)
     {
         // Method is not reachable because provided API user do not have appropriate access rights
         if ($response->getStatusCode() == 401 && $response->getReasonPhrase() == 'Unauthorized') {
@@ -728,6 +763,14 @@ class Client
         // Method is not reachable, maybe server is down
         if ($response->getStatusCode() != 200) {
             throw new CustomerException('Could not reach API method for ' . $request->getUri());
+        }
+
+        if ($streamer && $streamedFileName) {
+            if (!$streamer->isResponseValid($streamedFileName)) {
+                throw new CustomerException("API responded with " . $response->getStatusCode() . " but didn't return any data.");
+            }
+
+            return true;
         }
 
         if ($this->returnResult($response) === null) {

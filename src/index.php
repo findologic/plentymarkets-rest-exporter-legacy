@@ -33,7 +33,8 @@ $registry = new \Findologic\Plentymarkets\Registry($log, $customerLogger);
 $guzzleClient = new \GuzzleHttp\Client();
 $client = new \Findologic\Plentymarkets\Client($config, $log, $customerLogger, $guzzleClient, $debug);
 $wrapper = new \Findologic\Plentymarkets\Wrapper\Csv();
-$exporter = new \Findologic\Plentymarkets\Exporter($client, $wrapper, $log, $customerLogger, $registry);
+$getProductsStreamer = new \Findologic\Plentymarkets\Stream\GetProductsStreamer($log, $wrapper);
+$exporter = new \Findologic\Plentymarkets\Exporter($client, $wrapper, $log, $customerLogger, $registry, $getProductsStreamer);
 $exporter->init();
 
 echo $exporter->getProducts();
