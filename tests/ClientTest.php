@@ -159,13 +159,13 @@ class ClientTest extends TestCase
      */
     public function testGetProducts()
     {
-        $clientMock = $this->getClientMock(['call']);
-        $body = '{"Test":"Test"}';
-        $responseMock = $this->buildResponseMock($body, 200);
+        $testStreamedFileName = 'test.json';
 
-        $clientMock->expects($this->once())->method('call')->will($this->returnValue($responseMock));
+        $clientMock = $this->getClientMock(['call']);
+        $clientMock->expects($this->once())->method('call')->willReturn($testStreamedFileName);
         $clientMock->setItemsPerPage(50)->setpage(1);
-        $this->assertSame(['Test' => 'Test'], $clientMock->getProducts('EN'));
+
+        $this->assertSame($testStreamedFileName, $clientMock->getProducts('EN'));
     }
 
     /**

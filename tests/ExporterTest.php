@@ -13,6 +13,7 @@ use Findologic\Plentymarkets\Parser\Stores;
 use Findologic\Plentymarkets\Parser\Vat;
 use Findologic\Plentymarkets\Product;
 use Findologic\Plentymarkets\Registry;
+use Findologic\Plentymarkets\Stream\GetProductsStreamer;
 use Findologic\Plentymarkets\Tests\ClientHelper;
 use Findologic\Plentymarkets\Wrapper\Csv;
 use Findologic\Plentymarkets\Wrapper\WrapperInterface;
@@ -195,12 +196,18 @@ class ExporterTest extends TestCase
         return [
             [
                 [
+                    'page' => 1,
                     'totalsCount' => 3,
+                    'isLastPage' => true,
+                    'lastPageNumber' => 1,
                     'entries' => [
                         ['id' => 0],
                         ['id' => 1],
                         ['id' => 2]
-                    ]
+                    ],
+                    'firstOnPage' => 0,
+                    'lastOnPage' => 3,
+                    'itemsPerPage' => 100
                 ]
             ]
         ];
@@ -219,13 +226,29 @@ class ExporterTest extends TestCase
             ->setMethods(['getProducts', 'getProductVariations'])
             ->getMock();
 
-        $clientMock->expects($this->once())->method('getProducts')->willReturn($products);
+        $clientMock->expects($this->any())->method('getProducts')->willReturn($products);
 
-        $exporterMock = $this->getExporterMockBuilder(['client' => $clientMock]);
+        /** @var GetProductsStreamer|MockObject $getProductsStreamerMock */
+        $getProductsStreamerMock = $this->getMockBuilder(GetProductsStreamer::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getMetadata'])
+            ->getMock();
+        $getProductsStreamerMock->expects($this->once())->method('getMetadata')->willReturn([
+            GetProductsStreamer::METADATA_IS_LAST_PAGE => $products['isLastPage'],
+            GetProductsStreamer::METADATA_TOTALS_COUNT => $products['totalsCount']
+        ]);
+
+        /** @var Exporter|MockObject $exporterMock */
+        $exporterMock = $this->getExporterMockBuilder(
+            [
+                'client' => $clientMock,
+                'getProductsStreamer' => $getProductsStreamerMock
+            ]
+        );
         $exporterMock->setMethods(['createProductItem', 'processProductData']);
         $exporterMock = $exporterMock->getMock();
 
-        $exporterMock->expects($this->once())->method('processProductData');
+        $exporterMock->expects($this->any())->method('processProductData');
 
         $exporterMock->getProducts();
     }
@@ -268,9 +291,18 @@ class ExporterTest extends TestCase
             ->setMethods(['getProducts'])
             ->getMock();
 
-        $clientMock->expects($this->once())->method('getProducts')->willReturn([]);
+        $clientMock->expects($this->once())->method('getProducts')->willReturn('test.json');
 
-        $exporterMock = $this->getExporterMockBuilder(['client' => $clientMock])
+        /** @var GetProductsStreamer|MockObject $getProductsStreamerMock */
+        $getProductsStreamerMock = $this->getMockBuilder(GetProductsStreamer::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getProductsIds', 'processProducts', 'getMetadata', 'isResponseValid'])
+            ->getMock();
+        $getProductsStreamerMock->expects($this->any())->method('getProductsIds')->willReturn([1,2]);
+        $getProductsStreamerMock->expects($this->any())->method('isResponseValid')->willReturn(false);
+
+        /** @var Exporter|MockObject $exporterMock */
+        $exporterMock = $this->getExporterMockBuilder(['client' => $clientMock, 'getProductsStreamer' => $getProductsStreamerMock])
             ->setMethods(['init'])
             ->getMock();
 
@@ -338,7 +370,20 @@ class ExporterTest extends TestCase
                 ]
             );
 
-        $exporterMock = $this->getExporterMockBuilder(['client' => $clientMock]);
+        /** @var GetProductsStreamer|MockObject $getProductsStreamerMock */
+        $getProductsStreamerMock = $this->getMockBuilder(GetProductsStreamer::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getProductsIds', 'processProducts'])
+            ->getMock();
+        $getProductsStreamerMock->expects($this->any())->method('getProductsIds')->willReturn([1,2]);
+
+        /** @var Exporter|MockObject $exporterMock */
+        $exporterMock = $this->getExporterMockBuilder(
+            [
+                'client' => $clientMock,
+                'getProductsStreamer' => $getProductsStreamerMock
+            ]
+        );
         $exporterMock->setMethods(['createProductItem']);
         $exporterMock = $exporterMock->getMock();
 
@@ -380,7 +425,7 @@ class ExporterTest extends TestCase
 
         $exporterMock->expects($this->once())->method('createProductItem')->willReturn($productMock);
 
-        $exporterMock->processProductData(['1' => []]);
+        $exporterMock->processProductData('test.json');
     }
 
     public function providerProcessProductDataProductDoNotHaveData()
@@ -445,7 +490,19 @@ class ExporterTest extends TestCase
         $clientMock->expects($this->any())->method('getConfig')->willReturn($this->getConfigMock());
         $clientMock->expects($this->any())->method('getProductVariations')->willReturn($productVariations);
 
-        $exporterMock = $this->getExporterMockBuilder(['client' => $clientMock]);
+        /** @var GetProductsStreamer|MockObject $getProductsStreamerMock */
+        $getProductsStreamerMock = $this->getMockBuilder(GetProductsStreamer::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getProductsIds', 'processProducts'])
+            ->getMock();
+        $getProductsStreamerMock->expects($this->any())->method('getProductsIds')->willReturn([1,2]);
+
+        $exporterMock = $this->getExporterMockBuilder(
+            [
+                'client' => $clientMock,
+                'getProductsStreamer' => $getProductsStreamerMock
+            ]
+        );
         $exporterMock->setMethods(['createProductItem']);
         $exporterMock = $exporterMock->getMock();
 
@@ -484,7 +541,18 @@ class ExporterTest extends TestCase
      */
     public function testProcessProductDataNoItem()
     {
-        $exporterMock = $this->getExporterMockBuilder();
+        /** @var GetProductsStreamer|MockObject $getProductsStreamerMock */
+        $getProductsStreamerMock = $this->getMockBuilder(GetProductsStreamer::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getProductsIds', 'processProducts'])
+            ->getMock();
+        $getProductsStreamerMock->expects($this->any())->method('getProductsIds')->willReturn([1,2]);
+
+        $exporterMock = $this->getExporterMockBuilder(
+            [
+                'getProductsStreamer' => $getProductsStreamerMock
+            ]
+        );
         $exporterMock->setMethods(['createProductItem']);
         $exporterMock = $exporterMock->getMock();
 
@@ -619,6 +687,7 @@ class ExporterTest extends TestCase
             'log' => $this->getMockBuilder(Logger::class)->disableOriginalConstructor()->getMock(),
             'customerLog' => $this->getMockBuilder(Logger::class)->disableOriginalConstructor()->getMock(),
             'registry' => $this->getMockBuilder(Registry::class)->disableOriginalConstructor()->getMock(),
+            'getProductsStreamer' => $this->getMockBuilder(GetProductsStreamer::class)->disableOriginalConstructor()->getMock()
         );
 
         $finalMocks = array_merge($defaultMocks, $mocks);
