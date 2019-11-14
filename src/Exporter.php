@@ -710,7 +710,6 @@ class Exporter
         $properties = $this->registry->get('properties');
         if ($properties && !empty($properties->getResults())) {
             $variationValues[] = 'variationProperties';
-            $variationValues[] = 'properties';
         }
 
         $units = $this->registry->get('units');
@@ -722,6 +721,7 @@ class Exporter
             $variationValues,
             'variationBarcodes',
             'variationClients',
+            'properties',
             'itemImages',
             'tags'
         );
