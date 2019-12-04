@@ -655,10 +655,7 @@ class Client
      * @return bool|mixed
      * @throws AuthorizationException
      * @throws GuzzleException
-<<<<<<< HEAD
-=======
      * @throws ThrottlingException
->>>>>>> e6f6673... PLENTY-173 Restructure streaming approach
      */
     protected function call($method, $uri, $params = null, $streamer = null)
     {
