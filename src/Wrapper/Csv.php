@@ -207,10 +207,13 @@ class Csv implements WrapperInterface
      }
 
     /**
-     * @param $data
-     * @return mixed
+     * Convert arrays fields before rendering to csv to appropriate format
+     *
+     * @param array $data
+     * @return array
      */
-    protected function convertData($data) {
+    public function convertData(array $data)
+    {
         // Fields which values can not contain html
         $htmlFields = array('ordernumber', 'name', 'summary', 'description', 'keywords');
 

@@ -305,11 +305,10 @@ class Debugger
     }
 
     /**
-     * @param $stream
-     * @param $accessToken
      * @return bool|resource
      */
-    protected function openStream($stream, $accessToken) {
+    protected function openStream(StreamInterface $stream, string $accessToken)
+    {
         $streamContext = stream_context_create([
                 'http' => [
                     'header' => ['Authorization: Bearer ' . $accessToken]
@@ -322,9 +321,9 @@ class Debugger
 
     /**
      * @param resource $stream
-     * @return bool
      */
-    protected function closeStream($stream) {
+    protected function closeStream($stream): bool
+    {
         return fclose($stream);
     }
 

@@ -49,10 +49,10 @@ abstract class Response
     }
 
     /**
-     * @param StreamInterface $stream
      * @return bool|resource
      */
-    protected function openStream($stream) {
+    protected function openStream(StreamInterface $stream)
+    {
         $streamContext = stream_context_create([
                 'http' => [
                     'header' => ['Authorization: Bearer ' . $this->client->getAccessToken()]
@@ -65,9 +65,9 @@ abstract class Response
 
     /**
      * @param resource $stream
-     * @return bool
      */
-    protected function closeStream($stream) {
+    protected function closeStream($stream): bool
+    {
         return fclose($stream);
     }
 }
