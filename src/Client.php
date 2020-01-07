@@ -7,6 +7,7 @@ use Findologic\Plentymarkets\Exception\CriticalException;
 use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Exception\ThrottlingException;
 use Findologic\Plentymarkets\Exception\AuthorizationException;
+use Findologic\Plentymarkets\Helper\Url;
 use \HTTP_Request2_Response;
 use \HTTP_Request2;
 use Log4Php\Logger;
@@ -114,8 +115,7 @@ class Client
      */
     public function __construct($config, Logger $log, Logger $customerLog, $debug = false)
     {
-        $url = rtrim($config->getDomain(), '/') . '/rest/';
-        $this->url = $url;
+        $this->url = Url::getHost($config->getDomain()) . '/rest/';
         $this->log = $log;
         $this->customerLog = $customerLog;
         $this->debug = $debug;

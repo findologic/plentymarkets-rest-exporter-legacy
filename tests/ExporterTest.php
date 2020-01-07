@@ -8,6 +8,7 @@ use Findologic\Plentymarkets\Exception\ThrottlingException;
 use PHPUnit\Framework\MockObject\MockBuilder;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
+use PlentyConfig;
 
 class ExporterTest extends TestCase
 {
@@ -578,10 +579,11 @@ class ExporterTest extends TestCase
      */
     protected function getConfigMock()
     {
-        $configMock = $this->getMockBuilder('PlentyConfig')
+        /** @var PlentyConfig|MockObject $configMock */
+        $configMock = $this->getMockBuilder(PlentyConfig::class)
             ->disableOriginalConstructor()
             ->setMethods(
-                array(
+                [
                     'getDomain',
                     'getUsername',
                     'getPassword',
@@ -592,8 +594,10 @@ class ExporterTest extends TestCase
                     'getPriceId',
                     'getRrpId',
                     'getCountry'
-                )
+                ]
             )->getMock();
+
+        $configMock->expects($this->any())->method('getDomain')->willReturn('www.example.com');
 
         return $configMock;
     }

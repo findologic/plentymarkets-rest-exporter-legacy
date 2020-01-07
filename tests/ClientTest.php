@@ -187,6 +187,7 @@ class ClientTest extends TestCase
         $debugMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')->disableOriginalConstructor()->getMock();
         $logMock = $this->getMockBuilder('Log4Php\Logger')->disableOriginalConstructor()->getMock();
         $configMock = $this->getMockBuilder('PlentyConfig')->setMethods(array('getDomain'))->getMock();
+        $configMock->expects($this->any())->method('getDomain')->willReturn('www.example.com');
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
             ->setConstructorArgs(array($configMock, $logMock, $logMock, $debugMock))
@@ -220,6 +221,7 @@ class ClientTest extends TestCase
         $debugMock->expects($this->atMost(5))->method('debugCall');
         $logMock = $this->getMockBuilder('Log4Php\Logger')->disableOriginalConstructor()->getMock();
         $configMock = $this->getMockBuilder('PlentyConfig')->setMethods(array('getDomain'))->getMock();
+        $configMock->expects($this->any())->method('getDomain')->willReturn('www.example.com');
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
             ->setConstructorArgs(array($configMock, $logMock, $logMock, $debugMock))
@@ -283,6 +285,7 @@ class ClientTest extends TestCase
         $debugMock->expects($this->once())->method('logCallTiming');
         $logMock = $this->getMockBuilder('Log4Php\Logger')->disableOriginalConstructor()->getMock();
         $configMock = $this->getMockBuilder('PlentyConfig')->setMethods(array('getDomain'))->getMock();
+        $configMock->expects($this->any())->method('getDomain')->willReturn('www.example.com');
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
             ->setConstructorArgs(array($configMock, $logMock, $logMock, $debugMock))
@@ -423,6 +426,7 @@ class ClientTest extends TestCase
             ->method('warning')
             ->with('Throttling limit reached. Will be waiting for 5 seconds.');
         $configMock = $this->getMockBuilder('PlentyConfig')->setMethods(array('getDomain'))->getMock();
+        $configMock->expects($this->any())->method('getDomain')->willReturn('www.example.com');
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
             ->setConstructorArgs(array($configMock, $logMock, $logMock, false))
@@ -460,6 +464,7 @@ class ClientTest extends TestCase
             ->method('warning')
             ->with('Throttling limit reached. Will be waiting for 5 seconds.');
         $configMock = $this->getMockBuilder('PlentyConfig')->setMethods(array('getDomain'))->getMock();
+        $configMock->expects($this->any())->method('getDomain')->willReturn('www.example.com');
 
         $clientMock = $this->getMockBuilder('Findologic\Plentymarkets\Client')
             ->setConstructorArgs(array($configMock, $logMock, $logMock, false))
@@ -514,6 +519,7 @@ class ClientTest extends TestCase
         $debugMock = $this->getMockBuilder(Debugger::class)->disableOriginalConstructor()->getMock();
         $logMock = $this->getMockBuilder(Logger::class)->disableOriginalConstructor()->getMock();
         $configMock = $this->getMockBuilder(PlentyConfig::class)->setMethods(['getDomain'])->getMock();
+        $configMock->expects($this->any())->method('getDomain')->willReturn('www.example.com');
 
         $clientMock = $this->getMockBuilder(Client::class)
             ->setConstructorArgs([$configMock, $logMock, $logMock, $debugMock])
@@ -553,6 +559,8 @@ class ClientTest extends TestCase
             ->disableOriginalConstructor()
             ->setMethods(array('getDomain', 'getUsername', 'getPassword', 'getWsdlUrl', 'getLanguage', 'getMultishopId', 'getAvailabilityId', 'getPriceId', 'getRrpId', 'getCountry'))
             ->getMock();
+
+        $configMock->expects($this->any())->method('getDomain')->willReturn('www.example.com');
 
         $clientMock = $this->getMockBuilder('\Findologic\Plentymarkets\Client')
             ->setConstructorArgs(array($configMock, $logMock, $logMock))
