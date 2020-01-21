@@ -295,12 +295,19 @@ class ClientTest extends TestCase
         $clientMock->getCategories();
     }
 
-    public function testGetPropertiesReturnsEmptyArrayOnCustomerException()
+    public function testGetPropertiesThrowsCustomerException()
     {
-        $clientMock = $this->getClientMock(array('call'));
-        $clientMock->expects($this->once())->method('call')->will($this->throwException(new CustomerException()));
+        $testExceptionMessage = 'Provided REST client does not have access rights';
 
-        $this->assertSame($clientMock->getProperties(), []);
+        $this->expectException(CustomerException::class);
+        $this->expectExceptionMessage($testExceptionMessage);
+
+        $clientMock = $this->getClientMock(['call']);
+        $clientMock->expects($this->once())->method('call')->willThrowException(
+            new CustomerException($testExceptionMessage)
+        );
+
+        $clientMock->getProperties();
     }
 
     public function testGetPropertiesThrowsThrottlingException()
