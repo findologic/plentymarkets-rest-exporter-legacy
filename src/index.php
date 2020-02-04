@@ -30,7 +30,8 @@ $config->setUsername('FINDOLOGIC API USER')
     ->setLanguage('DE'); // Language code for texts
 
 $registry = new \Findologic\Plentymarkets\Registry($log, $customerLogger);
-$client = new \Findologic\Plentymarkets\Client($config, $log, $customerLogger, $debug);
+$guzzleClient = new \GuzzleHttp\Client();
+$client = new \Findologic\Plentymarkets\Client($config, $log, $customerLogger, $guzzleClient, $debug);
 $wrapper = new \Findologic\Plentymarkets\Wrapper\Csv();
 $exporter = new \Findologic\Plentymarkets\Exporter($client, $wrapper, $log, $customerLogger, $registry);
 $exporter->init();

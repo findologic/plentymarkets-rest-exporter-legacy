@@ -6,6 +6,10 @@
 namespace Findologic\Plentymarkets;
 
 use Findologic\Plentymarkets\Exception\InternalException;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
+use Log4Php\Logger;
+use Net_URL2;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use org\bovigo\vfs\vfsStreamFile;
@@ -61,9 +65,9 @@ class DebuggerTest extends TestCase
     {
         $requestMock = $this->getRequestMock('/rest/items');
 
-        $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
-            ->setConstructorArgs(array($this->getLogMock(), $this->fileSystemMock->url(), array('items')))
-            ->setMethods(array('debugRequest', 'debugResponse', 'getFilePrefix'))
+        $debuggerMock = $this->getMockBuilder(Debugger::class)
+            ->setConstructorArgs([$this->getLogMock(), $this->fileSystemMock->url(), ['items']])
+            ->setMethods(['debugRequest', 'debugResponse', 'getFilePrefix'])
             ->getMock();
 
         $debuggerMock->expects($this->once())->method('debugRequest');
@@ -80,9 +84,9 @@ class DebuggerTest extends TestCase
     {
         $requestMock = $this->getRequestMock('/rest/items');
 
-        $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
-            ->setConstructorArgs(array($this->getLogMock(), '/tmp/', array('login', 'some/path')))
-            ->setMethods(array('debugRequest', 'debugResponse'))
+        $debuggerMock = $this->getMockBuilder(Debugger::class)
+            ->setConstructorArgs([$this->getLogMock(), '/tmp/', ['login', 'some/path']])
+            ->setMethods(['debugRequest', 'debugResponse'])
             ->getMock();
 
         $debuggerMock->expects($this->never())->method('debugRequest');
@@ -97,10 +101,10 @@ class DebuggerTest extends TestCase
     public function testDebugCallFileCreation()
     {
         $requestMock = $this->getRequestMock('/rest/items');
-        $responseMock = $this->getResponseMock(array('getStatus', 'getReasonPhrase', 'getHeader', 'getBody'));
+        $responseMock = $this->getResponseMock(['getStatus', 'getReasonPhrase', 'getHeader', 'getBody']);
 
-        $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
-            ->setConstructorArgs(array($this->getLogMock(), $this->fileSystemMock->url(), array('items')))
+        $debuggerMock = $this->getMockBuilder(Debugger::class)
+            ->setConstructorArgs([$this->getLogMock(), $this->fileSystemMock->url(), ['items']])
             ->setMethods(null)
             ->getMock();
 
@@ -123,9 +127,9 @@ class DebuggerTest extends TestCase
     {
         $requestMock = $this->getRequestMock('/rest/items');
         $logMock = $this->getLogMock();
-        $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
-            ->setConstructorArgs(array($logMock, $this->fileSystemMock->url(), array('items')))
-            ->setMethods(array('getApiCallDirectoryPath', 'createDirectory', 'getFilePrefix', 'debugResponse'))
+        $debuggerMock = $this->getMockBuilder(Debugger::class)
+            ->setConstructorArgs([$logMock, $this->fileSystemMock->url(), ['items']])
+            ->setMethods(['getApiCallDirectoryPath', 'createDirectory', 'getFilePrefix', 'debugResponse'])
             ->getMock();
 
         $debuggerMock->expects($this->once())->method('getApiCallDirectoryPath')->willReturn($this->fileSystemMock->url());
@@ -147,17 +151,18 @@ class DebuggerTest extends TestCase
      */
     public function testDebugCallWriteToFile()
     {
-        $requestMock = $this->getMockBuilder('\HTTP_Request2')
+        $requestMock = $this->getMockBuilder(Request::class)
             ->disableOriginalConstructor()
-            ->setMethods(array('getUrl', 'getHeaders'))
+            ->setMethods(['getUri', 'getHeaders', 'getMethod'])
             ->getMock();
 
-        $requestMock->expects($this->any())->method('getUrl')->will($this->returnValue($this->getUrlMock('/rest/items')));
-        $requestMock->expects($this->any())->method('getHeaders')->will($this->returnValue(array('Authorization' => 'Test')));
+        $requestMock->expects($this->any())->method('getUri')->will($this->returnValue($this->getUrlMock('/rest/items')));
+        $requestMock->expects($this->any())->method('getHeaders')->will($this->returnValue(['Authorization' => 'Test']));
+        $requestMock->expects($this->any())->method('getMethod')->willReturn('GET');
 
-        $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
-            ->setConstructorArgs(array($this->getLogMock(), $this->fileSystemMock->url(), array('items')))
-            ->setMethods(array('getFilePrefix', 'debugResponse'))
+        $debuggerMock = $this->getMockBuilder(Debugger::class)
+            ->setConstructorArgs([$this->getLogMock(), $this->fileSystemMock->url(), ['items']])
+            ->setMethods(['getFilePrefix', 'debugResponse'])
             ->getMock();
 
         $debuggerMock->expects($this->once())->method('getFilePrefix')->willReturn('test');
@@ -183,9 +188,9 @@ Headers :
 
     public function testResetCallTiming()
     {
-        /** @var \Findologic\Plentymarkets\Debugger $debuggerMock */
-        $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
-            ->setConstructorArgs(array($this->getLogMock(), $this->fileSystemMock->url(), array()))
+        /** @var Debugger $debuggerMock */
+        $debuggerMock = $this->getMockBuilder(Debugger::class)
+            ->setConstructorArgs([$this->getLogMock(), $this->fileSystemMock->url(), []])
             ->setMethods(null)
             ->getMock();
 
@@ -200,27 +205,27 @@ Headers :
 
     public function providerLogCallTiming()
     {
-        return array(
-            array(
-                array(
-                    array('uri' => 'test/1', 'begin' => 1, 'end' => 2),
-                    array('uri' => 'test/2', 'begin' => 3, 'end' => 6),
-                    array('uri' => 'testing/1', 'begin' => 6, 'end' => 7)
-                ),
-                array(
-                    'test/x' => array(
+        return [
+            [
+                [
+                    ['uri' => 'test/1', 'begin' => 1, 'end' => 2],
+                    ['uri' => 'test/2', 'begin' => 3, 'end' => 6],
+                    ['uri' => 'testing/1', 'begin' => 6, 'end' => 7]
+                ],
+                [
+                    'test/x' => [
                         Debugger::TIMING_COUNT => 2,
                         Debugger::TIMING_TOTAL_TIME => 4,
                         Debugger::TIMING_AVERAGE_TIME => 2
-                    ),
-                    'testing/x' => array(
+                    ],
+                    'testing/x' => [
                         Debugger::TIMING_COUNT => 1,
                         Debugger::TIMING_TOTAL_TIME => 1,
                         Debugger::TIMING_AVERAGE_TIME => 1
-                    ),
-                )
-            )
-        );
+                    ],
+                ]
+            ]
+        ];
     }
 
     /**
@@ -228,9 +233,9 @@ Headers :
      */
     public function testLogCallTiming($timingData, $expectedResult)
     {
-        /** @var \Findologic\Plentymarkets\Debugger $debuggerMock */
-        $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
-            ->setConstructorArgs(array($this->getLogMock(), $this->fileSystemMock->url(), array()))
+        /** @var Debugger $debuggerMock */
+        $debuggerMock = $this->getMockBuilder(Debugger::class)
+            ->setConstructorArgs([$this->getLogMock(), $this->fileSystemMock->url(), []])
             ->setMethods(null)
             ->getMock();
 
@@ -246,9 +251,9 @@ Headers :
      */
     public function testWriteCallTimingLogNoTimingInfo()
     {
-        /** @var \Findologic\Plentymarkets\Debugger|MockObject $debuggerMock */
-        $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
-            ->setConstructorArgs(array($this->getLogMock(), $this->fileSystemMock->url(), array()))
+        /** @var Debugger|MockObject $debuggerMock */
+        $debuggerMock = $this->getMockBuilder(Debugger::class)
+            ->setConstructorArgs([$this->getLogMock(), $this->fileSystemMock->url(), []])
             ->setMethods(['createDirectory', 'createFile'])
             ->getMock();
 
@@ -263,9 +268,9 @@ Headers :
      */
     public function testWriteCallTimingLog()
     {
-        /** @var \Findologic\Plentymarkets\Debugger $debuggerMock */
-        $debuggerMock = $this->getMockBuilder('\Findologic\Plentymarkets\Debugger')
-            ->setConstructorArgs(array($this->getLogMock(), $this->fileSystemMock->url(), array()))
+        /** @var Debugger $debuggerMock */
+        $debuggerMock = $this->getMockBuilder(Debugger::class)
+            ->setConstructorArgs([$this->getLogMock(), $this->fileSystemMock->url(), []])
             ->setMethods(null)
             ->getMock();
 
@@ -295,9 +300,9 @@ Headers :
     /**
      * @return MockObject
      */
-    protected function getLogMock($methods = array())
+    protected function getLogMock($methods = [])
     {
-        $logMock = $this->getMockBuilder('Log4Php\Logger')
+        $logMock = $this->getMockBuilder(Logger::class)
             ->disableOriginalConstructor()
             ->setMethods($methods)
             ->getMock();
@@ -311,12 +316,12 @@ Headers :
      */
     protected function getRequestMock($path)
     {
-        $requestMock = $this->getMockBuilder('\HTTP_Request2')
+        $requestMock = $this->getMockBuilder(Request::class)
             ->disableOriginalConstructor()
-            ->setMethods(array('getUrl'))
+            ->setMethods(['getUri'])
             ->getMock();
 
-        $requestMock->expects($this->any())->method('getUrl')->will($this->returnValue($this->getUrlMock($path)));
+        $requestMock->expects($this->any())->method('getUri')->will($this->returnValue($this->getUrlMock($path)));
 
         return $requestMock;
     }
@@ -325,9 +330,9 @@ Headers :
      * @param string $path
      * @return mixed
      */
-    protected function getResponseMock($methods = array())
+    protected function getResponseMock($methods = [])
     {
-        $responseMock = $this->getMockBuilder('\HTTP_Request2_Response')
+        $responseMock = $this->getMockBuilder(Response::class)
             ->disableOriginalConstructor()
             ->setMethods($methods)
             ->getMock();
@@ -342,12 +347,12 @@ Headers :
      */
     protected function getUrlMock($path)
     {
-        $urlMock = $this->getMockBuilder('\Net_URL2')
+        $urlMock = $this->getMockBuilder(Net_URL2::class)
             ->disableOriginalConstructor()
-            ->setMethods(array('getPath'))
+            ->setMethods(['getPath', '__toString', 'getPort'])
             ->getMock();
 
-        $urlMock->expects($this->any())->method('getPath')->will($this->returnValue($path));
+        $urlMock->expects($this->any())->method('getPath')->willReturn($path);
 
         return $urlMock;
     }

@@ -7,9 +7,13 @@ use Findologic\Plentymarkets\Exception\CriticalException;
 use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Exception\ThrottlingException;
 use Findologic\Plentymarkets\Exception\AuthorizationException;
-use \HTTP_Request2_Response;
-use \HTTP_Request2;
+use Findologic\Plentymarkets\Helper\Url;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\RequestOptions;
 use Log4Php\Logger;
+use GuzzleHttp\Client as GuzzleClient;
 
 class Client
 {
@@ -51,6 +55,11 @@ class Client
      * @var Logger
      */
     protected $customerLog;
+
+    /**
+     * @var GuzzleClient
+     */
+    protected $client;
 
     /**
      * Flag for login call to API to avoid setting the headers for this call
@@ -107,17 +116,18 @@ class Client
     protected $lastTimeout = false;
 
     /**
-     * @param mixed $config Plentymarkets Config object.
+     * @param \PlentyConfig $config Plentymarkets Config object.
      * @param Logger $log
      * @param Logger $customerLog
+     * @param GuzzleClient $client
      * @param bool $debug
      */
-    public function __construct($config, Logger $log, Logger $customerLog, $debug = false)
+    public function __construct($config, Logger $log, Logger $customerLog, GuzzleClient $client = null, $debug = false)
     {
-        $url = rtrim($config->getDomain(), '/') . '/rest/';
-        $this->url = $url;
+        $this->url = Url::getHost($config->getDomain()) . '/rest/';
         $this->log = $log;
         $this->customerLog = $customerLog;
+        $this->client = $client ?? new GuzzleClient();
         $this->debug = $debug;
         $this->config = $config;
     }
@@ -281,6 +291,7 @@ class Client
         $this->loginFlag = true;
 
         try {
+            /** @var Response $response */
             $response = $this->call('POST', $this->getEndpoint('login'), array(
                     'username' => $this->config->getUsername(),
                     'password' => $this->config->getPassword()
@@ -292,9 +303,10 @@ class Client
 
         // If using incorrect protocol the API returns status between 301-404  so it could be used to check if correct
         // protocol is used and make appropriate changes
-        if (!$response || ($response && $response->getStatus() >= 301 && $response->getStatus() <= 404)) {
+        if (!$response || ($response && $response->getStatusCode() >= 301 && $response->getStatusCode() <= 404)) {
             $this->protocol = 'http://';
             $this->getLog()->info('API client request protocol changed to HTTP');
+            /** @var Response $response */
             $response = $this->call('POST', $this->getEndpoint('login'), array(
                     'username' => $this->config->getUsername(),
                     'password' => $this->config->getPassword()
@@ -302,7 +314,7 @@ class Client
             );
         }
 
-        if (!$response || $response->getStatus() != 200) {
+        if (!$response || $response->getStatusCode() != 200) {
             throw new CriticalException('Could not connect to API!');
         }
 
@@ -558,10 +570,10 @@ class Client
     /**
      * Parse the results from API
      *
-     * @param HTTP_Request2_Response $response
+     * @param Response $response
      * @return array
      */
-    protected function returnResult(HTTP_Request2_Response $response)
+    protected function returnResult(Response $response)
     {
         return json_decode($response->getBody(), true);
     }
@@ -623,6 +635,7 @@ class Client
      * @return bool|mixed
      * @throws ThrottlingException
      * @throws AuthorizationException
+     * @throws GuzzleException
      */
     protected function call($method, $uri, $params = null)
     {
@@ -632,10 +645,8 @@ class Client
         $continue = true;
         $count = 0;
 
-        /**
-         * @var HTTP_Request2 $request
-         */
-        $request = $this->createRequest($method, $uri, $params);
+        /** @var Request $request */
+        $request = $this->createRequest($method, $uri);
 
         // Use while cycle for retrying the call if previous call failed until limit is reached
         while ($continue) {
@@ -643,13 +654,14 @@ class Client
                 $count++;
 
                 $this->handleThrottling();
-                $response = $request->send();
+
+                $response = $this->client->send($request, [RequestOptions::FORM_PARAMS => $params]);
 
                 if ($this->debug) {
                     $this->debug->debugCall($request, $response);
                 }
 
-                $this->isResponseValid($response);
+                $this->isResponseValid($request, $response);
                 $this->checkThrottling($response);
 
                 $continue = false;
@@ -661,7 +673,7 @@ class Client
                 $this->refreshLogin();
 
                 // Since the access token changed, this method will update the current request's authorization header.
-                $this->setDefaultParams($request);
+                $request = $this->setDefaultParams($request);
             } catch (Exception $e) {
                 if ($e instanceof ThrottlingException || $count >= self::RETRY_COUNT) {
                     // Throw exception instantly if it is throttling exception
@@ -685,34 +697,35 @@ class Client
     /**
      * Check response for appropriate statuses to validate if it was successful
      *
-     * @param HTTP_Request2_Response $response
+     * @param Request $request
+     * @param Response $response
      * @return bool
+     * @throws AuthorizationException
      * @throws CustomerException
      * @throws ThrottlingException
-     * @throws AuthorizationException
      */
-    protected function isResponseValid(HTTP_Request2_Response $response)
+    protected function isResponseValid(Request $request, Response $response)
     {
         // Method is not reachable because provided API user do not have appropriate access rights
-        if ($response->getStatus() == 401 && $response->getReasonPhrase() == 'Unauthorized') {
+        if ($response->getStatusCode() == 401 && $response->getReasonPhrase() == 'Unauthorized') {
             throw new AuthorizationException('Provided REST client is not logged in!');
         }
 
-        if ($response->getStatus() == 403) {
-            throw new CustomerException('Provided REST client does not have access rights for method with URL: ' . $response->getEffectiveUrl());
+        if ($response->getStatusCode() == 403) {
+            throw new CustomerException('Provided REST client does not have access rights for method with URL: ' . $request->getUri());
         }
 
-        if ($response->getStatus() == 429) {
+        if ($response->getStatusCode() == 429) {
             throw new ThrottlingException('Throttling limit reached!');
         }
 
         // Method is not reachable, maybe server is down
-        if ($response->getStatus() != 200) {
-            throw new CustomerException('Could not reach API method for ' . $response->getEffectiveUrl());
+        if ($response->getStatusCode() != 200) {
+            throw new CustomerException('Could not reach API method for ' . $request->getUri());
         }
 
         if ($this->returnResult($response) === null) {
-            throw new CustomerException("API responded with " . $response->getStatus() . " but didn't return any data.");
+            throw new CustomerException("API responded with " . $response->getStatusCode() . " but didn't return any data.");
         }
 
         return true;
@@ -723,23 +736,15 @@ class Client
      *
      * @param string $method - 'GET', 'POST' , etc.
      * @param string $uri - full endpoint path with query (GET) parameters
-     * @param array|null $params - POST parameters
-     * @return HTTP_Request2
+     * @return Request
      */
-    protected function createRequest($method, $uri, $params = null)
+    protected function createRequest($method, $uri)
     {
-        $request = new HTTP_Request2($uri, $method);
-        $request->setAdapter('curl');
+        $request = new Request($method, $uri);
 
         // Ignore setting default params for login method as it not required
         if (!$this->getLoginFlag()) {
-            $this->setDefaultParams($request);
-        }
-
-        if ($method == 'POST' && is_array($params) && !empty($params)) {
-            foreach ($params as $parameter => $value) {
-                $request->addPostParameter($parameter, $value);
-            }
+            $request = $this->setDefaultParams($request);
         }
 
         return $request;
@@ -748,18 +753,16 @@ class Client
     /**
      * Set default request params for request
      *
-     * @param HTTP_Request2 $request
-     * @return $this
+     * @param Request $request
+     * @return Request
      */
-    protected function setDefaultParams(HTTP_Request2 $request)
+    protected function setDefaultParams(Request $request)
     {
         if (!$this->getAccessToken()) {
             $this->login();
         }
 
-        $request->setHeader('Authorization', 'Bearer ' . $this->getAccessToken());
-
-        return $this;
+        return $request->withHeader('Authorization', 'Bearer ' . $this->getAccessToken());
     }
 
     /**
@@ -786,10 +789,10 @@ class Client
     /**
      * Check response headers to know if API throttling limit is reached and handle the situation
      *
-     * @param HTTP_Request2_Response $response
+     * @param Response $response
      * @throws ThrottlingException
      */
-    protected function checkThrottling(HTTP_Request2_Response $response)
+    protected function checkThrottling(Response $response)
     {
         if ($response->getHeader(self::GLOBAL_LONG_CALLS_LEFT_COUNT) == 1) {
             //TODO: maybe check if global time out is not so long and wait instead of stopping execution
