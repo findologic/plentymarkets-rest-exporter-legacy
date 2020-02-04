@@ -3,7 +3,8 @@
 namespace Findologic\Plentymarkets;
 
 use \Findologic\Plentymarkets\Exception\InternalException;
-use HTTP_Request2;
+use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Request;
 use HTTP_Request2_Exception;
 use HTTP_Request2_Response;
 use Log4Php\Logger;
@@ -77,17 +78,17 @@ class Debugger
     }
 
     /**
-     * @param HTTP_Request2 $request
-     * @param HTTP_Request2_Response $response
+     * @param Request $request
+     * @param Response $response
      * @return bool
      */
-    public function debugCall(HTTP_Request2 $request, $response)
+    public function debugCall(Request $request, $response)
     {
-        if (!$this->isPathDebuggable($request->getUrl()->getPath())) {
+        if (!$this->isPathDebuggable($request->getUri()->getPath())) {
             return false;
         }
 
-        $path = $this->getApiCallDirectoryPath($request->getUrl()->getPath());
+        $path = $this->getApiCallDirectoryPath($request->getUri()->getPath());
         $filePrefix = $this->getFilePrefix();
         $this->createDirectory($path);
         $fileHandle = $this->createFile($path, $filePrefix . 'Request.txt');
@@ -237,7 +238,7 @@ class Debugger
     /**
      * Write request data to file
      *
-     * @param HTTP_Request2 $request
+     * @param Request $request
      * @param resource $fileHandle
      * @return bool
      */
@@ -245,7 +246,7 @@ class Debugger
     {
         $this->addSeparatorToFile($fileHandle, 'Request', false);
 
-        if ($url = $request->getUrl()) {
+        if ($url = $request->getUri()) {
             $this->writeToFile($fileHandle, 'Requested URL', $url->__toString());
             $this->writeToFile($fileHandle, 'Port', $url->getPort());
         }
@@ -259,7 +260,7 @@ class Debugger
     /**
      * Write response data to file
      *
-     * @param HTTP_Request2_Response $response
+     * @param Response $response
      * @param resource $fileHandle
      * @return bool
      * @throws HTTP_Request2_Exception
@@ -268,9 +269,9 @@ class Debugger
     {
         $this->addSeparatorToFile($fileHandle, 'Response');
 
-        $this->writeToFile($fileHandle, 'Response Status', $response->getStatus());
+        $this->writeToFile($fileHandle, 'Response Status', $response->getStatusCode());
         $this->writeToFile($fileHandle, 'Response Phrase', $response->getReasonPhrase());
-        $this->writeToFile($fileHandle, 'Headers', $response->getHeader());
+        $this->writeToFile($fileHandle, 'Headers', $response->getHeaders());
         $this->writeToFile($fileHandle, 'Body', $response->getBody());
 
         return true;
