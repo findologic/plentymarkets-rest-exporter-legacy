@@ -7,6 +7,7 @@ use Findologic\Plentymarkets\Exception\CriticalException;
 use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Exception\ThrottlingException;
 use Findologic\Plentymarkets\Exception\AuthorizationException;
+use Findologic\Plentymarkets\Helper\Url;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
@@ -115,7 +116,7 @@ class Client
     protected $lastTimeout = false;
 
     /**
-     * @param mixed $config Plentymarkets Config object.
+     * @param \PlentyConfig $config Plentymarkets Config object.
      * @param Logger $log
      * @param Logger $customerLog
      * @param GuzzleClient $client
@@ -123,8 +124,7 @@ class Client
      */
     public function __construct($config, Logger $log, Logger $customerLog, GuzzleClient $client = null, $debug = false)
     {
-        $url = rtrim($config->getDomain(), '/') . '/rest/';
-        $this->url = $url;
+        $this->url = Url::getHost($config->getDomain()) . '/rest/';
         $this->log = $log;
         $this->customerLog = $customerLog;
         $this->client = $client ?? new GuzzleClient();

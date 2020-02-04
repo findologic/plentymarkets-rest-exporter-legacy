@@ -649,6 +649,7 @@ class ExporterTest extends TestCase
      */
     protected function getConfigMock()
     {
+        /** @var PlentyConfig|MockObject $configMock */
         $configMock = $this->getMockBuilder(PlentyConfig::class)
             ->disableOriginalConstructor()
             ->setMethods(
@@ -665,6 +666,8 @@ class ExporterTest extends TestCase
                     'getCountry'
                 ]
             )->getMock();
+
+        $configMock->expects($this->any())->method('getDomain')->willReturn('www.example.com');
 
         return $configMock;
     }
