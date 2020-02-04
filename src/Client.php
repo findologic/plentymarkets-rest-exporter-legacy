@@ -116,7 +116,7 @@ class Client
     protected $lastTimeout = false;
 
     /**
-     * @param mixed $config Plentymarkets Config object.
+     * @param \PlentyConfig $config Plentymarkets Config object.
      * @param Logger $log
      * @param Logger $customerLog
      * @param GuzzleClient $client

@@ -77,6 +77,7 @@ class ClientTest extends TestCase
                 ]
             )->getMock();
 
+        $configMock->expects($this->once())->method('getDomain')->willReturn('test.com/');
         $httpClientMock = $this->getHttpClientMock(['send']);
 
         $clientMock = $this->getMockBuilder(Client::class)
@@ -95,8 +96,6 @@ class ClientTest extends TestCase
         $httpClientMock->expects($this->at(0))->method('send')->willReturn($webstoresUnauthorizedResponse);
         $httpClientMock->expects($this->at(1))->method('send')->willReturn($refreshResponse);
         $httpClientMock->expects($this->at(2))->method('send')->willReturn($webstoresAuthorizedResponse);
-
-        $clientMock->expects($this->any())->method('getUrl')->willReturn('test.com/');
 
         $clientMock->getWebstores();
 
@@ -198,6 +197,7 @@ class ClientTest extends TestCase
                 ]
             )->getMock();
         $httpClientMock = $this->getHttpClientMock(['send']);
+        $configMock->expects($this->once())->method('getDomain')->willReturn('test.com/');
 
         $maxRetries = Client::RETRY_COUNT;
         // Fail for four out of five times, so we can succeed on the final attempt.
@@ -211,7 +211,6 @@ class ClientTest extends TestCase
             ->setConstructorArgs([$configMock, $logMock, $logMock, $httpClientMock])
             ->setMethods(['createRequest', 'getUrl'])
             ->getMock();
-        $clientMock->expects($this->any())->method('getUrl')->willReturn('test.com/');
         $clientMock->expects($this->any())->method('createRequest')->willReturn($this->getRequestMock());
 
         $this->assertSame(['Test' => 'Test'], $clientMock->getCategories());
@@ -379,6 +378,7 @@ class ClientTest extends TestCase
                 ]
             )->getMock();
 
+        $configMock->expects($this->once())->method('getDomain')->willReturn('test.com/');
         $httpClientMock = $this->getHttpClientMock(['send']);
         $httpClientMock->expects($this->any())->method('send')->willReturn($response);
 
@@ -420,6 +420,7 @@ class ClientTest extends TestCase
                 ]
             )->getMock();
 
+        $configMock->expects($this->once())->method('getDomain')->willReturn('test.com/');
         $httpClientMock = $this->getHttpClientMock(['send']);
         $httpClientMock->expects($this->any())->method('send')->willReturn($response);
 
@@ -465,6 +466,7 @@ class ClientTest extends TestCase
                 ]
             )->getMock();
 
+        $configMock->expects($this->once())->method('getDomain')->willReturn('test.com/');
         $httpClientMock = $this->getHttpClientMock(['send']);
         $httpClientMock->expects($this->any())->method('send')->willReturn($response);
 
@@ -509,6 +511,7 @@ class ClientTest extends TestCase
                 ]
             )->getMock();
 
+        $configMock->expects($this->once())->method('getDomain')->willReturn('test.com/');
         $httpClientMock = $this->getHttpClientMock(['send']);
         $httpClientMock->expects($this->any())->method('send')->willReturn($response);
 
@@ -631,6 +634,7 @@ class ClientTest extends TestCase
         $logMock = $this->getMockBuilder(Logger::class)->disableOriginalConstructor()->getMock();
         $configMock = $this->getMockBuilder(PlentyConfig::class)->setMethods(['getDomain'])->getMock();
         $configMock->expects($this->any())->method('getDomain')->willReturn('www.example.com');
+        $httpClientMock = $this->getHttpClientMock(['send']);
 
         $clientMock = $this->getMockBuilder(Client::class)
             ->setConstructorArgs([$configMock, $logMock, $logMock, $httpClientMock, $debugMock])
