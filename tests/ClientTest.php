@@ -333,9 +333,6 @@ class ClientTest extends TestCase
 
     public function testGetPropertiesThrowsCustomerException()
     {
-        $clientMock = $this->getClientMock(['call']);
-        $clientMock->expects($this->once())->method('call')->will($this->throwException(new CustomerException()));
-
         $testExceptionMessage = 'Provided REST client does not have access rights';
         $this->expectException(CustomerException::class);
         $this->expectExceptionMessage($testExceptionMessage);
