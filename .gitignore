@@ -14,3 +14,4 @@ build/
 tmp/
 logs/
 dump/
+.phpunit.result.cache

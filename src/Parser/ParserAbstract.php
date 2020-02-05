@@ -2,6 +2,7 @@
 
 namespace Findologic\Plentymarkets\Parser;
 
+use Findologic\Plentymarkets\Helper\Url;
 use Findologic\Plentymarkets\Registry;
 
 abstract class ParserAbstract
@@ -136,7 +137,7 @@ abstract class ParserAbstract
      */
     public function setStoreUrl($url)
     {
-        $this->storeUrl = rtrim($url, '/');
+        $this->storeUrl = Url::getHost($url);
 
         return $this;
     }
