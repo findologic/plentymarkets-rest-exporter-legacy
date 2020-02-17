@@ -2036,7 +2036,7 @@ class ProductTest extends TestCase
                         'urlMiddle' => 'firstPath',
                         'availabilities' => [
                             [
-                                'type' => Product::AVAILABILITY_SHOP
+                                'type' => Product::AVAILABILITY_STORE
                             ],
                             [
                                 'type' => 'marketplace'
@@ -2072,7 +2072,7 @@ class ProductTest extends TestCase
                         'urlMiddle' => 'thirdPath',
                         'availabilities' => [
                             [
-                                'type' => Product::AVAILABILITY_SHOP
+                                'type' => Product::AVAILABILITY_STORE
                             ]
                         ]
                     ]
