@@ -2024,32 +2024,114 @@ class ProductTest extends TestCase
      */
     public function processImagesProvider()
     {
-        return array(
-            // No data provided, 'image' field should be empty
-            array(
+        return [
+            'No image data provided' => [
                 false,
                 ''
-            ),
-            // Image has only one image, 'image' field
-            array(
-                // Image
-                array(
-                    'itemId' => '1',
-                    'urlMiddle' => 'path'
-                ),
-                'path'
-            ),
-            // Image has multiple images so $data has array for images
-            array(
-                array(
-                    // First image
-                    array('urlMiddle' => 'path'),
-                    // Second image
-                    array('urlMiddle' => 'path')
-                ),
-                'path'
-            ),
-        );
+            ],
+            'First image is available in shop' => [
+                [
+                    [
+                        'itemId' => '1',
+                        'urlMiddle' => 'firstPath',
+                        'availabilities' => [
+                            [
+                                'type' => Product::AVAILABILITY_SHOP
+                            ],
+                            [
+                                'type' => 'marketplace'
+                            ]
+                        ]
+                    ],
+                    [
+                        'itemId' => '2',
+                        'urlMiddle' => 'secondPath',
+                        'availabilities' => [
+                            [
+                                'type' => 'marketplace'
+                            ]
+                        ]
+                    ]
+                ],
+                'firstPath'
+            ],
+            'Last image is available in shop' => [
+                [
+                    [
+                        'itemId' => '1',
+                        'urlMiddle' => 'firstPath',
+                        'availabilities' => []
+                    ],
+                    [
+                        'itemId' => '2',
+                        'urlMiddle' => 'secondPath',
+                        'availabilities' => []
+                    ],
+                    [
+                        'itemId' => '3',
+                        'urlMiddle' => 'thirdPath',
+                        'availabilities' => [
+                            [
+                                'type' => Product::AVAILABILITY_SHOP
+                            ]
+                        ]
+                    ]
+                ],
+                'thirdPath'
+            ],
+            'No images are available in shop' => [
+                [
+                    [
+                        'itemId' => '1',
+                        'urlMiddle' => 'firstPath',
+                        'availabilities' => []
+                    ],
+                    [
+                        'itemId' => '2',
+                        'urlMiddle' => 'secondPath',
+                        'availabilities' => []
+                    ],
+                    [
+                        'itemId' => '3',
+                        'urlMiddle' => 'thirdPath',
+                        'availabilities' => []
+                    ]
+                ],
+                ''
+            ],
+            'Image is available in a marketplace, but not in shop' => [
+                [
+                    [
+                        'itemId' => '1',
+                        'urlMiddle' => 'firstPath',
+                        'availabilities' => [
+                            [
+                                'imageId' => 11,
+                                'type' => 'marketplace',
+                                'value' => 1234
+                            ]
+                        ]
+                    ],
+                    [
+                        'itemId' => '2',
+                        'urlMiddle' => 'secondPath',
+                        'availabilities' => [
+                            [
+                                'imageId' => 22,
+                                'type' => 'marketplace',
+                                'value' => 1234
+                            ]
+                        ]
+                    ],
+                    [
+                        'itemId' => '3',
+                        'urlMiddle' => 'thirdPath',
+                        'availabilities' => []
+                    ]
+                ],
+                ''
+            ]
+        ];
     }
 
     /**

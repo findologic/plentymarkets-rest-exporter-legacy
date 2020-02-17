@@ -13,6 +13,8 @@ class Product extends ParserAbstract
     const CATEGORY_URLS_ATTRIBUTE_FIELD = 'cat_url';
     const MANUFACTURER_ATTRIBUTE_FIELD = 'vendor';
 
+    const AVAILABILITY_SHOP = 'mandant';
+
     /**
      * Item id in shops system
      *
@@ -614,9 +616,10 @@ class Product extends ParserAbstract
             return $this;
         }
 
-        // Data for images could be returned as array of images if there is multiple images assigned
-        if (!isset($data['itemId'])) {
-            $data = $data[0];
+        $data = $this->getAvailableImage($data);
+
+        if (!isset($data)) {
+            return $this;
         }
 
         if (!$this->getField('image')) {
@@ -624,6 +627,26 @@ class Product extends ParserAbstract
         }
 
         return $this;
+    }
+
+    /**
+     * @return array|null
+     */
+    protected function getAvailableImage(array $data)
+    {
+        foreach ($data as $image) {
+            if (empty($imageAvailabilities = $image['availabilities'])) {
+                continue;
+            }
+
+            foreach ($imageAvailabilities as $imageAvailability) {
+                if ($imageAvailability['type'] === self::AVAILABILITY_SHOP) {
+                    return $image;
+                }
+            }
+        }
+
+        return null;
     }
 
     /**
