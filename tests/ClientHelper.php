@@ -42,14 +42,14 @@ trait ClientHelper
     {
         $responseMock = $this->getMockBuilder(Response::class)
             ->disableOriginalConstructor()
-            ->setMethods(['getStatusCode', 'getBody', 'getReasonPhrase', 'getHeader'])
+            ->setMethods(['getStatusCode', 'getBody', 'getReasonPhrase', 'getHeaderLine'])
             ->getMock();
 
         $responseMock->expects($this->any())->method('getBody')->willReturn($body);
         $responseMock->expects($this->any())->method('getStatusCode')->willReturn($status);
 
         if ($defaultHeaders) {
-            $responseMock->expects($this->any())->method('getHeader')->willReturn(5);
+            $responseMock->expects($this->any())->method('getHeaderLine')->willReturn(5);
         }
 
         return $responseMock;

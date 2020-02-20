@@ -272,7 +272,7 @@ class Debugger
         $this->writeToFile($fileHandle, 'Response Status', $response->getStatusCode());
         $this->writeToFile($fileHandle, 'Response Phrase', $response->getReasonPhrase());
         $this->writeToFile($fileHandle, 'Headers', $response->getHeaders());
-        $this->writeToFile($fileHandle, 'Body', $response->getBody());
+        $this->writeToFile($fileHandle, 'Body', $response->getBody()->getContents());
 
         return true;
     }
