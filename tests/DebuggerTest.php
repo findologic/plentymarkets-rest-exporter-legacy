@@ -11,8 +11,6 @@ use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Stream;
 use Log4Php\Logger;
 use Net_URL2;
-use org\bovigo\vfs\vfsStream;
-use PHPUnit\Framework\MockObject\MockBuilder;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use org\bovigo\vfs\vfsStreamFile;
