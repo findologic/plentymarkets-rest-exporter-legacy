@@ -17,9 +17,11 @@
   },
   "autoload": {
     "psr-4": {
-      "Findologic\\Plentymarkets\\": "src/",
-      "Findologic\\Plentymarkets\\Tests\\": "tests/"
+      "Findologic\\Plentymarkets\\": "src/"
     }
+  },
+  "autoload-dev": {
+    "Findologic\\Plentymarkets\\Tests\\": "tests/"
   },
   "repositories": [
     {

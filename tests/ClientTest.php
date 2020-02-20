@@ -360,7 +360,7 @@ class ClientTest extends TestCase
     public function testApiMethodNeedsPermissions()
     {
         $response = $this->buildResponseMock('Access denied!', 403, false);
-        $response->expects($this->any())->method('getHeader')->willReturn('1');
+        $response->expects($this->any())->method('getHeaderLine')->willReturn('1');
 
         $logMock = $this->getMockBuilder(Logger::class)
             ->disableOriginalConstructor()
@@ -402,7 +402,7 @@ class ClientTest extends TestCase
     public function testApiMethodResponseBodyIsEmpty()
     {
         $response = $this->buildResponseMock('', 200, false);
-        $response->expects($this->any())->method('getHeader')->willReturn('1');
+        $response->expects($this->any())->method('getHeaderLine')->willReturn('1');
 
         $logMock = $this->getMockBuilder(Logger::class)
             ->disableOriginalConstructor()
@@ -448,7 +448,7 @@ class ClientTest extends TestCase
     public function testThrottlingGlobalLimitReached()
     {
         $response = $this->buildResponseMock('{}', 200, false);
-        $response->expects($this->any())->method('getHeader')->willReturn('1');
+        $response->expects($this->any())->method('getHeaderLine')->willReturn('1');
 
         $logMock = $this->getMockBuilder(Logger::class)
             ->disableOriginalConstructor()
@@ -493,7 +493,7 @@ class ClientTest extends TestCase
     public function testThrottlingGlobalLimitReachedIndicatedByStatusCode()
     {
         $response = $this->buildResponseMock('Failed', 429, false);
-        $response->expects($this->any())->method('getHeader')->willReturn('1');
+        $response->expects($this->any())->method('getHeaderLine')->willReturn('1');
 
         $logMock = $this->getMockBuilder(Logger::class)
             ->disableOriginalConstructor()
@@ -538,7 +538,7 @@ class ClientTest extends TestCase
     public function testThrottlingRouteCallsLimitReached()
     {
         $response = $this->buildResponseMock('{}', 200, false);
-        $response->expects($this->any())->method('getHeader')->willReturnOnConsecutiveCalls(50, 1);
+        $response->expects($this->any())->method('getHeaderLine')->willReturnOnConsecutiveCalls(50, 1);
 
         $logMock = $this->getMockBuilder(Logger::class)
             ->setMethods(['warning'])
@@ -571,7 +571,7 @@ class ClientTest extends TestCase
     public function testThrottlingGlobalShortLimitReached()
     {
         $response = $this->buildResponseMock('{}', 200, false);
-        $response->expects($this->any())->method('getHeader')->willReturnOnConsecutiveCalls(50, 15, 1);
+        $response->expects($this->any())->method('getHeaderLine')->willReturnOnConsecutiveCalls(50, 15, 1);
 
         $logMock = $this->getMockBuilder(Logger::class)
             ->setMethods(['warning'])
