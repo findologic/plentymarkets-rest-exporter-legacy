@@ -1,6 +1,6 @@
 <?php
 
-namespace Findologic\PlentymarketsTest;
+namespace Findologic\Plentymarkets\Tests;
 
 use Exception;
 use Findologic\Plentymarkets\Client;
@@ -9,7 +9,6 @@ use Findologic\Plentymarkets\Exception\AuthorizationException;
 use Findologic\Plentymarkets\Exception\CriticalException;
 use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Exception\ThrottlingException;
-use Findologic\Plentymarkets\Tests\ClientHelper;
 use GuzzleHttp\Psr7\Request;
 use Log4Php\Logger;
 use PHPUnit\Framework\MockObject\MockObject;

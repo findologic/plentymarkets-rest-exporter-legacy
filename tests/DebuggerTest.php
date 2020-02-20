@@ -8,8 +8,11 @@ namespace Findologic\Plentymarkets;
 use Findologic\Plentymarkets\Exception\InternalException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
+use GuzzleHttp\Psr7\Stream;
 use Log4Php\Logger;
 use Net_URL2;
+use org\bovigo\vfs\vfsStream;
+use PHPUnit\Framework\MockObject\MockBuilder;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;
 use org\bovigo\vfs\vfsStreamFile;
@@ -101,7 +104,14 @@ class DebuggerTest extends TestCase
     public function testDebugCallFileCreation()
     {
         $requestMock = $this->getRequestMock('/rest/items');
+        /** @var MockObject|Response $responseMock */
         $responseMock = $this->getResponseMock(['getStatus', 'getReasonPhrase', 'getHeader', 'getBody']);
+        $streamMock = $this->getMockBuilder(Stream::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getContents'])
+            ->getMock();
+        $streamMock->expects($this->once())->method('getContents')->willReturn('');
+        $responseMock->expects($this->once())->method('getBody')->willReturn($streamMock);
 
         $debuggerMock = $this->getMockBuilder(Debugger::class)
             ->setConstructorArgs([$this->getLogMock(), $this->fileSystemMock->url(), ['items']])
@@ -110,7 +120,7 @@ class DebuggerTest extends TestCase
 
         //1970-01-01
         self::$now = 1493895229;
-        $dateFolder =  date('Y-m-d', time());
+        $dateFolder = date('Y-m-d', time());
         $debuggerMock->debugCall($requestMock, $responseMock);
 
         // Check if request dir was created

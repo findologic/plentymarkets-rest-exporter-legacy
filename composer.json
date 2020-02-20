@@ -21,7 +21,9 @@
     }
   },
   "autoload-dev": {
-    "Findologic\\Plentymarkets\\Tests\\": "tests/"
+    "psr-4": {
+      "Findologic\\Plentymarkets\\Tests\\": "tests/"
+    }
   },
   "repositories": [
     {
