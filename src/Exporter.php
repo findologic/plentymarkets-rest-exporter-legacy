@@ -707,9 +707,17 @@ class Exporter
             $variationValues[] = 'variationAttributeValues';
         }
 
+        $itemProperties = $this->registry->get('itemproperties');
         $properties = $this->registry->get('properties');
-        if ($properties && !empty($properties->getResults())) {
-            $variationValues[] = 'variationProperties';
+
+        if ($itemProperties && $properties) {
+
+            // If there are no properties at all, request no properties as we do not really need them and they
+            // take a long time to fetch from the API.
+            $allProperties = array_merge($itemProperties->getResults(), $properties->getResults());
+            if ($allProperties && !empty($allProperties)) {
+                $variationValues[] = 'variationProperties';
+            }
         }
 
         $units = $this->registry->get('units');
