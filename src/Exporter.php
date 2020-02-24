@@ -707,15 +707,16 @@ class Exporter
             $variationValues[] = 'variationAttributeValues';
         }
 
+        // itemProperties aka. Eigenschaften
         $itemProperties = $this->registry->get('itemproperties');
+        // properties aka. Merkmale
         $properties = $this->registry->get('properties');
 
         if ($itemProperties && $properties) {
 
-            // If there are no properties at all, request no properties as we do not really need them and they
-            // take a long time to fetch from the API.
+            // If shop has no properties set don't request properties as it increases the export time without benefit.
             $allProperties = array_merge($itemProperties->getResults(), $properties->getResults());
-            if ($allProperties && !empty($allProperties)) {
+            if (!empty($allProperties)) {
                 $variationValues[] = 'variationProperties';
             }
         }
