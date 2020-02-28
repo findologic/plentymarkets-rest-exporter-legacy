@@ -707,9 +707,18 @@ class Exporter
             $variationValues[] = 'variationAttributeValues';
         }
 
+        // itemProperties aka. Eigenschaften
+        $itemProperties = $this->registry->get('itemproperties');
+        // properties aka. Merkmale
         $properties = $this->registry->get('properties');
-        if ($properties && !empty($properties->getResults())) {
-            $variationValues[] = 'variationProperties';
+
+        if ($itemProperties && $properties) {
+
+            // If shop has no properties set don't request properties as it increases the export time without benefit.
+            $allProperties = array_merge($itemProperties->getResults(), $properties->getResults());
+            if (!empty($allProperties)) {
+                $variationValues[] = 'variationProperties';
+            }
         }
 
         $units = $this->registry->get('units');
