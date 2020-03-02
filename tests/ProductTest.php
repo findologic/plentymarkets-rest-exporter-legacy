@@ -1165,7 +1165,7 @@ class ProductTest extends TestCase
                     ]
                 ],
                 [
-                    'plentymarkets_tag' => [1]
+                    'cat_id' => [1]
                 ],
                 ['Test Number', 'Test Model', 'Not the main variation', 'Test Number 2', 'Test Model 2', 'Test Id'],
                 ['price' => 0.0, 'maxprice' => '', 'instead' => 0.0, 'variation_id' => 'Test Id', 'sort' => '2', 'keywords' => 'I am a Tag']
@@ -1265,7 +1265,7 @@ class ProductTest extends TestCase
                     ]
                 ],
                 [
-                    'plentymarkets_tag' => [1]
+                    'cat_id' => [1]
                 ],
                 ['Test Number', 'Test Model', 'Not the main variation', 'Test Number 2', 'Test Model 2', 'Test Id'],
                 ['price' => 0.0, 'maxprice' => '', 'instead' => 0.0, 'variation_id' => 'Test Id', 'sort' => '2', 'keywords' => 'Main Tag']
@@ -1409,7 +1409,7 @@ class ProductTest extends TestCase
                     ]
                 ],
                 [
-                    'plentymarkets_tag' => [1]
+                    'cat_id' => [1]
                 ],
                 ['Test Number', 'Test Model', 'Not the main variation', 'Test Number 2', 'Test Model 2', 'Test Id'],
                 ['price' => 0.0, 'maxprice' => '', 'instead' => 0.0, 'variation_id' => 'Test Id', 'sort' => '2', 'keywords' => 'Main Tag']
@@ -1625,7 +1625,7 @@ class ProductTest extends TestCase
                     ]
                 ],
                 [
-                    'plentymarkets_tag' => [1, 2, 5]
+                    'cat_id' => [1, 2, 5]
                 ],
                 ['Test Number', 'Test Model', 'Not the main variation', 'Test Number 2', 'Test Model 2', 'Test Id'],
                 ['price' => 0.0, 'maxprice' => '', 'instead' => 0.0, 'variation_id' => 'Test Id', 'sort' => '2', 'keywords' => 'Main Tag,Another Main Tag,Third Tag']
