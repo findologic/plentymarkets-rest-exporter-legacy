@@ -1004,6 +1004,8 @@ class Product extends ParserAbstract
                 continue;
             }
 
+            $this->setAttributeField('plentymarkets_tag', $tag['tagId']);
+
             $correctTagName = $tag['tag']['tagName'];
 
             if (!empty($tag['tag']['names'])) {
