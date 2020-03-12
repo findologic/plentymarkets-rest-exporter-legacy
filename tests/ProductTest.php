@@ -1164,7 +1164,9 @@ class ProductTest extends TestCase
                         ]
                     ]
                 ],
-                '',
+                [
+                    'cat_id' => [1]
+                ],
                 ['Test Number', 'Test Model', 'Not the main variation', 'Test Number 2', 'Test Model 2', 'Test Id'],
                 ['price' => 0.0, 'maxprice' => '', 'instead' => 0.0, 'variation_id' => 'Test Id', 'sort' => '2', 'keywords' => 'I am a Tag']
             ],
@@ -1262,10 +1264,372 @@ class ProductTest extends TestCase
                         ]
                     ]
                 ],
-                '',
+                [
+                    'cat_id' => [1]
+                ],
                 ['Test Number', 'Test Model', 'Not the main variation', 'Test Number 2', 'Test Model 2', 'Test Id'],
                 ['price' => 0.0, 'maxprice' => '', 'instead' => 0.0, 'variation_id' => 'Test Id', 'sort' => '2', 'keywords' => 'Main Tag']
-            ]
+            ],
+            'No tags are set' => [
+                [
+                    [
+                        'position' => '1',
+                        'isMain' => false,
+                        'number' => 'Test Number',
+                        'model' => 'Test Model',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'availableUntil' => '2099-01-01T00:00:00+01:00',
+                        'id' => 'Not the main variation',
+                        'mainVariationId' => 'Test Id',
+                        'vatId' => 2,
+                        'automaticListVisibility' => 3,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [],
+                        'tags' => []
+                    ],
+                    [
+                        'position' => '2',
+                        'isMain' => true,
+                        'number' => 'Test Number 2',
+                        'model' => 'Test Model 2',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'availableUntil' => null,
+                        'id' => 'Test Id',
+                        'mainVariationId' => 'Test',
+                        'automaticListVisibility' => 3,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [],
+                        'tags' => []
+                    ]
+                ],
+                '',
+                ['Test Number', 'Test Model', 'Not the main variation', 'Test Number 2', 'Test Model 2', 'Test Id'],
+                [
+                    'price' => 0.0,
+                    'maxprice' => '',
+                    'instead' => 0.0,
+                    'variation_id' => 'Test Id',
+                    'sort' => '2',
+                ]
+            ],
+            'One tag is set' => [
+                [
+                    [
+                        'position' => '1',
+                        'isMain' => false,
+                        'number' => 'Test Number',
+                        'model' => 'Test Model',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'availableUntil' => '2099-01-01T00:00:00+01:00',
+                        'id' => 'Not the main variation',
+                        'mainVariationId' => 'Test Id',
+                        'vatId' => 2,
+                        'automaticListVisibility' => 3,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [],
+                        'tags' => [
+                            [
+                                'tagId' => 1,
+                                'tagType' => 'variation',
+                                'relationshipValue' => '1000',
+                                'relationshipUUID5' => '',
+                                'createdAt' => '2019-04-19T15:14:39+02:00',
+                                'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                'tag' => [
+                                    'id' => 1,
+                                    'tagName' => 'Main Tag',
+                                    'color' => '#ffffff',
+                                    'createdAt' => '2019-04-19T15:14:39+02:00',
+                                    'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                    'names' => [
+                                        [
+                                            'id' => 1,
+                                            'tagId' => '1',
+                                            'tagLang' => 'de',
+                                            'tagName' => 'Ich bin ein Tag'
+                                        ],
+                                        [
+                                            'id' => 2,
+                                            'tagId' => '2',
+                                            'tagLang' => 'fr',
+                                            'tagName' => 'Le France'
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ],
+                    [
+                        'position' => '2',
+                        'isMain' => true,
+                        'number' => 'Test Number 2',
+                        'model' => 'Test Model 2',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'availableUntil' => null,
+                        'id' => 'Test Id',
+                        'mainVariationId' => 'Test',
+                        'automaticListVisibility' => 3,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [],
+                        'tags' => [
+                            [
+                                'tagId' => 1,
+                                'tagType' => 'simple',
+                                'relationshipValue' => '1000',
+                                'relationshipUUID5' => '',
+                                'createdAt' => '2019-04-19T15:14:39+02:00',
+                                'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                'tag' => [
+                                    'id' => 1,
+                                    'tagName' => 'Main Tag',
+                                    'color' => '#ffffff',
+                                    'createdAt' => '2019-04-19T15:14:39+02:00',
+                                    'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                    'names' => [
+                                        [
+                                            'id' => 1,
+                                            'tagId' => '1',
+                                            'tagLang' => 'de',
+                                            'tagName' => 'Ich bin ein Tag'
+                                        ],
+                                        [
+                                            'id' => 2,
+                                            'tagId' => '2',
+                                            'tagLang' => 'fr',
+                                            'tagName' => 'Le France'
+                                        ]
+                                    ]
+                                ]
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    'cat_id' => [1]
+                ],
+                ['Test Number', 'Test Model', 'Not the main variation', 'Test Number 2', 'Test Model 2', 'Test Id'],
+                ['price' => 0.0, 'maxprice' => '', 'instead' => 0.0, 'variation_id' => 'Test Id', 'sort' => '2', 'keywords' => 'Main Tag']
+            ],
+            'Multiple tags are set' => [
+                [
+                    [
+                        'position' => '1',
+                        'isMain' => false,
+                        'number' => 'Test Number',
+                        'model' => 'Test Model',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'availableUntil' => '2099-01-01T00:00:00+01:00',
+                        'id' => 'Not the main variation',
+                        'mainVariationId' => 'Test Id',
+                        'vatId' => 2,
+                        'automaticListVisibility' => 3,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [],
+                        'tags' => [
+                            [
+                                'tagId' => 1,
+                                'tagType' => 'variation',
+                                'relationshipValue' => '1000',
+                                'relationshipUUID5' => '',
+                                'createdAt' => '2019-04-19T15:14:39+02:00',
+                                'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                'tag' => [
+                                    'id' => 1,
+                                    'tagName' => 'Main Tag',
+                                    'color' => '#ffffff',
+                                    'createdAt' => '2019-04-19T15:14:39+02:00',
+                                    'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                    'names' => [
+                                        [
+                                            'id' => 1,
+                                            'tagId' => '1',
+                                            'tagLang' => 'de',
+                                            'tagName' => 'Ich bin ein Tag'
+                                        ],
+                                        [
+                                            'id' => 2,
+                                            'tagId' => '2',
+                                            'tagLang' => 'fr',
+                                            'tagName' => 'Le France'
+                                        ]
+                                    ]
+                                ],
+                            ],
+                            [
+                                'tagId' => 2,
+                                'tagType' => 'variation',
+                                'relationshipValue' => '1000',
+                                'relationshipUUID5' => '',
+                                'createdAt' => '2019-04-19T15:14:39+02:00',
+                                'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                'tag' => [
+                                    'id' => 2,
+                                    'tagName' => 'Another Main Tag',
+                                    'color' => '#ffffff',
+                                    'createdAt' => '2019-04-19T15:14:39+02:00',
+                                    'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                    'names' => [
+                                        [
+                                            'id' => 1,
+                                            'tagId' => '1',
+                                            'tagLang' => 'de',
+                                            'tagName' => 'Ich bin ein Another Tag'
+                                        ],
+                                        [
+                                            'id' => 2,
+                                            'tagId' => '2',
+                                            'tagLang' => 'fr',
+                                            'tagName' => 'Le France Another Tag'
+                                        ]
+                                    ]
+                                ],
+                            ],
+                            [
+                                'tagId' => 5,
+                                'tagType' => 'variation',
+                                'relationshipValue' => '1000',
+                                'relationshipUUID5' => '',
+                                'createdAt' => '2019-04-19T15:14:39+02:00',
+                                'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                'tag' => [
+                                    'id' => 5,
+                                    'tagName' => 'Third Tag',
+                                    'color' => '#ffffff',
+                                    'createdAt' => '2019-04-19T15:14:39+02:00',
+                                    'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                    'names' => [
+                                        [
+                                            'id' => 1,
+                                            'tagId' => '1',
+                                            'tagLang' => 'de',
+                                            'tagName' => 'Ich bin ein Third Tag'
+                                        ],
+                                        [
+                                            'id' => 2,
+                                            'tagId' => '2',
+                                            'tagLang' => 'fr',
+                                            'tagName' => 'Le France Third Tag'
+                                        ]
+                                    ]
+                                ],
+                            ]
+                        ]
+                    ],
+                    [
+                        'position' => '2',
+                        'isMain' => true,
+                        'number' => 'Test Number 2',
+                        'model' => 'Test Model 2',
+                        'isActive' => true,
+                        'availability' => 1,
+                        'availableUntil' => null,
+                        'id' => 'Test Id',
+                        'mainVariationId' => 'Test',
+                        'automaticListVisibility' => 3,
+                        'variationAttributeValues' => [],
+                        'variationBarcodes' => [],
+                        'tags' => [
+                            [
+                                'tagId' => 1,
+                                'tagType' => 'simple',
+                                'relationshipValue' => '1000',
+                                'relationshipUUID5' => '',
+                                'createdAt' => '2019-04-19T15:14:39+02:00',
+                                'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                'tag' => [
+                                    'id' => 1,
+                                    'tagName' => 'Main Tag',
+                                    'color' => '#ffffff',
+                                    'createdAt' => '2019-04-19T15:14:39+02:00',
+                                    'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                    'names' => [
+                                        [
+                                            'id' => 1,
+                                            'tagId' => '1',
+                                            'tagLang' => 'de',
+                                            'tagName' => 'Ich bin ein Tag'
+                                        ],
+                                        [
+                                            'id' => 2,
+                                            'tagId' => '2',
+                                            'tagLang' => 'fr',
+                                            'tagName' => 'Le France'
+                                        ]
+                                    ]
+                                ],
+                            ],
+                            [
+                                'tagId' => 2,
+                                'tagType' => 'simple',
+                                'relationshipValue' => '1000',
+                                'relationshipUUID5' => '',
+                                'createdAt' => '2019-04-19T15:14:39+02:00',
+                                'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                'tag' => [
+                                    'id' => 2,
+                                    'tagName' => 'Another Main Tag',
+                                    'color' => '#ffffff',
+                                    'createdAt' => '2019-04-19T15:14:39+02:00',
+                                    'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                    'names' => [
+                                        [
+                                            'id' => 1,
+                                            'tagId' => '1',
+                                            'tagLang' => 'de',
+                                            'tagName' => 'Ich bin ein Another Tag'
+                                        ],
+                                        [
+                                            'id' => 2,
+                                            'tagId' => '2',
+                                            'tagLang' => 'fr',
+                                            'tagName' => 'Le France Another Tag'
+                                        ]
+                                    ]
+                                ],
+                            ],
+                            [
+                                'tagId' => 5,
+                                'tagType' => 'simple',
+                                'relationshipValue' => '1000',
+                                'relationshipUUID5' => '',
+                                'createdAt' => '2019-04-19T15:14:39+02:00',
+                                'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                'tag' => [
+                                    'id' => 5,
+                                    'tagName' => 'Third Tag',
+                                    'color' => '#ffffff',
+                                    'createdAt' => '2019-04-19T15:14:39+02:00',
+                                    'updatedAt' => '2019-04-19T15:14:39+02:00',
+                                    'names' => [
+                                        [
+                                            'id' => 1,
+                                            'tagId' => '1',
+                                            'tagLang' => 'de',
+                                            'tagName' => 'Ich bin ein Third Tag'
+                                        ],
+                                        [
+                                            'id' => 2,
+                                            'tagId' => '2',
+                                            'tagLang' => 'fr',
+                                            'tagName' => 'Le France Third Tag'
+                                        ]
+                                    ]
+                                ],
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    'cat_id' => [1, 2, 5]
+                ],
+                ['Test Number', 'Test Model', 'Not the main variation', 'Test Number 2', 'Test Model 2', 'Test Id'],
+                ['price' => 0.0, 'maxprice' => '', 'instead' => 0.0, 'variation_id' => 'Test Id', 'sort' => '2', 'keywords' => 'Main Tag,Another Main Tag,Third Tag']
+            ],
         ];
     }
 
@@ -2024,32 +2388,114 @@ class ProductTest extends TestCase
      */
     public function processImagesProvider()
     {
-        return array(
-            // No data provided, 'image' field should be empty
-            array(
+        return [
+            'No image data provided' => [
                 false,
                 ''
-            ),
-            // Image has only one image, 'image' field
-            array(
-                // Image
-                array(
-                    'itemId' => '1',
-                    'urlMiddle' => 'path'
-                ),
-                'path'
-            ),
-            // Image has multiple images so $data has array for images
-            array(
-                array(
-                    // First image
-                    array('urlMiddle' => 'path'),
-                    // Second image
-                    array('urlMiddle' => 'path')
-                ),
-                'path'
-            ),
-        );
+            ],
+            'First image is available in shop' => [
+                [
+                    [
+                        'itemId' => '1',
+                        'urlMiddle' => 'firstPath',
+                        'availabilities' => [
+                            [
+                                'type' => Product::AVAILABILITY_STORE
+                            ],
+                            [
+                                'type' => 'marketplace'
+                            ]
+                        ]
+                    ],
+                    [
+                        'itemId' => '2',
+                        'urlMiddle' => 'secondPath',
+                        'availabilities' => [
+                            [
+                                'type' => 'marketplace'
+                            ]
+                        ]
+                    ]
+                ],
+                'firstPath'
+            ],
+            'Last image is available in shop' => [
+                [
+                    [
+                        'itemId' => '1',
+                        'urlMiddle' => 'firstPath',
+                        'availabilities' => []
+                    ],
+                    [
+                        'itemId' => '2',
+                        'urlMiddle' => 'secondPath',
+                        'availabilities' => []
+                    ],
+                    [
+                        'itemId' => '3',
+                        'urlMiddle' => 'thirdPath',
+                        'availabilities' => [
+                            [
+                                'type' => Product::AVAILABILITY_STORE
+                            ]
+                        ]
+                    ]
+                ],
+                'thirdPath'
+            ],
+            'No images are available in shop' => [
+                [
+                    [
+                        'itemId' => '1',
+                        'urlMiddle' => 'firstPath',
+                        'availabilities' => []
+                    ],
+                    [
+                        'itemId' => '2',
+                        'urlMiddle' => 'secondPath',
+                        'availabilities' => []
+                    ],
+                    [
+                        'itemId' => '3',
+                        'urlMiddle' => 'thirdPath',
+                        'availabilities' => []
+                    ]
+                ],
+                ''
+            ],
+            'Image is available in a marketplace, but not in shop' => [
+                [
+                    [
+                        'itemId' => '1',
+                        'urlMiddle' => 'firstPath',
+                        'availabilities' => [
+                            [
+                                'imageId' => 11,
+                                'type' => 'marketplace',
+                                'value' => 1234
+                            ]
+                        ]
+                    ],
+                    [
+                        'itemId' => '2',
+                        'urlMiddle' => 'secondPath',
+                        'availabilities' => [
+                            [
+                                'imageId' => 22,
+                                'type' => 'marketplace',
+                                'value' => 1234
+                            ]
+                        ]
+                    ],
+                    [
+                        'itemId' => '3',
+                        'urlMiddle' => 'thirdPath',
+                        'availabilities' => []
+                    ]
+                ],
+                ''
+            ]
+        ];
     }
 
     /**
