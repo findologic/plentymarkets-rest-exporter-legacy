@@ -1004,6 +1004,8 @@ class Product extends ParserAbstract
                 continue;
             }
 
+            $this->setAttributeField('cat_id', $tag['tagId']);
+
             $correctTagName = $tag['tag']['tagName'];
 
             if (!empty($tag['tag']['names'])) {
