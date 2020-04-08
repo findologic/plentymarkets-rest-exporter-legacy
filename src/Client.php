@@ -461,6 +461,17 @@ class Client
      * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
      * @return array
      */
+    public function getPropertySelections(): array
+    {
+       $response = $this->call('GET', $this->getEndpoint('properties/selections'));
+
+        return $this->returnResult($response);
+    }
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
+     * @return array
+     */
     public function getItemProperties()
     {
         $response = $this->call('GET', $this->getEndpoint('items/properties', array('with' => 'names')));

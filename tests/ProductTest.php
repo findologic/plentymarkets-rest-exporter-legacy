@@ -2331,6 +2331,153 @@ class ProductTest extends TestCase
         $this->assertSame($expectedResult, $productMock->getField('attributes'));
     }
 
+    public function providerProcessVariationSpecificMultiselectProperties()
+    {
+        return [
+            'Single selection' => [
+                [
+                    10 => [
+                        'names' => [
+                            'EN' => 'testMultiselectProperty'
+                        ]
+                    ]
+                ],
+                [
+                    10 => [
+                        'selections' => [
+                            100 => [
+                                'EN' => 'enValue1'
+                            ],
+                            200 => [
+                                'EN' => 'enValue2'
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    [
+                        'property' => [
+                            'id' => '10',
+                        ],
+                        'propertyId' => '10',
+                        'relationTypeIdentifier' => 'item',
+                        'propertyRelation' => [
+                            'cast' => 'multiSelection'
+                        ],
+                        'relationValues' => [
+                            ['value' => 100]
+                        ]
+                    ]
+                ],
+                ['testMultiselectProperty' => [['enValue1']]],
+            ],
+            'Double selection' => [
+                [
+                    10 => [
+                        'names' => [
+                            'EN' => 'testMultiselectProperty'
+                        ]
+                    ]
+                ],
+                [
+                    10 => [
+                        'selections' => [
+                            100 => [
+                                'EN' => 'enValue1'
+                            ],
+                            200 => [
+                                'EN' => 'enValue2'
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    [
+                        'property' => [
+                            'id' => '10',
+                        ],
+                        'propertyId' => '10',
+                        'relationTypeIdentifier' => 'item',
+                        'propertyRelation' => [
+                            'cast' => 'multiSelection'
+                        ],
+                        'relationValues' => [
+                            ['value' => 100],
+                            ['value' => 200]
+                        ]
+                    ]
+                ],
+                ['testMultiselectProperty' => [['enValue1', 'enValue2']]],
+            ],
+            'No selection' => [
+                [
+                    10 => [
+                        'names' => [
+                            'EN' => 'testMultiselectProperty'
+                        ]
+                    ]
+                ],
+                [
+                    10 => [
+                        'selections' => [
+                            100 => [
+                                'EN' => 'enValue1'
+                            ],
+                            200 => [
+                                'EN' => 'enValue2'
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    [
+                        'property' => [
+                            'id' => '10',
+                        ],
+                        'propertyId' => '10',
+                        'relationTypeIdentifier' => 'item',
+                        'propertyRelation' => [
+                            'cast' => 'multiSelection'
+                        ],
+                        'relationValues' => []
+                    ]
+                ],
+                '',
+            ]
+        ];
+    }
+
+    /**
+     * @dataProvider providerProcessVariationSpecificMultiselectProperties
+     */
+    public function testProcessVariationSpecificMultiselectProperties($parsedPropiertiesData, $parsedSelectionsData, $data, $expectedResult)
+    {
+        $propertiesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Properties')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getLanguageCode'))
+            ->getMock();
+
+        $propertiesMock->expects($this->any())->method('getLanguageCode')->willReturn('EN');
+        $propertiesMock->setResults($parsedPropiertiesData);
+
+        $propertySelectionsMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\PropertySelections')
+            ->disableOriginalConstructor()
+            ->setMethods(array('getLanguageCode'))
+            ->getMock();
+
+        $propertySelectionsMock->expects($this->any())->method('getLanguageCode')->willReturn('EN');
+        $propertySelectionsMock->setResults($parsedSelectionsData);
+
+        $registryMock = $this->getRegistryMock();
+        $registryMock->set('Properties', $propertiesMock);
+        $registryMock->set('PropertySelections', $propertySelectionsMock);
+
+        $productMock = $this->getProductMock(array('handleEmptyData'), array('registry' => $registryMock));
+        $productMock->processVariationSpecificProperties($data);
+
+        $this->assertSame($expectedResult, $productMock->getField('attributes'));
+    }
+
     public function testDoesNotProcessVariationSpecificPropertiesWhenDataIsUnavailable()
     {
         $registryMock = $this->getMockBuilder(Registry::class)
