@@ -461,6 +461,26 @@ class Client
      * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
      * @return array
      */
+    public function getPropertySelections(): array
+    {
+        try {
+            $response = $this->call('GET', $this->getEndpoint('properties/selections'));
+        } catch (CustomerException $e) {
+            $this->getCustomerLog()->warning(sprintf(
+                'Permission "%s" is not set! This causes multiSelect properties to not be exported!',
+                'setup.property.selection.show'
+            ));
+
+            return [];
+        }
+
+        return $this->returnResult($response);
+    }
+
+    /**
+     * @codeCoverageIgnore - Ignore this method as actual call to API is not tested
+     * @return array
+     */
     public function getItemProperties()
     {
         $response = $this->call('GET', $this->getEndpoint('items/properties', array('with' => 'names')));
@@ -715,7 +735,11 @@ class Client
         }
 
         if ($response->getStatusCode() == 403) {
-            throw new CustomerException('Provided REST client does not have access rights for method with URL: ' . $request->getUri());
+            throw new CustomerException(sprintf(
+                'Provided REST client does not have access rights for method with URL: %s Response: %s',
+                $request->getUri(),
+                $response->getBody()->__toString()
+            ));
         }
 
         if ($response->getStatusCode() == 429) {
