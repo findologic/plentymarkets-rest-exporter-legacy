@@ -5,6 +5,7 @@ namespace Findologic\Plentymarkets\Tests;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\Response;
+use http\Message\Body;
 use ReflectionException;
 
 trait ClientHelper
@@ -45,7 +46,8 @@ trait ClientHelper
             ->setMethods(['getStatusCode', 'getBody', 'getReasonPhrase', 'getHeaderLine'])
             ->getMock();
 
-        $responseMock->expects($this->any())->method('getBody')->willReturn($body);
+        $responseBody = (new Response(200, [], $body))->getBody();
+        $responseMock->expects($this->any())->method('getBody')->willReturn($responseBody);
         $responseMock->expects($this->any())->method('getStatusCode')->willReturn($status);
 
         if ($defaultHeaders) {

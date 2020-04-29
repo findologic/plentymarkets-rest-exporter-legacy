@@ -387,6 +387,7 @@ class ClientTest extends TestCase
         $httpClientMock = $this->getHttpClientMock(['send']);
         $httpClientMock->expects($this->any())->method('send')->willReturn($response);
 
+        /** @var Client|MockObject $clientMock */
         $clientMock = $this->getMockBuilder(Client::class)
             ->setConstructorArgs([$configMock, $logMock, $logMock, $httpClientMock])
             ->setMethods(['createRequest'])
