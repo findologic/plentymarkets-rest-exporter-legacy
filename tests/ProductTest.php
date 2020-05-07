@@ -2348,9 +2348,6 @@ class ProductTest extends TestCase
                             100 => [
                                 'EN' => 'enValue1'
                             ],
-                            200 => [
-                                'EN' => 'enValue2'
-                            ]
                         ]
                     ]
                 ],
@@ -2369,7 +2366,7 @@ class ProductTest extends TestCase
                         ]
                     ]
                 ],
-                ['testMultiselectProperty' => [['enValue1']]],
+                ['testMultiselectProperty' => ['enValue1']],
             ],
             'Double selection' => [
                 [
@@ -2407,7 +2404,7 @@ class ProductTest extends TestCase
                         ]
                     ]
                 ],
-                ['testMultiselectProperty' => [['enValue1', 'enValue2']]],
+                ['testMultiselectProperty' => ['enValue1', 'enValue2']],
             ],
             'No selection' => [
                 [
@@ -2418,7 +2415,7 @@ class ProductTest extends TestCase
                     ]
                 ],
                 [
-                    10 => [
+                    11 => [
                         'selections' => [
                             100 => [
                                 'EN' => 'enValue1'
