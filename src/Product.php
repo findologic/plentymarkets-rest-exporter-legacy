@@ -3,6 +3,7 @@
 namespace Findologic\Plentymarkets;
 
 use Findologic\Plentymarkets\Parser\ParserAbstract;
+use Findologic\Plentymarkets\Parser\PropertySelections;
 use Findologic\Plentymarkets\Parser\Units;
 use Findologic\Plentymarkets\Parser\ItemProperties;
 use Findologic\Plentymarkets\Parser\Properties;
@@ -592,18 +593,32 @@ class Product extends ParserAbstract
             } else if ($property['propertyRelation']['cast'] == 'selection') {
                 $value = $properties->getPropertySelectionValue($property['propertyId'], $property['relationValues'][0]['value']);
             } else if ($property['propertyRelation']['cast'] == 'multiSelection') {
+                /** @var PropertySelections $propertySelections */
                 $propertySelections = $this->registry->get('PropertySelections');
-                $value = $propertySelections->getPropertySelectionValue($property['propertyId'], $property['relationValues']);
+                $value = $propertySelections->getPropertySelectionValue((int)$property['propertyId']);
             } else {
                 $value = $property['relationValues'][0]['value'] ?? null;
             }
 
-            if ($propertyName != null && $value != "null" && $value != null && $value != $this->getDefaultEmptyValue()) {
+            if ($this->isPropertyEmpty($propertyName, $value)) {
+                continue; // Ignore empty properties.
+            }
+
+            if (is_array($value)) {
+                foreach ($value as $singleValue) {
+                    $this->setAttributeField($propertyName, $singleValue);
+                }
+            } else {
                 $this->setAttributeField($propertyName, $value);
             }
         }
 
         return $this;
+    }
+
+    private function isPropertyEmpty($propertyName, $value): bool
+    {
+        return ($propertyName == null || $value == "null" || $value == null || $value == $this->getDefaultEmptyValue());
     }
 
     /**
