@@ -203,70 +203,78 @@ class ProductTest extends TestCase
      */
     public function processInitialDataProvider()
     {
-        return array(
+        return [
             // No data given, item object should not have any information
-            array('', '1', array(), array()),
+            ['', '1', [], [], ''],
             // Product initial data provided but the texts array is empty
-            array(
+            [
                 1,
                 '1',
-                array(
+                [
                     'id' => 1,
                     'createdAt' => '2001-12-12 14:12:45'
-                ),
-                array()
-            ),
+                ],
+                [],
+                ''
+            ],
             // Product initial data provided but the texts data is not in language configured in export config,
             // texts should be null
-            array(
+            [
                 1,
                 '1',
-                array(
+                [
                     'id' => 1,
                     'createdAt' => '2001-12-12 14:12:45',
-                    'texts' => array(
-                        array(
+                    'texts' => [
+                        [
                             'lang' => 'lt',
                             'name1' => 'Test',
                             'shortDescription' => 'Short Description',
                             'description' => 'Description',
                             'keywords' => 'Keyword'
-                        )
-                    )
-                ),
-                array(
+                        ]
+                    ]
+                ],
+                [
                     'name' => '',
                     'summary' => '',
                     'description' => '',
                     'keywords' => ''
-                )
-            ),
+                ],
+                ''
+            ],
             // Product initial data provided, item should have an id and appropriate texts fields (description, meta description, etc.)
-            array(
+            [
                 1,
                 2,
-                array(
+                [
                     'id' => 1,
                     'createdAt' => '2001-12-12 14:12:45',
-                    'texts' => array(
-                        array(
+                    'texts' => [
+                        [
                             'lang' => 'en',
                             'name1' => 'Test',
                             'name2' => 'Test 2',
                             'shortDescription' => 'Short Description',
                             'description' => 'Description',
                             'keywords' => 'Keyword'
-                        )
-                    )
-                ),
-                array(
+                        ]
+                    ],
+                    'free1' => null,
+                    'free2' => '',
+                    'free3' => '0',
+                    'free4' => 100,
+                    'free5' => 'value'
+                ],
+                [
                     'name' => 'Test 2',
                     'summary' => 'Short Description',
                     'description' => 'Description',
                     'keywords' => 'Keyword'
-                )
-            ),
-        );
+                ],
+                ['free3' => ['0'], 'free4' => [100], 'free5' => ['value']]
+            ]
+        ];
     }
 
     /**
@@ -274,12 +282,13 @@ class ProductTest extends TestCase
      *
      * @dataProvider processInitialDataProvider
      */
-    public function testProcessInitialData($itemId, $productNameId, $data, $texts)
+    public function testProcessInitialData($itemId, $productNameId, $data, $texts, $attributes)
     {
         $productMock = $this->getProductMock();
         $productMock->setProductNameFieldId($productNameId);
         $productMock->processInitialData($data);
 
+        $this->assertSame($attributes, $productMock->getField('attributes'));
         $this->assertSame($itemId, $productMock->getItemId());
         $this->assertSame($itemId, $productMock->getField('id'));
         foreach ($texts as $field => $value) {
