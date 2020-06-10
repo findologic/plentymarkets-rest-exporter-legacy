@@ -386,6 +386,7 @@ class Product extends ParserAbstract
 
         $this->processManufacturer($this->getFromArray($data, 'manufacturerId'));
         $this->processTexts($data);
+        $this->processFreeTextFields($data);
 
         return $this;
     }
@@ -1018,6 +1019,33 @@ class Product extends ParserAbstract
                 ->setField('description', $this->getFromArray($texts, 'description'))
                 ->setField('url', $this->getProductFullUrl($this->getFromArray($texts, 'urlPath')))
                 ->setField('keywords', $this->getFromArray($texts, 'keywords'));
+        }
+
+        return $this;
+    }
+
+    /**
+     * @param array $data
+     * @return $this
+     */
+    protected function processFreeTextFields(array $data)
+    {
+        $freeTexts = [];
+        for ($i = 0; $i <= 20; $i++) {
+            if (!isset($data['free' . $i]) || $data['free' . $i] == '') {
+                continue;
+            }
+            $freeTexts['free' . $i] = $data['free' . $i];
+        }
+
+        if (empty($freeTexts)) {
+            $this->handleEmptyData();
+
+            return $this;
+        }
+
+        foreach ($freeTexts as $key => $freeText) {
+            $this->setAttributeField($key, $freeText);
         }
 
         return $this;
