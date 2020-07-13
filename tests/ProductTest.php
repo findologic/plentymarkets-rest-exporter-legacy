@@ -2449,7 +2449,44 @@ class ProductTest extends TestCase
                     ]
                 ],
                 '',
-            ]
+            ],
+            'Two values - one selected' => [
+                [
+                    10 => [
+                        'names' => [
+                            'EN' => 'testMultiselectProperty'
+                        ]
+                    ]
+                ],
+                [
+                    10 => [
+                        'selections' => [
+                            100 => [
+                                'EN' => 'enValue1'
+                            ],
+                            200 => [
+                                'EN' => 'enValue2'
+                            ]
+                        ]
+                    ]
+                ],
+                [
+                    [
+                        'property' => [
+                            'id' => '10',
+                        ],
+                        'propertyId' => '10',
+                        'relationTypeIdentifier' => 'item',
+                        'propertyRelation' => [
+                            'cast' => 'multiSelection'
+                        ],
+                        'relationValues' => [
+                            ['value' => 100],
+                        ]
+                    ]
+                ],
+                ['testMultiselectProperty' => ['enValue1']],
+            ],
         ];
     }
 

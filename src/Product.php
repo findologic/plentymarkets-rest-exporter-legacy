@@ -596,7 +596,7 @@ class Product extends ParserAbstract
             } else if ($property['propertyRelation']['cast'] == 'multiSelection') {
                 /** @var PropertySelections $propertySelections */
                 $propertySelections = $this->registry->get('PropertySelections');
-                $value = $propertySelections->getPropertySelectionValue((int)$property['propertyId']);
+                $value = $propertySelections->getPropertySelectionValue($property['propertyId'], $property['relationValues']);
             } else {
                 $value = $property['relationValues'][0]['value'] ?? null;
             }
