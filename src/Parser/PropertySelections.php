@@ -34,18 +34,23 @@ class PropertySelections extends ParserAbstract implements ParserInterface
     }
 
     /**
-     * @param int $id
+     * @param int $propertyId Id of the relation.
+     * @param array $ids Ids of the properties, that are associated to this property.
      * @return array|null
      */
-    public function getPropertySelectionValue(int $id): ?array
+    public function getPropertySelectionValue(int $propertyId, array $ids): ?array
     {
-        if (!isset($this->results[$id]) || !isset($this->results[$id]['selections'])) {
+        if (!isset($this->results[$propertyId])) {
             return null;
         }
 
+        $selection = $this->results[$propertyId]['selections'];
+
         $values = [];
-        foreach ($this->results[$id]['selections'] as $propertyId => $propertyValue) {
-            $values[] = $propertyValue[strtoupper($this->getLanguageCode())];
+        foreach ($ids as $id) {
+            if (isset($selection[$id['value']])) {
+                $values[] = $selection[$id['value']][strtoupper($this->getLanguageCode())];
+            }
         }
 
         return $values ?? null;
