@@ -719,7 +719,7 @@ class Exporter
             // If shop has no properties set don't request properties as it increases the export time without benefit.
             $allProperties = array_merge($itemProperties->getResults(), $properties->getResults());
             if (!empty($allProperties)) {
-                $variationValues[] = 'properties';
+                $variationValues[] = 'properties.property';
             }
         }
 
