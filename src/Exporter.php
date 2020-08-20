@@ -414,6 +414,7 @@ class Exporter
         $variations = array();
         $itemIds = array_keys($productsData);
 
+        $this->getLog()->info('Getting all variants for products...');
         while ($continue) {
             $this->getClient()->setItemsPerPage(self::NUMBER_OF_ITEMS_PER_PAGE)->setPage($page);
             $result = $this->getClient()->getProductVariations(
@@ -421,6 +422,7 @@ class Exporter
                 $this->getRequiredVariationValues(),
                 $this->getStorePlentyId()
             );
+            $this->getLog()->info(sprintf('Page %d of %d variants pages have been fetched...', $page, $result['lastPageNumber']));
 
             if (isset($result['entries'])) {
                 while (($variation = array_shift($result['entries']))) {
@@ -694,17 +696,17 @@ class Exporter
 
         $categories = $this->registry->get('categories');
         if ($categories && !empty($categories->getResults())) {
-            $variationValues[] = 'variationCategories';
+            $variationValues[] = 'categories';
         }
 
         $salesPrices = $this->registry->get('salesprices');
         if ($salesPrices && !empty($salesPrices->getResults())) {
-            $variationValues[] = 'variationSalesPrices';
+            $variationValues[] = 'salesPrices';
         }
 
         $attributes = $this->registry->get('attributes');
         if ($attributes && !empty($attributes->getResults())) {
-            $variationValues[] = 'variationAttributeValues';
+            $variationValues[] = 'attributeValues';
         }
 
         // itemProperties aka. Eigenschaften
@@ -717,21 +719,21 @@ class Exporter
             // If shop has no properties set don't request properties as it increases the export time without benefit.
             $allProperties = array_merge($itemProperties->getResults(), $properties->getResults());
             if (!empty($allProperties)) {
-                $variationValues[] = 'variationProperties';
+                $variationValues[] = 'properties';
             }
         }
 
         $units = $this->registry->get('units');
         if ($units && !empty($units->getResults())) {
-            $variationValues[] = 'units';
+            $variationValues[] = 'units.unit';
         }
 
         array_push(
             $variationValues,
-            'variationBarcodes',
-            'variationClients',
+            'barcodes',
+            'clients',
             'properties',
-            'itemImages',
+            'images.image',
             'tags'
         );
 

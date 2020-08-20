@@ -580,7 +580,7 @@ class Client
             $params['plentyId'] = $storePlentyId;
         }
 
-        $response = $this->call('GET', $this->getEndpoint('items/variations', $params));
+        $response = $this->call('GET', $this->getEndpoint('pim/variations', $params));
 
         return $this->returnResult($response);
     }
