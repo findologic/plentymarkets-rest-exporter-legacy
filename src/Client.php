@@ -573,7 +573,9 @@ class Client
         $params = [
             'with' => $with,
             'isActive' => true,
-            'itemId' => $productIds
+            'isSalable' => true,
+            'itemIds' => $productIds,
+            'sortBy' => 'itemId_asc',
         ];
 
         if ($storePlentyId) {
@@ -679,6 +681,7 @@ class Client
                     RequestOptions::FORM_PARAMS => $params,
                     RequestOptions::HTTP_ERRORS => false
                 ]);
+                $this->getLog()->info($request->getUri()->__toString());
 
                 if ($this->debug) {
                     $this->debug->debugCall($request, $response);

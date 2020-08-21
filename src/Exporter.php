@@ -426,10 +426,10 @@ class Exporter
 
             if (isset($result['entries'])) {
                 while (($variation = array_shift($result['entries']))) {
-                    if (array_key_exists($variation['itemId'], $variations)) {
-                        $variations[$variation['itemId']][] = $variation;
+                    if (array_key_exists($variation['base']['itemId'], $variations)) {
+                        $variations[$variation['base']['itemId']][] = $variation;
                     } else {
-                        $variations[$variation['itemId']] = array($variation);
+                        $variations[$variation['base']['itemId']] = array($variation);
                     }
 
                     unset($variation);
@@ -461,12 +461,17 @@ class Exporter
                     continue;
                 }
 
-                if (isset($variation['itemImages'])) {
-                    $product->processImages($variation['itemImages']);
+                if (isset($variation['images'])) {
+                    $variationImages = array_map(function ($variationImage) {
+                        return $variationImage['image'];
+                    }, $variation['images']);
+
+                    $images = array_merge($variation['base']['images'], $variationImages);
+                    $product->processImages($images);
                 }
 
-                if (isset($variation['variationProperties'])) {
-                    $product->processVariationsProperties($variation['variationProperties']);
+                if (isset($variation['base']['characteristics'])) {
+                    $product->processVariationsProperties($variation['base']['characteristics']);
                 }
 
                 if (isset($variation['properties'])) {
@@ -734,7 +739,10 @@ class Exporter
             'clients',
             'properties',
             'images.image',
-            'tags'
+            'tags.tag',
+            'base.item',
+            'base.characteristics',
+            'base.images'
         );
 
         return $variationValues;

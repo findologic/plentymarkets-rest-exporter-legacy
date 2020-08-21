@@ -421,20 +421,20 @@ class Product extends ParserAbstract
             return false;
         }
 
-        if ($variation['isMain'] || $this->getField('sort') === '') {
-            $this->setField('sort', $this->getFromArray($variation, 'position'));
+        if ($this->getField('sort') === '') {
+            $this->setField('sort', $this->getFromArray($variation['base'], 'position'));
         }
 
         $this->setField(
             'taxrate',
-            $this->getRegistry()->get('vat')->getVatRateByVatId($this->getFromArray($variation, 'vatId'))
+            $this->getRegistry()->get('vat')->getVatRateByVatId($this->getFromArray($variation['base'], 'vatId'))
         );
 
         $this->processVariationIdentifiers($variation)
-            ->processVariationCategories($this->getFromArray($variation, 'variationCategories'))
-            ->processVariationGroups($this->getFromArray($variation, 'variationClients'))
-            ->processVariationPrices($this->getFromArray($variation, 'variationSalesPrices'))
-            ->processVariationAttributes($this->getFromArray($variation, 'variationAttributeValues'))
+            ->processVariationCategories($this->getFromArray($variation, 'categories'))
+            ->processVariationGroups($this->getFromArray($variation, 'clients'))
+            ->processVariationPrices($this->getFromArray($variation, 'salesPrices'))
+            ->processVariationAttributes($this->getFromArray($variation, 'attributeValues'))
             ->processUnits($this->getFromArray($variation, 'unit'))
             ->processTags($this->getFromArray($variation, 'tags'));
 
@@ -519,13 +519,17 @@ class Product extends ParserAbstract
             return $this;
         }
 
+        // TODO: Add this once we know how. Data like isSearchable, propertyGroupId, backendName are missing.
+        return $this;
+
         foreach ($data as $property) {
-            if (isset($property['property']['isSearchable']) && !$property['property']['isSearchable']) {
-                continue;
-            }
+            // Current API does not support isSearchable.
+//            if (isset($property['property']['isSearchable']) && !$property['property']['isSearchable']) {
+//                continue;
+//            }
 
             if (
-                $property['property']['valueType'] === 'empty' &&
+                $property['valueType'] === 'empty' &&
                 (!isset($property['property']['propertyGroupId']) || empty($property['property']['propertyGroupId']))
             ) {
                 continue;
@@ -573,32 +577,32 @@ class Product extends ParserAbstract
         }
 
         foreach ($data as $property) {
-            if ($property['relationTypeIdentifier'] != ItemProperties::PROPERTY_TYPE_ITEM) {
+            if ($property['property']['typeIdentifier'] != ItemProperties::PROPERTY_TYPE_ITEM) {
                 continue;
             }
 
             $propertyName = $properties->getPropertyName($property['propertyId']);
             $value = null;
 
-            if ($property['propertyRelation']['cast'] == 'empty') {
+            if ($property['property']['cast'] == 'empty') {
                 $value = $propertyName;
                 $propertyName = $properties->getPropertyGroupName($property['propertyId']);
-            } else if ($property['propertyRelation']['cast'] == 'shortText' || $property['propertyRelation']['cast'] == 'longText') {
-                foreach ($property['relationValues'] as $relationValue) {
+            } else if ($property['property']['cast'] == 'shortText' || $property['property']['cast'] == 'longText') {
+                foreach ($property['values'] as $relationValue) {
                     if (strtoupper($relationValue['lang']) != strtoupper($this->getLanguageCode())) {
                         continue;
                     }
 
                     $value = $relationValue['value'];
                 }
-            } else if ($property['propertyRelation']['cast'] == 'selection') {
-                $value = $properties->getPropertySelectionValue($property['propertyId'], $property['relationValues'][0]['value']);
-            } else if ($property['propertyRelation']['cast'] == 'multiSelection') {
+            } else if ($property['property']['cast'] == 'selection') {
+                $value = $properties->getPropertySelectionValue($property['propertyId'], $property['values'][0]['value']);
+            } else if ($property['property']['cast'] == 'multiSelection') {
                 /** @var PropertySelections $propertySelections */
                 $propertySelections = $this->registry->get('PropertySelections');
-                $value = $propertySelections->getPropertySelectionValue($property['propertyId'], $property['relationValues']);
+                $value = $propertySelections->getPropertySelectionValue($property['propertyId'], $property['values']);
             } else {
-                $value = $property['relationValues'][0]['value'] ?? null;
+                $value = $property['values'][0]['value'] ?? null;
             }
 
             if ($this->isPropertyEmpty($propertyName, $value)) {
@@ -789,19 +793,15 @@ class Product extends ParserAbstract
      */
     protected function shouldProcessVariation(array $variation)
     {
-        if ($variation['isActive'] === false) {
+        if (isset($variation['base']['automaticListVisibility']) && $variation['base']['automaticListVisibility'] < 1) {
             return false;
         }
 
-        if (isset($variation['automaticListVisibility']) && $variation['automaticListVisibility'] < 1) {
+        if (isset($variation['base']['availableUntil']) && !$this->isDateStillAvailable($variation['base']['availableUntil'])) {
             return false;
         }
 
-        if (isset($variation['availableUntil']) && !$this->isDateStillAvailable($variation['availableUntil'])) {
-            return false;
-        }
-
-        if (!$this->isProductAvailable($variation['availability'])) {
+        if (!$this->isProductAvailable($variation['base']['availability'])) {
             return false;
         }
 
@@ -853,16 +853,18 @@ class Product extends ParserAbstract
             $this->setField('ordernumber', array());
         }
 
-        if ($this->getField('variation_id') == $this->getDefaultEmptyValue() || $variation['isMain']) {
+        if ($this->getField('variation_id') == $this->getDefaultEmptyValue()) {
             $this->setField('variation_id', $variation['id']);
         }
 
         foreach ($identificators as $identificator) {
-            $this->addVariationIdentifier($this->getFromArray($variation, $identificator));
+            $data = $identificator === 'id' ? $variation : $variation['base'];
+
+            $this->addVariationIdentifier($this->getFromArray($data, $identificator));
         }
 
-        if (isset($variation['variationBarcodes'])) {
-            $this->processVariationsBarcodes($variation['variationBarcodes']);
+        if (isset($variation['barcodes'])) {
+            $this->processVariationsBarcodes($variation['barcodes']);
         }
 
         return $this;
@@ -1071,10 +1073,6 @@ class Product extends ParserAbstract
         }
 
         foreach ($data as $tag) {
-            if ($tag['tagType'] !== 'variation') {
-                continue;
-            }
-
             $this->setAttributeField('cat_id', $tag['tagId']);
 
             $correctTagName = $tag['tag']['tagName'];
