@@ -519,34 +519,34 @@ class Product extends ParserAbstract
             return $this;
         }
 
-        // TODO: Add this once we know how. Data like isSearchable, propertyGroupId, backendName are missing.
-        return $this;
-
+        /** @var ItemProperties $properties */
+        $properties = $this->registry->get('ItemProperties');
         foreach ($data as $property) {
-            // Current API does not support isSearchable.
-//            if (isset($property['property']['isSearchable']) && !$property['property']['isSearchable']) {
-//                continue;
-//            }
+            $propertyData = $properties->getProperty($property['propertyId']);
+
+            if (isset($propertyData['isSearchable']) && !$propertyData['isSearchable']) {
+                continue;
+            }
 
             if (
-                $property['valueType'] === 'empty' &&
-                (!isset($property['property']['propertyGroupId']) || empty($property['property']['propertyGroupId']))
+                $propertyData['valueType'] === 'empty' &&
+                (!isset($propertyData['propertyGroupId']) || empty($propertyData['propertyGroupId']))
             ) {
                 continue;
             }
 
-            $value = $this->getPropertyValue($property);
+            $value = $this->getPropertyValue($propertyData);
 
             // If there is no valid value for the property, use its name as value and the group name as the
             // property name.
             // Properties of type "empty" are a special case since they never have a value of their own.
-            if ($property['property']['valueType'] === 'empty') {
-                $propertyName = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
+            if ($propertyData['valueType'] === 'empty') {
+                $propertyName = $this->getPropertyGroupForPropertyName($propertyData['propertyGroupId']);
             } elseif ($value === $this->getDefaultEmptyValue()) {
-                $propertyName = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
-                $value = $this->getPropertyName($property);
+                $propertyName = $this->getPropertyGroupForPropertyName($propertyData['propertyGroupId']);
+                $value = $this->getPropertyName($propertyData);
             } else {
-                $propertyName = $this->getPropertyName($property);
+                $propertyName = $this->getPropertyName($propertyData);
             }
 
             if ($propertyName != null && $value != "null" && $value != null && $value != $this->getDefaultEmptyValue()) {
@@ -730,13 +730,13 @@ class Product extends ParserAbstract
      */
     protected function getPropertyValue(array $property)
     {
-        $propertyType = $property['property']['valueType'];
+        $propertyType = $property['valueType'];
         $value = $this->getDefaultEmptyValue();
 
         switch ($propertyType) {
             case 'empty':
-                $value = $property['property']['backendName'];
-                if ($propertyName = $this->registry->get('ItemProperties')->getPropertyName($property['property']['id'])) {
+                $value = $property['backendName'];
+                if ($propertyName = $this->registry->get('ItemProperties')->getPropertyName($property['id'])) {
                     $value = $propertyName;
                 }
                 break;

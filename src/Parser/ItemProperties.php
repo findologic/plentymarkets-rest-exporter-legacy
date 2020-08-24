@@ -22,9 +22,15 @@ class ItemProperties extends ParserAbstract implements ParserInterface
 
         foreach ($data['entries'] as $property) {
             $this->results[$property['id']] = [
+                'id' => $property['id'],
                 'backendName' => $property['backendName'],
                 'propertyGroupId' => $property['propertyGroupId'],
-                'propertyGroups' => array()
+                'propertyGroups' => array(),
+                'isSearchable' => $property['isSearchable'],
+                'valueType' => $property['valueType'],
+                'selections' => $property['selections'],
+                'valueInt' => $property['valueInt'],
+                'valueFloat' => $property['valueFloat'],
             ];
 
             if (isset($property['names'])) {
@@ -53,5 +59,13 @@ class ItemProperties extends ParserAbstract implements ParserInterface
         }
 
         return $this->getDefaultEmptyValue();
+    }
+
+    /**
+     * Returns a single property by the given id. Null may be returned in case the given id can not be found.
+     */
+    public function getProperty(string $id): ?array
+    {
+        return $this->results[$id] ?? null;
     }
 }
