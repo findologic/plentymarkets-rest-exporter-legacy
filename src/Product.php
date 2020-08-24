@@ -535,7 +535,7 @@ class Product extends ParserAbstract
                 continue;
             }
 
-            $value = $this->getPropertyValue($propertyData);
+            $value = $this->getPropertyValue($propertyData, $property);
 
             // If there is no valid value for the property, use its name as value and the group name as the
             // property name.
@@ -710,11 +710,11 @@ class Product extends ParserAbstract
      */
     protected function getPropertyName(array $property)
     {
-        $name = $property['property']['backendName'];
+        $name = $property['backendName'];
 
         /** @var ItemProperties $properties */
         $properties = $this->registry->get('ItemProperties');
-        $propertyName = $properties->getPropertyName($property['property']['id']);
+        $propertyName = $properties->getPropertyName($property['id']);
 
         if ($propertyName && $propertyName != $this->getDefaultEmptyValue()) {
             $name = $propertyName;
@@ -728,7 +728,7 @@ class Product extends ParserAbstract
      * @param array $property
      * @return string
      */
-    protected function getPropertyValue(array $property)
+    protected function getPropertyValue(array $property, array $productProperty)
     {
         $propertyType = $property['valueType'];
         $value = $this->getDefaultEmptyValue();
@@ -741,9 +741,8 @@ class Product extends ParserAbstract
                 }
                 break;
             case 'text':
-                // For some specific shops the structure of text property is different and do not have 'names' field
-                if (isset($property['names'])) {
-                    foreach ($property['names'] as $name) {
+                if (isset($productProperty['valueTexts'])) {
+                    foreach ($productProperty['valueTexts'] as $name) {
                         if (strtoupper($name['lang']) == $this->getLanguageCode()) {
                             $value = $name['value'];
                             break;
@@ -752,7 +751,7 @@ class Product extends ParserAbstract
                 }
                 break;
             case 'selection':
-                foreach ($property['propertySelection'] as $selection) {
+                foreach ($productProperty['propertySelection'] as $selection) {
                     if (strtoupper($selection['lang']) != $this->getLanguageCode()) {
                         continue;
                     }

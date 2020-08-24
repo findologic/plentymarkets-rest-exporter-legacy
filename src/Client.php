@@ -483,7 +483,7 @@ class Client
      */
     public function getItemProperties()
     {
-        $response = $this->call('GET', $this->getEndpoint('items/properties', array('with' => 'names,selections')));
+        $response = $this->call('GET', $this->getEndpoint('items/properties', array('with' => 'names', 'selections')));
 
         return $this->returnResult($response);
     }

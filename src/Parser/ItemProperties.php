@@ -28,9 +28,9 @@ class ItemProperties extends ParserAbstract implements ParserInterface
                 'propertyGroups' => array(),
                 'isSearchable' => $property['isSearchable'],
                 'valueType' => $property['valueType'],
-                'selections' => $property['selections'],
-                'valueInt' => $property['valueInt'],
-                'valueFloat' => $property['valueFloat'],
+                'selections' => $property['selections'] ?? [],
+                'valueInt' => $property['valueInt'] ?? null,
+                'valueFloat' => $property['valueFloat'] ?? null,
             ];
 
             if (isset($property['names'])) {
