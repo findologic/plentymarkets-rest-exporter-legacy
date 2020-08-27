@@ -681,7 +681,6 @@ class Client
                     RequestOptions::FORM_PARAMS => $params,
                     RequestOptions::HTTP_ERRORS => false
                 ]);
-                $this->getLog()->info($request->getUri()->__toString());
 
                 if ($this->debug) {
                     $this->debug->debugCall($request, $response);

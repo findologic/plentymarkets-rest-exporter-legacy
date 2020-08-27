@@ -14,6 +14,7 @@ use Findologic\Plentymarkets\Parser\Vat;
 use Findologic\Plentymarkets\Product;
 use Findologic\Plentymarkets\Registry;
 use Findologic\Plentymarkets\Tests\ClientHelper;
+use Findologic\Plentymarkets\Tests\MockResponseHelper;
 use Findologic\Plentymarkets\Wrapper\Csv;
 use Findologic\Plentymarkets\Wrapper\WrapperInterface;
 use Log4Php\Logger;
@@ -26,6 +27,7 @@ use ReflectionException;
 class ExporterTest extends TestCase
 {
     use ClientHelper;
+    use MockResponseHelper;
 
     public function initProvider()
     {
@@ -302,41 +304,7 @@ class ExporterTest extends TestCase
         $clientMock->expects($this->any())->method('getConfig')->willReturn($this->getConfigMock());
         $clientMock->expects($this->any())
             ->method('getProductVariations')
-            ->willReturn(
-                [
-                    'entries' => [
-                        [
-                            'id' => 'Test',
-                            'itemId' => '1',
-                            'isActive' => true,
-                            'availability' => 1,
-                            'variationCategories' => [
-                                [
-                                    'categoryId' => '1'
-                                ]
-                            ],
-                            'itemImages' => [],
-                            'variationProperties' => [],
-                            'properties' => []
-                        ],
-                        [
-                            'id' => 'Test',
-                            'itemId' => '1',
-                            'isActive' => true,
-                            'availability' => 1,
-                            'variationCategories' => [
-                                [
-                                    'categoryId' => '1'
-                                ]
-                            ],
-                            'itemImages' => [],
-                            'variationProperties' => [],
-                            'properties' => []
-                        ]
-                    ],
-                    'isLastPage' => true
-                ]
-            );
+            ->willReturn($this->getMockResponse('/pim/variations/one_variation.json'));
 
         $exporterMock = $this->getExporterMockBuilder(['client' => $clientMock]);
         $exporterMock->setMethods(['createProductItem']);
@@ -372,61 +340,25 @@ class ExporterTest extends TestCase
                 ]
             )->getMock();
 
-        $productMock->expects($this->exactly(2))->method('processVariation')->willReturn(true);
-        $productMock->expects($this->exactly(2))->method('processImages');
+        $productMock->expects($this->once())->method('processVariation')->willReturn(true);
+        $productMock->expects($this->once())->method('processImages');
         $productMock->expects($this->once())->method('hasValidData')->willReturn(true);
-        $productMock->expects($this->any())->method('getItemId')->willReturn(1);
+        $productMock->expects($this->any())->method('getItemId')->willReturn(103);
         $productMock->expects($this->any())->method('processVariationAttributes')->willReturn($productMock);
 
         $exporterMock->expects($this->once())->method('createProductItem')->willReturn($productMock);
 
-        $exporterMock->processProductData(['1' => []]);
+        $exporterMock->processProductData(['103' => []]);
     }
 
     public function providerProcessProductDataProductDoNotHaveData()
     {
         return [
-            [
-                [
-                    'entries' => [
-                        [
-                            'id' => 'Test',
-                            'isMain' => false,
-                            'itemId' => '1',
-                            'mainVariationId' => 'Test',
-                            'isActive' => false,
-                            'availability' => 1,
-                            'variationCategories' => [
-                                [
-                                    'categoryId' => '1'
-                                ]
-                            ],
-                            'tags' => []
-                        ]
-                    ],
-                    'isLastPage' => true
-                ]
+            'Active product' => [
+                $this->getMockResponse('/pim/variations/one_variation.json')
             ],
-            [
-                [
-                    'entries' => [
-                        [
-                            'id' => 'Test',
-                            'isMain' => false,
-                            'itemId' => '1',
-                            'mainVariationId' => 'Test',
-                            'isActive' => true,
-                            'availability' => 1,
-                            'variationCategories' => [
-                                [
-                                    'categoryId' => '1'
-                                ]
-                            ],
-                            'tags' => []
-                        ]
-                    ],
-                    'isLastPage' => true
-                ]
+            'Inactive product' => [
+                $this->getMockResponse('/pim/variations/one_inactive_variation.json')
             ]
         ];
     }
@@ -445,9 +377,10 @@ class ExporterTest extends TestCase
         $clientMock->expects($this->any())->method('getConfig')->willReturn($this->getConfigMock());
         $clientMock->expects($this->any())->method('getProductVariations')->willReturn($productVariations);
 
-        $exporterMock = $this->getExporterMockBuilder(['client' => $clientMock]);
-        $exporterMock->setMethods(['createProductItem']);
-        $exporterMock = $exporterMock->getMock();
+        $builder = $this->getExporterMockBuilder(['client' => $clientMock]);
+        $builder->setMethods(['createProductItem']);
+        /** @var Exporter|MockObject $exporterMock */
+        $exporterMock = $builder->getMock();
 
         $vatMock = $this->getMockBuilder(Vat::class)
             ->disableOriginalConstructor()
@@ -469,13 +402,13 @@ class ExporterTest extends TestCase
             ->getMock();
 
         $productMock->expects($this->never())->method('processImages');
-        $productMock->expects($this->any())->method('getItemId')->willReturn(1);
+        $productMock->expects($this->any())->method('getItemId')->willReturn(103);
         $productMock->expects($this->any())->method('processVariationAttributes')->willReturn($productMock);
 
         $exporterMock->expects($this->once())->method('createProductItem')->willReturn($productMock);
 
         $this->assertEquals(null, $exporterMock->getSkippedProductsCount());
-        $exporterMock->processProductData(['1' => []]);
+        $exporterMock->processProductData(['103' => []]);
         $this->assertEquals(1, $exporterMock->getSkippedProductsCount());
     }
 
@@ -484,9 +417,10 @@ class ExporterTest extends TestCase
      */
     public function testProcessProductDataNoItem()
     {
-        $exporterMock = $this->getExporterMockBuilder();
-        $exporterMock->setMethods(['createProductItem']);
-        $exporterMock = $exporterMock->getMock();
+        $builder = $this->getExporterMockBuilder();
+        $builder->setMethods(['createProductItem']);
+        /** @var Exporter|MockObject $exporterMock */
+        $exporterMock = $builder->getMock();
 
         $productMock = $this->getMockBuilder(Product::class)
             ->disableOriginalConstructor()
@@ -612,6 +546,8 @@ class ExporterTest extends TestCase
         $clientMock->expects($this->any())->method('getConfig')->willReturn($this->getConfigMock());
         $clientMock->expects($this->any())->method('getAttributeValues')->willReturn([]);
         $clientMock->expects($this->any())->method('getWebstores')->willReturn([]);
+        $clientMock->expects($this->any())->method('getProductVariations')
+            ->willReturn($this->getMockResponse('/pim/variations/two_variations.json'));
 
         $defaultMocks = array(
             'client' => $clientMock,
@@ -623,10 +559,8 @@ class ExporterTest extends TestCase
 
         $finalMocks = array_merge($defaultMocks, $mocks);
 
-        $exporterMock = $this->getMockBuilder(Exporter::class)
+        return $this->getMockBuilder(Exporter::class)
             ->setConstructorArgs($finalMocks);
-
-        return $exporterMock;
     }
 
     /**

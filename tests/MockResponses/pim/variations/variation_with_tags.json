@@ -1,0 +1,244 @@
+{
+  "page": 1,
+  "totalsCount": 1,
+  "isLastPage": true,
+  "entries": [
+    {
+      "categories": [
+        {
+          "categoryId": 17,
+          "position": 0,
+          "isNeckermannPrimary": false
+        },
+        {
+          "categoryId": 18,
+          "position": 0,
+          "isNeckermannPrimary": false
+        },
+        {
+          "categoryId": 421,
+          "position": 0,
+          "isNeckermannPrimary": false
+        }
+      ],
+      "barcodes": [
+        {
+          "barcodeId": 1,
+          "code": "4250704421410"
+        }
+      ],
+      "additionalSkus": null,
+      "attributeValues": [
+        {
+          "attributeId": 1,
+          "attributeValueSetId": 2,
+          "valueId": 3
+        }
+      ],
+      "bundleComponents": null,
+      "clients": [
+        {
+          "plentyId": 34185
+        }
+      ],
+      "defaultCategories": null,
+      "images": [],
+      "marketIdentNumbers": null,
+      "markets": null,
+      "salesPrices": [
+        {
+          "salesPriceId": 1,
+          "price": 1.95
+        },
+        {
+          "salesPriceId": 2,
+          "price": 1.95
+        }
+      ],
+      "skus": null,
+      "supplier": null,
+      "warehouses": null,
+      "properties": [],
+      "tags": [
+        {
+          "tagId": 1,
+          "tag": {
+            "createdAt": "2019-03-19 14:07:52",
+            "updatedAt": "2020-03-03 15:30:19",
+            "names": [
+              {
+                "id": 1,
+                "tagId": "1",
+                "tagLang": "de",
+                "tagName": "i am a tag"
+              },
+              {
+                "id": 2,
+                "tagId": "1",
+                "tagLang": "en",
+                "tagName": "I am a Tag"
+              },
+              {
+                "id": 3,
+                "tagId": "1",
+                "tagLang": "fr",
+                "tagName": "Le france"
+              }
+            ],
+            "clients": [
+              {
+                "id": 1,
+                "tagId": 1,
+                "plentyId": 34185,
+                "createdAt": "2020-08-19 12:48:35",
+                "updatedAt": "2020-08-19 12:48:35"
+              }
+            ],
+            "id": 1,
+            "tagName": "i am a tag",
+            "color": "#ffffff"
+          }
+        }
+      ],
+      "comments": null,
+      "id": 1072,
+      "timestamps": null,
+      "unit": null,
+      "base": {
+        "isMain": false,
+        "mainVariationId": 1071,
+        "itemId": 67992709,
+        "position": 1,
+        "isActive": true,
+        "number": "KAR-40-G-1",
+        "model": "VARIANTE",
+        "externalId": "19.116667",
+        "availability": 1,
+        "estimatedAvailableAt": null,
+        "purchasePrice": 0,
+        "movingAveragePrice": 0,
+        "priceCalculationId": null,
+        "picking": "no_single_picking",
+        "stockLimitation": 1,
+        "isVisibleIfNetStockIsPositive": false,
+        "isInvisibleIfNetStockIsNotPositive": false,
+        "isAvailableIfNetStockIsPositive": true,
+        "isUnavailableIfNetStockIsNotPositive": true,
+        "isVisibleInListIfNetStockIsPositive": false,
+        "isInvisibleInListIfNetStockIsNotPositive": false,
+        "mainWarehouseId": 1,
+        "maximumOrderQuantity": null,
+        "minimumOrderQuantity": 1,
+        "intervalOrderQuantity": 1,
+        "availableUntil": null,
+        "releasedAt": null,
+        "name": "KAR-40-G",
+        "weightG": 27,
+        "weightNetG": 27,
+        "widthMM": 0,
+        "lengthMM": 0,
+        "heightMM": 0,
+        "extraShippingCharge1": null,
+        "extraShippingCharge2": null,
+        "unitsContained": 1,
+        "palletTypeId": null,
+        "packingUnits": 0,
+        "packingUnitTypeId": 0,
+        "transportationCosts": 0,
+        "storageCosts": 0,
+        "customs": null,
+        "operatingCosts": null,
+        "vatId": 0,
+        "bundleType": null,
+        "automaticClientVisibility": 0,
+        "automaticListVisibility": 3,
+        "isHiddenInCategoryList": false,
+        "defaultShippingCosts": null,
+        "mayShowUnitPrice": true,
+        "parentVariationId": null,
+        "parentVariationQuantity": null,
+        "singleItemCount": null,
+        "hasCalculatedBundleWeight": null,
+        "hasCalculatedBundleNetWeight": null,
+        "hasCalculatedBundlePurchasePrice": null,
+        "hasCalculatedBundleMovingAveragePrice": null,
+        "customsTariffNumber": "83089000900",
+        "categoriesInherited": true,
+        "referrerInherited": true,
+        "clientsInherited": true,
+        "salesPricesInherited": true,
+        "supplierInherited": true,
+        "warehousesInherited": false,
+        "propertiesInherited": true,
+        "tagsInherited": false,
+        "item": {
+          "id": 67992709,
+          "position": 0,
+          "add_cms_page": "0",
+          "condition": 0,
+          "free1": null,
+          "free2": null,
+          "free3": null,
+          "free4": null,
+          "free5": null,
+          "free6": null,
+          "free7": "0",
+          "free8": "0",
+          "free9": "0",
+          "free10": "0",
+          "free11": "0",
+          "free12": "0",
+          "free13": "0",
+          "free14": "0",
+          "free15": "0",
+          "free16": "0",
+          "free17": "0",
+          "free18": "0",
+          "free19": "0",
+          "free20": "0",
+          "gimahhot": "0",
+          "storeSpecial": 0,
+          "ownerId": null,
+          "manufacturerId": 0,
+          "producingCountryId": 31,
+          "revenueAccount": 0,
+          "couponRestriction": 0,
+          "conditionApi": 0,
+          "createdAt": "2019-12-11T00:00:00+01:00",
+          "updatedAt": "2020-01-17T11:13:21+01:00",
+          "isSubscribable": false,
+          "amazonFbaPlatform": 0,
+          "isShippableByAmazon": false,
+          "amazonProductType": 0,
+          "amazonFedas": "",
+          "ebayPresetId": null,
+          "ebayCategory": null,
+          "ebayCategory2": null,
+          "ebayStoreCategory": null,
+          "ebayStoreCategory2": null,
+          "rakutenCategoryId": 0,
+          "flagOne": 0,
+          "flagTwo": 10,
+          "ageRestriction": 50,
+          "feedback": 0,
+          "itemType": "default",
+          "stockType": 1,
+          "sitemapPublished": "0",
+          "isSerialNumber": false,
+          "isShippingPackage": false,
+          "maximumOrderQuantity": 0,
+          "variationCount": "2",
+          "customsTariffNumber": "83089000900",
+          "mainVariationId": 1071,
+          "inactive": true
+        },
+        "characteristics": [],
+        "images": []
+      }
+    }
+  ],
+  "lastPageNumber": 1,
+  "firstOnPage": 1,
+  "lastOnPage": 1,
+  "itemsPerPage": 100
+}

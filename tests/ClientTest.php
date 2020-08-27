@@ -206,6 +206,7 @@ class ClientTest extends TestCase
 
         $httpClientMock->expects($this->at(($maxRetries - 1)))->method('send')->willReturn($successResponse);
 
+        /** @var Client|MockObject $clientMock */
         $clientMock = $this->getMockBuilder(Client::class)
             ->setConstructorArgs([$configMock, $logMock, $logMock, $httpClientMock])
             ->setMethods(['createRequest', 'getUrl'])
@@ -650,11 +651,13 @@ class ClientTest extends TestCase
         $response = $this->buildResponseMock('{}', 200);
 
         $clientMock->expects($this->once())->method('getEndpoint')->with(
-            'items/variations',
+            'pim/variations',
             [
                 'with' => $expectedWith,
                 'isActive' => true,
-                'itemId' => ['1']
+                'itemIds' => ['1'],
+                'isSalable' => true,
+                'sortBy' => 'itemId_asc',
             ]
         );
 

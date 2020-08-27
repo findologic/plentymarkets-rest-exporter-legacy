@@ -421,7 +421,7 @@ class Product extends ParserAbstract
             return false;
         }
 
-        if ($this->getField('sort') === '') {
+        if ($variation['base']['isMain'] || $this->getField('sort') === '') {
             $this->setField('sort', $this->getFromArray($variation['base'], 'position'));
         }
 
@@ -506,13 +506,13 @@ class Product extends ParserAbstract
     }
 
     /**
-     * Process variation properties
-     * Some properties (empty type) have mixed up value for actual property name and value
+     * Process characteristics (aka. ItemProperties). Characteristics are assigned directly to items not to variations.
+     * Some characteristics (empty type) have mixed up value for actual characteristic name and value
      *
      * @param array $data
      * @return $this
      */
-    public function processVariationsProperties(array $data)
+    public function processCharacteristics(array $data)
     {
         if (!is_array($data) || empty($data)) {
             $this->handleEmptyData();
@@ -561,7 +561,7 @@ class Product extends ParserAbstract
      * @param array $data
      * @return $this
      */
-    public function processVariationSpecificProperties($data)
+    public function processProperties($data)
     {
         if (!is_array($data) || empty($data)) {
             $this->handleEmptyData();
@@ -792,6 +792,10 @@ class Product extends ParserAbstract
      */
     protected function shouldProcessVariation(array $variation)
     {
+        if (!$variation['base']['isActive']) {
+            return false;
+        }
+
         if (isset($variation['base']['automaticListVisibility']) && $variation['base']['automaticListVisibility'] < 1) {
             return false;
         }
@@ -852,7 +856,7 @@ class Product extends ParserAbstract
             $this->setField('ordernumber', array());
         }
 
-        if ($this->getField('variation_id') == $this->getDefaultEmptyValue()) {
+        if ($this->getField('variation_id') == $this->getDefaultEmptyValue() || $variation['base']['isMain']) {
             $this->setField('variation_id', $variation['id']);
         }
 

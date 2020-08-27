@@ -426,7 +426,7 @@ class Exporter
 
             if (isset($result['entries'])) {
                 while (($variation = array_shift($result['entries']))) {
-                    if (array_key_exists($variation['base']['itemId'], $variations)) {
+                    if (isset($variations[$variation['base']['itemId']])) {
                         $variations[$variation['base']['itemId']][] = $variation;
                     } else {
                         $variations[$variation['base']['itemId']] = array($variation);
@@ -450,6 +450,10 @@ class Exporter
         $this->trackSkippedProducts(array_diff($itemIds, $validItemIds));
 
         foreach ($validItemIds as $itemId) {
+            if (!isset($productsData[$itemId])) {
+                continue;
+            }
+
             $product = $this->createProductItem($productsData[$itemId]);
 
             unset($productsData[$itemId]);
@@ -471,11 +475,11 @@ class Exporter
                 }
 
                 if (isset($variation['base']['characteristics'])) {
-                    $product->processVariationsProperties($variation['base']['characteristics']);
+                    $product->processCharacteristics($variation['base']['characteristics']);
                 }
 
                 if (isset($variation['properties'])) {
-                    $product->processVariationSpecificProperties($variation['properties']);
+                    $product->processProperties($variation['properties']);
                 }
 
                 unset($variation);

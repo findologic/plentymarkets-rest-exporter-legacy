@@ -1,0 +1,18 @@
+{
+  "page": 1,
+  "totalsCount": 1,
+  "isLastPage": true,
+  "entries": [
+    {
+      "id": "32",
+      "backendName": "Test",
+      "propertyGroupId": "12",
+      "isSearchable": true,
+      "valueType": "text"
+    }
+  ],
+  "lastPageNumber": 1,
+  "firstOnPage": 1,
+  "lastOnPage": 1,
+  "itemsPerPage": 100
+}
