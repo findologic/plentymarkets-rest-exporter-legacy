@@ -524,7 +524,7 @@ class Product extends ParserAbstract
         foreach ($data as $property) {
             $propertyData = $properties->getProperty($property['propertyId']);
 
-            if (isset($propertyData['isSearchable']) && !$propertyData['isSearchable']) {
+            if (empty($propertyData) || isset($propertyData['isSearchable']) && !$propertyData['isSearchable']) {
                 continue;
             }
 
@@ -760,10 +760,10 @@ class Product extends ParserAbstract
                 }
                 break;
             case 'int':
-                $value = $property['valueInt'];
+                $value = $productProperty['valueInt'];
                 break;
             case 'float':
-                $value = $property['valueFloat'];
+                $value = $productProperty['valueFloat'];
                 break;
             default:
                 $value = $this->getDefaultEmptyValue();

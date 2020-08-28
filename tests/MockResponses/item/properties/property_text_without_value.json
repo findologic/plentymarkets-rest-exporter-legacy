@@ -1,0 +1,29 @@
+{
+  "page": 1,
+  "totalsCount": 1,
+  "isLastPage": true,
+  "entries": [
+    {
+      "id": 1,
+      "position": 0,
+      "unit": "CMT",
+      "propertyGroupId": null,
+      "backendName": "kettenl\u00e4nge",
+      "valueType": "text",
+      "isSearchable": true,
+      "isOderProperty": false,
+      "isShownOnItemPage": false,
+      "isShownOnItemList": false,
+      "isShownAtCheckout": false,
+      "isShownInPdf": false,
+      "comment": "",
+      "surcharge": 0,
+      "isShownAsAdditionalCosts": false,
+      "updatedAt": "2019-11-26T16:26:26+01:00"
+    }
+  ],
+  "lastPageNumber": 1,
+  "firstOnPage": 1,
+  "lastOnPage": 1,
+  "itemsPerPage": 100
+}

@@ -6,12 +6,7 @@
     {
       "categories": [
         {
-          "categoryId": 16,
-          "position": 0,
-          "isNeckermannPrimary": false
-        },
-        {
-          "categoryId": 17,
+          "categoryId": 1,
           "position": 0,
           "isNeckermannPrimary": false
         }
@@ -437,7 +432,7 @@
       "timestamps": null,
       "unit": null,
       "base": {
-        "isMain": true,
+        "isMain": false,
         "mainVariationId": null,
         "itemId": 103,
         "position": 0,

@@ -4,6 +4,7 @@ namespace Findologic\PlentymarketsTest;
 
 use Findologic\Plentymarkets\Parser\Attributes;
 use Findologic\Plentymarkets\Parser\Categories;
+use Findologic\Plentymarkets\Parser\ItemProperties;
 use Findologic\Plentymarkets\Parser\Properties;
 use Findologic\Plentymarkets\Parser\Units;
 use Findologic\Plentymarkets\Parser\Vat;
@@ -18,7 +19,7 @@ class ProductTest extends TestCase
     use MockResponseHelper;
 
     /**
-     * @var \Findologic\Plentymarkets\Product
+     * @var Product
      */
     protected $product;
 
@@ -849,285 +850,268 @@ class ProductTest extends TestCase
         $this->assertSame($expectedResult, $productMock->getField('groups'));
     }
 
-    /**
-     *  Method $data property example:
-     *  array (
-     *      0 => array (
-     *          'id' => 3,
-     *          'itemId' => 102,
-     *          'propertyId' => 2,
-     *          'variationId' => 1076,
-     *          ...
-     *          'property' => array (
-     *              'id' => 2,
-     *              'position' => 2,
-     *              'unit' => 'LTR',
-     *              'backendName' => 'Test Property 2',
-     *              'valueType' => 'text',
-     *              'isSearchable' => true,
-     *              ...
-     *          ),
-     *          'valueTexts' => array (
-     *              0 => array (
-     *                  'propertyValueId' => 3,
-     *                  'lang' => 'en',
-     *                  'value' => 'Some Text',
-     *              ),
-     *          ),
-     *          'propertySelection' => array (
-     *              0 => array (
-     *                  'id' => 1,
-     *                  'propertyId' => 3,
-     *                  'lang' => 'en',
-     *                  'name' => 'Select 1',
-     *                  'description' => 'Select 1',
-     *              ),
-     *          ),
-     *      ),
-     *  )
-     */
-    public function processVariationPropertiesProvider()
+    public function processCharacteristicsProvider(): array
     {
+        $allProperties = [
+            '1' => [
+                'propertyId' => 1,
+                'names' => [
+                    'EN' => ['name' => 'Test Property Name']
+                ]
+            ],
+            '2' => [
+                'propertyId' => 2,
+                'names' => [
+                    'EN' => ['name' => 'Test Property Name']
+                ]
+            ],
+            '5' => [
+                'propertyId' => 5,
+                'names' => [
+                    'EN' => ['name' => 'Test Property Name']
+                ]
+            ],
+        ];
+
         return [
-            'No data provided, results should be empty' => [
-                'data' => [],
+            'No characteristics' => [
+                'data' => $this->getMockResponse('/item/properties/no_properties.json')['entries'],
+                'assignedToProduct' => [],
+                'expectedResult' => '',
+            ],
+            'All characteristics are not searchable' => [
+                'data' => $this->getMockResponse('/item/properties/property_not_searchable.json')['entries'],
+                'assignedToProduct' => $allProperties,
                 'expectedResult' => ''
             ],
-            'Variation property is not searchable, results should be empty' => [
-                'data' => [
+            'Variation has "text" type property but value is "null"' => [
+                'data' => $this->getMockResponse('/item/properties/property_text_without_value.json')['entries'],
+                'assignedToProduct' => [
                     [
                         'propertyId' => 1,
-                        'property' => [
-                            'id' => '1',
-                            'isSearchable' => false,
-                        ],
+                        'names' => [
+                            'EN' => ['name' => null]
+                        ]
+                    ]
+                ],
+                'expectedResult' => ''
+            ],
+            'Variation with "text" and "selection" characteristics - lang is not the same as in export config' => [
+                'data' => $this->getMockResponse('/item/properties/properties_text_and_selection.json')['entries'],
+                'assignedToProduct' => [
+                    [
+                        'propertyId' => 1,
+                        'propertySelection' => [
+                            [
+                                'lang' => 'lt',
+                                'id' => 3,
+                                'name' => 'Test name',
+                                'description' => '',
+                                'propertyId' => 1
+                            ]
+                        ]
                     ],
                     [
                         'propertyId' => 2,
-                        'property' => [
-                            'id' => '2',
-                            'backendName' => 'Test Property',
-                            'valueType' => 'empty',
-                        ],
-                    ]
-                ],
-                ''
-            ],
-            'Variation has "text" type property but value is "null", results should be empty' => [
-                [
-                    [
-                        'property' => [
-                            'id' => '1',
-                            'backendName' => 'Test Property',
-                            'valueType' => 'text',
-                            'propertyGroupId' => null
-                        ],
                         'valueTexts' => [
-                            ['value' => 'null', 'lang' => 'lt']
+                            [
+                                'lang' => 'lt',
+                                'value' => 'Kettenlänge <40cm',
+                                'valueId' => 10
+                            ]
                         ]
                     ]
                 ],
-                ''
+                'expectedResult' => ''
             ],
-            'Variation with "text" and "selection" properties - lang is not the same as in export config, results should be empty' => [
-                [
+            'Variation with "text" and "selection" characteristics - lang is not the same as in export config but propertyGroupId is set' => [
+                'data' => $this->getMockResponse('/item/properties/properties_with_group_id.json')['entries'],
+                'assignedToProduct' => [
                     [
-                        'property' => [
-                            'id' => '1',
-                            'backendName' => 'Test Property',
-                            'valueType' => 'text',
-                            'propertyGroupId' => null
-                        ],
-                        'valueTexts' => [
-                            ['value' => 'Test Value', 'lang' => 'lt']
-                        ]
-                    ],
-                    [
-                        'property' => [
-                            'id' => '1',
-                            'backendName' => 'Test Property Select',
-                            'valueType' => 'selection',
-                            'propertyGroupId' => null
-                        ],
-                        'valueTexts' => [],
+                        'propertyId' => 1,
                         'propertySelection' => [
-                            ['name' => 'Select Value', 'lang' => 'lt']
+                            [
+                                'lang' => 'lt',
+                                'id' => 3,
+                                'name' => 'Test name',
+                                'description' => '',
+                                'propertyId' => 1
+                            ]
                         ]
                     ],
-                ],
-                ''
-            ],
-            'Variation with "text" and "selection" properties - lang is not the same as in export config, should use property names' => [
-                [
                     [
-                        'property' => [
-                            'id' => '1',
-                            'backendName' => 'Test Property',
-                            'valueType' => 'text',
-                            'propertyGroupId' => 2
-                        ],
+                        'propertyId' => 2,
                         'valueTexts' => [
-                            ['value' => 'Test Value', 'lang' => 'lt']
+                            [
+                                'lang' => 'lt',
+                                'value' => 'Kettenlänge <40cm',
+                                'valueId' => 10
+                            ]
                         ]
-                    ],
-                    [
-                        'property' => [
-                            'id' => '1',
-                            'backendName' => 'Test Property Select',
-                            'valueType' => 'selection',
-                            'propertyGroupId' => 2
-                        ],
-                        'valueTexts' => [],
-                        'propertySelection' => [
-                            ['name' => 'Select Value', 'lang' => 'lt']
-                        ]
-                    ],
+                    ]
                 ],
-                ['Test' => ['Test Property', 'Test Property Select']]
+                'expectedResult' => ['Test' => ['Test Property Select', 'Test Property']]
             ],
             'Variation has "text" and "float" type properties' => [
-                [
+                'data' => $this->getMockResponse('/item/properties/text_and_float_properties.json')['entries'],
+                'assignedToProduct' => [
                     [
-                        'property' => [
-                            'id' => '1',
-                            'backendName' => 'Test Property',
-                            'valueType' => 'text'
-                        ],
-                        'names' => [
-                            ['value' => 'Test Value', 'lang' => 'en']
+                        'propertyId' => 1,
+                        'valueTexts' => [
+                            [
+                                'lang' => 'en',
+                                'value' => 'Test Value',
+                                'valueId' => 3,
+                            ]
                         ]
                     ],
                     [
-                        'property' => [
-                            'id' => '999',
-                            'backendName' => 'Test Property 2',
-                            'valueType' => 'text'
-                        ],
-                        'names' => [
-                            ['value' => 'Test Value 2', 'lang' => 'en']
+                        'propertyId' => 999,
+                        'valueTexts' => [
+                            [
+                                'lang' => 'en',
+                                'value' => 'Test Value 2',
+                                'valueId' => 10
+                            ]
                         ]
                     ],
                     [
-                        'property' => [
-                            'id' => '1',
-                            'backendName' => 'Test Float',
-                            'valueType' => 'float'
-                        ],
+                        'propertyId' => 2,
+                        'valueTexts' => [],
                         'valueFloat' => 3.25
                     ]
                 ],
-                ['Test Property' => ['Test Value'], 'Test Property Name' => ['Test Value 2'], 'Test Float' => [3.25]]
+                'expectedResult' => [
+                    'Test Property' => ['Test Value'],
+                    'Test Property Name' => ['Test Value 2'],
+                    'Test Float' => [3.25]
+                ]
             ],
             'Variation has "selection" and "int" type properties' => [
-                [
+                'data' => $this->getMockResponse('/item/properties/selection_and_int_properties.json')['entries'],
+                'assignedToProduct' => [
                     [
-                        'property' => [
-                            'id' => '1',
-                            'backendName' => 'Test Property Select',
-                            'valueType' => 'selection',
-                            'propertyGroupId' => null
-                        ],
-                        'valueTexts' => [],
+                        'propertyId' => 1,
                         'propertySelection' => [
-                            ['name' => 'Select Value', 'lang' => 'en']
+                            [
+                                'lang' => 'en',
+                                'id' => 3,
+                                'name' => 'Select Value',
+                                'description' => '',
+                                'propertyId' => 1
+                            ]
                         ]
                     ],
                     [
-                        'property' => [
-                            'id' => '1',
-                            'backendName' => 'Test Int',
-                            'valueType' => 'int',
-                            'propertyGroupId' => null
-                        ],
+                        'propertyId' => 2,
+                        'valueTexts' => [],
                         'valueInt' => 3
                     ],
                     [
-                        'property' => [
-                            'id' => '1',
-                            'backendName' => 'Test Default',
-                            'valueType' => 'Test',
-                            'propertyGroupId' => null
-                        ]
+                        'propertyId' => 3,
+                        'valueTexts' => []
                     ],
                     [
-                        'property' => [
-                            'id' => '1',
-                            'backendName' => 'Test Value',
-                            'valueType' => 'empty',
-                            'propertyGroupId' => 2
-                        ]
-                    ]
+                        'propertyId' => 4,
+                        'valueTexts' => []
+                    ],
                 ],
-                ['Test Property Select' => ['Select Value'], 'Test Int' => [3], 'Test' => ['Test Value']]
+                'expectedResult' => [
+                    'Test Property Select' => ['Select Value'],
+                    'Test Int' => [3],
+                    'Test' => ['Test Value']
+                ]
             ],
             'Variation property should use name for provided language instead backend name' => [
-                [
+                'data' => $this->getMockResponse('/item/properties/property_selection_with_empty_names.json')['entries'],
+                'assignedToProduct' => [
                     [
-                        'property' => [
-                            'id' => '1',
-                            'backendName' => 'Test',
-                            'valueType' => 'selection',
+                        'propertyId' => 1,
+                        'valueTexts' => [
+                            [
+                                'lang' => 'en',
+                                'value' => '',
+                                'valueId' => 10
+                            ]
                         ],
-                        'valueTexts' => [],
                         'propertySelection' => [
-                            ['name' => 'Test value en', 'lang' => 'EN'],
-                        ],
-                        'names' => [
-                            ['lang' => 'EN', 'value' => ''],
+                            [
+                                'lang' => 'en',
+                                'name' => 'Test value en'
+                            ]
                         ]
                     ]
                 ],
-                ['Test' => ['Test value en']]
+                'expectedResult' => [
+                    'Test' => ['Test value en']
+                ]
             ],
             'Multiple properties should use name for provided language instead backend name' => [
-                [
+                'data' => $this->getMockResponse('/item/properties/multiple_property_selections_with_names.json')['entries'],
+                'assignedToProduct' => [
                     [
-                        'property' => [
-                            'id' => '1',
-                            'backendName' => 'Test Selection',
-                            'valueType' => 'selection',
+                        'propertyId' => 1,
+                        'valueTexts' => [
+                            [
+                                'lang' => 'en',
+                                'value' => 'Test EN',
+                                'valueId' => 10
+                            ],
+                            [
+                                'lang' => 'de',
+                                'value' => 'Test DE',
+                                'valueId' => 10
+                            ],
                         ],
                         'propertySelection' => [
-                            ['name' => 'Test value de', 'lang' => 'DE'],
-                            ['name' => 'Test value en', 'lang' => 'EN'],
-                        ],
-                        'names' => [
-                            ['lang' => 'DE', 'value' => 'Test DE'],
-                            ['lang' => 'EN', 'value' => 'Test EN'],
+                            [
+                                'lang' => 'en',
+                                'name' => 'Test value en'
+                            ],
+                            [
+                                'lang' => 'de',
+                                'name' => 'Test value de'
+                            ],
                         ]
                     ],
                     [
-                        'property' => [
-                            'id' => '1',
-                            'backendName' => 'Test Value',
-                            'valueType' => 'text',
-                        ],
-                        'names' => [
-                            ['lang' => 'DE', 'value' => 'Test DE'],
-                            ['lang' => 'EN', 'value' => 'Test'],
+                        'propertyId' => 2,
+                        'valueTexts' => [
+                            [
+                                'lang' => 'de',
+                                'value' => 'Test DE',
+                                'valueId' => 10
+                            ],
+                            [
+                                'lang' => 'en',
+                                'value' => 'Test',
+                                'valueId' => 10
+                            ]
                         ]
                     ],
                     [
-                        'property' => [
-                            'id' => '1',
-                            'backendName' => 'Test 2',
-                            'valueType' => 'empty',
-                            'propertyGroupId' => 1
-                        ],
-                        'names' => [
-                            ['lang' => 'EN', 'value' => 'Test EN']
+                        'propertyId' => 3,
+                        'valueTexts' => [
+                            [
+                                'lang' => 'en',
+                                'value' => 'Test EN'
+                            ]
                         ]
                     ]
                 ],
-                ['Test Selection' => ['Test value en'], 'Test Value' => ['Test'], 'Test' => ['Test 2']]
+                'expectedResult' => [
+                    'Test Selection' => ['Test value en'],
+                    'Test Value' => ['Test'],
+                    'Test' => ['Test 2']
+                ]
             ]
         ];
     }
 
     /**
-     * @dataProvider processVariationPropertiesProvider
+     * @dataProvider processCharacteristicsProvider
      */
-    public function testProcessVariationsProperties($data, $expectedResult)
+    public function testProcessCharacteristics(array $data, array $assignedToProduct, $expectedResult)
     {
         $propertyGroupsMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\PropertyGroups')
             ->disableOriginalConstructor()
@@ -1138,14 +1122,23 @@ class ProductTest extends TestCase
             return is_null($gid) ? '' : 'Test';
         }));
 
+        /** @var ItemProperties|MockObject $propertiesMock */
         $propertiesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\ItemProperties')
             ->disableOriginalConstructor()
-            ->setMethods(array('getLanguageCode'))
+            ->setMethods(['getLanguageCode', 'getProperty'])
             ->getMock();
 
-        $propertiesMock->expects($this->any())->method('getLanguageCode')->willReturn('EN');
-        $propertiesMock->setResults(array('999' => array('names' => array('EN' => array('name' => 'Test Property Name')))));
+        $structured = [];
+        foreach ($data as $property) {
+            $structured[$property['id']] = $property;
+        }
 
+        $propertiesMock->expects($this->any())->method('getLanguageCode')->willReturn('EN');
+        $propertiesMock->expects($this->any())->method('getProperty')->willReturnCallback(function ($id) use ($structured) {
+            return $structured[$id];
+        });
+
+        /** @var Registry|MockObject $registryMock */
         $registryMock = $this->getMockBuilder('\Findologic\Plentymarkets\Registry')
             ->disableOriginalConstructor()
             ->setMethods(null)
@@ -1154,151 +1147,143 @@ class ProductTest extends TestCase
         $registryMock->set('PropertyGroups', $propertyGroupsMock);
         $registryMock->set('ItemProperties', $propertiesMock);
 
-        $productMock = $this->getProductMock(array('handleEmptyData'), array('registry' => $registryMock));
-        $productMock->processCharacteristics($data);
+        $productMock = $this->getProductMock(['handleEmptyData'], ['registry' => $registryMock]);
+        $productMock->processCharacteristics($assignedToProduct);
 
         $this->assertSame($expectedResult, $productMock->getField('attributes'));
     }
 
-    public function providerProcessVariationSpecificProperties()
+    public function providerProcessProperties()
     {
-        return array(
-            'No data provided' => array(
-                array(),
-                array(),
-                ''
-            ),
-            'No item properties provided' => array(
-                array(),
-                array(
-                    array(
-                        'property' => array(
+        return [
+            'No data provided' => [
+                'registryData' => [],
+                'data' => [],
+                'expectedResult' => ''
+            ],
+            'No item properties provided' => [
+                'registryData' => [],
+                'data' => [
+                    [
+                        'property' => [
                             'id' => '1',
-                        ),
+                        ],
                         'relationTypeIdentifier' => 'Test'
-                    )
-                ),
-                ''
-            ),
-            'Empty type property' => array(
-                array(
-                    '1' => array(
-                        'names' => array(
+                    ]
+                ],
+                'expectedResult' => ''
+            ],
+            'Empty type property' => [
+                'registryData' => [
+                    '1' => [
+                        'names' => [
                             'EN' => 'Test Property EN'
-                        ),
-                        'propertyGroups' => array(
-                            '1' => array('DE' => 'Test DE', 'EN' => 'Test EN')
-                        )
-                    )
-                ),
-                array(
-                    array(
-                        'property' => array(
+                        ],
+                        'propertyGroups' => [
+                            '1' => ['DE' => 'Test DE', 'EN' => 'Test EN']
+                        ]
+                    ]
+                ],
+                'data' => [
+                    [
+                        'property' => [
                             'id' => '1',
-                        ),
-                        'propertyId' => '1',
-                        'relationTypeIdentifier' => 'item',
-                        'propertyRelation' => array(
+                            'typeIdentifier' => 'item',
                             'cast' => 'empty'
-                        ),
-                        'propertyGroups' => array(
-                            '1' => array(
+                        ],
+                        'propertyId' => '1',
+                        'propertyGroups' => [
+                            '1' => [
                                 'DE' => 'Test DE',
                                 'EN' => 'Test EN'
-                            )
-                        )
-                    )
-                ),
-                array('Test EN' => array('Test Property EN')),
-            ),
-            'Text type property' => array(
-                array(
-                    '1' => array(
-                        'names' => array(
+                            ]
+                        ]
+                    ]
+                ],
+                'expectedResult' => ['Test EN' => ['Test Property EN']],
+            ],
+            'Text type property' => [
+                'registryData' => [
+                    '1' => [
+                        'names' => [
                             'EN' => 'Test Property'
-                        )
-                    )
-                ),
-                array(
-                    array(
-                        'property' => array(
+                        ]
+                    ]
+                ],
+                'data' => [
+                    [
+                        'property' => [
                             'id' => '1',
-                        ),
+                            'typeIdentifier' => 'item',
+                            'cast' => 'shortText',
+                        ],
                         'propertyId' => '1',
-                        'relationTypeIdentifier' => 'item',
-                        'propertyRelation' => array(
-                            'cast' => 'shortText'
-                        ),
-                        'relationValues' => array(
-                            array('lang' => 'DE', 'value' => 'Test DE'),
-                            array('lang' => 'EN', 'value' => 'Test EN'),
-                        )
-                    )
-                ),
-                array('Test Property' => array('Test EN')),
-            ),
-            'Int type property' => array(
-                array(
-                    '1' => array(
-                        'names' => array(
+                        'values' => [
+                            ['lang' => 'DE', 'value' => 'Test DE'],
+                            ['lang' => 'EN', 'value' => 'Test EN'],
+                        ]
+                    ]
+                ],
+                'expectedResult' => ['Test Property' => ['Test EN']],
+            ],
+            'Int type property' => [
+                'registryData' => [
+                    '1' => [
+                        'names' => [
                             'EN' => 'Test Property'
-                        )
-                    )
-                ),
-                array(
-                    array(
-                        'property' => array(
+                        ]
+                    ]
+                ],
+                'data' => [
+                    [
+                        'property' => [
                             'id' => '1',
-                        ),
-                        'propertyId' => '1',
-                        'relationTypeIdentifier' => 'item',
-                        'propertyRelation' => array(
+                            'typeIdentifier' => 'item',
                             'cast' => 'int'
-                        ),
-                        'relationValues' => array(
-                            array('lang' => 0, 'value' => 12),
-                        )
-                    )
-                ),
-                array('Test Property' => array(12)),
-            ),
-            'Selection type property' => array(
-                array(
-                    '1' => array(
-                        'names' => array(
-                            'EN' => 'Test Property'
-                        ),
-                        'selections' => array(
-                            '1' => array(
-                                'EN' => 'Selecttion Value'
-                            )
-                        )
-                    )
-                ),
-                array(
-                    array(
-                        'property' => array(
-                            'id' => '1',
-                        ),
+                        ],
                         'propertyId' => '1',
-                        'relationTypeIdentifier' => 'item',
-                        'propertyRelation' => array(
-                            'cast' => 'selection'
-                        ),
-                        'relationValues' => array(
-                            array('value' => 1)
-                        )
-                    )
-                ),
-                array('Test Property' => array('Selecttion Value')),
-            ),
-        );
+                        'values' => [
+                            ['lang' => 0, 'value' => 12],
+                        ]
+                    ]
+                ],
+                'expectedData' => ['Test Property' => [12]],
+            ],
+            'Selection type property' => [
+                'registryData' => [
+                    '1' => [
+                        'names' => [
+                            'EN' => 'Test Property'
+                        ],
+                        'selections' => [
+                            '1' => [
+                                'EN' => 'Selecttion Value'
+                            ]
+                        ]
+                    ]
+                ],
+                'data' => [
+                    [
+                        'property' => [
+                            'id' => '1',
+                            'typeIdentifier' => 'item',
+                            'cast' => 'selection',
+                        ],
+                        'propertyId' => '1',
+                        'values' => [
+                            ['value' => 1]
+                        ]
+                    ]
+                ],
+                'expectedResult' => ['Test Property' => ['Selecttion Value']],
+            ],
+        ];
     }
 
     /**
-     * @dataProvider providerProcessVariationSpecificProperties
+     * @dataProvider providerProcessProperties
      */
-    public function testProcessVariationSpecificProperties($previouslyParsedData, $data, $expectedResult)
+    public function testProcessProperties($registryData, $data, $expectedResult)
     {
         $propertiesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Properties')
             ->disableOriginalConstructor()
@@ -1306,7 +1291,7 @@ class ProductTest extends TestCase
             ->getMock();
 
         $propertiesMock->expects($this->any())->method('getLanguageCode')->willReturn('EN');
-        $propertiesMock->setResults($previouslyParsedData);
+        $propertiesMock->setResults($registryData);
 
         $registryMock = $this->getRegistryMock();
         $registryMock->set('Properties', $propertiesMock);
@@ -1317,18 +1302,18 @@ class ProductTest extends TestCase
         $this->assertSame($expectedResult, $productMock->getField('attributes'));
     }
 
-    public function providerProcessVariationSpecificMultiselectProperties()
+    public function providerProcessMultiselectProperties()
     {
         return [
             'Single selection' => [
-                [
+                'registryData' => [
                     10 => [
                         'names' => [
                             'EN' => 'testMultiselectProperty'
                         ]
                     ]
                 ],
-                [
+                'parsedSelectionsData' => [
                     10 => [
                         'selections' => [
                             100 => [
@@ -1337,32 +1322,30 @@ class ProductTest extends TestCase
                         ]
                     ]
                 ],
-                [
+                'data' => [
                     [
                         'property' => [
                             'id' => '10',
-                        ],
-                        'propertyId' => '10',
-                        'relationTypeIdentifier' => 'item',
-                        'propertyRelation' => [
+                            'typeIdentifier' => 'item',
                             'cast' => 'multiSelection'
                         ],
-                        'relationValues' => [
+                        'propertyId' => '10',
+                        'values' => [
                             ['value' => 100]
                         ]
                     ]
                 ],
-                ['testMultiselectProperty' => ['enValue1']],
+                'expectedResult' => ['testMultiselectProperty' => ['enValue1']],
             ],
             'Double selection' => [
-                [
+                'registryData' => [
                     10 => [
                         'names' => [
                             'EN' => 'testMultiselectProperty'
                         ]
                     ]
                 ],
-                [
+                'parsedSelectionsData' => [
                     10 => [
                         'selections' => [
                             100 => [
@@ -1374,33 +1357,31 @@ class ProductTest extends TestCase
                         ]
                     ]
                 ],
-                [
+                'data' => [
                     [
                         'property' => [
                             'id' => '10',
-                        ],
-                        'propertyId' => '10',
-                        'relationTypeIdentifier' => 'item',
-                        'propertyRelation' => [
+                            'typeIdentifier' => 'item',
                             'cast' => 'multiSelection'
                         ],
-                        'relationValues' => [
+                        'propertyId' => '10',
+                        'values' => [
                             ['value' => 100],
                             ['value' => 200]
                         ]
                     ]
                 ],
-                ['testMultiselectProperty' => ['enValue1', 'enValue2']],
+                'expectedResult' => ['testMultiselectProperty' => ['enValue1', 'enValue2']],
             ],
             'No selection' => [
-                [
+                'registryData' => [
                     10 => [
                         'names' => [
                             'EN' => 'testMultiselectProperty'
                         ]
                     ]
                 ],
-                [
+                'parsedSelectionsData' => [
                     11 => [
                         'selections' => [
                             100 => [
@@ -1412,30 +1393,28 @@ class ProductTest extends TestCase
                         ]
                     ]
                 ],
-                [
+                'data' => [
                     [
                         'property' => [
                             'id' => '10',
-                        ],
-                        'propertyId' => '10',
-                        'relationTypeIdentifier' => 'item',
-                        'propertyRelation' => [
+                            'typeIdentifier' => 'item',
                             'cast' => 'multiSelection'
                         ],
-                        'relationValues' => []
+                        'propertyId' => '10',
+                        'values' => []
                     ]
                 ],
-                '',
+                'expectedResult' => '',
             ],
             'Two values - one selected' => [
-                [
+                'registryData' => [
                     10 => [
                         'names' => [
                             'EN' => 'testMultiselectProperty'
                         ]
                     ]
                 ],
-                [
+                'parsedSelectionsData' => [
                     10 => [
                         'selections' => [
                             100 => [
@@ -1447,30 +1426,28 @@ class ProductTest extends TestCase
                         ]
                     ]
                 ],
-                [
+                'data' => [
                     [
                         'property' => [
                             'id' => '10',
-                        ],
-                        'propertyId' => '10',
-                        'relationTypeIdentifier' => 'item',
-                        'propertyRelation' => [
+                            'typeIdentifier' => 'item',
                             'cast' => 'multiSelection'
                         ],
-                        'relationValues' => [
+                        'propertyId' => '10',
+                        'values' => [
                             ['value' => 100],
                         ]
                     ]
                 ],
-                ['testMultiselectProperty' => ['enValue1']],
+                'expectedResult' => ['testMultiselectProperty' => ['enValue1']],
             ],
         ];
     }
 
     /**
-     * @dataProvider providerProcessVariationSpecificMultiselectProperties
+     * @dataProvider providerProcessMultiselectProperties
      */
-    public function testProcessVariationSpecificMultiselectProperties($parsedPropiertiesData, $parsedSelectionsData, $data, $expectedResult)
+    public function testProcessMultiselectProperties($registryData, $parsedSelectionsData, $data, $expectedResult)
     {
         $propertiesMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\Properties')
             ->disableOriginalConstructor()
@@ -1478,7 +1455,7 @@ class ProductTest extends TestCase
             ->getMock();
 
         $propertiesMock->expects($this->any())->method('getLanguageCode')->willReturn('EN');
-        $propertiesMock->setResults($parsedPropiertiesData);
+        $propertiesMock->setResults($registryData);
 
         $propertySelectionsMock = $this->getMockBuilder('\Findologic\Plentymarkets\Parser\PropertySelections')
             ->disableOriginalConstructor()
@@ -1679,9 +1656,9 @@ class ProductTest extends TestCase
     /**
      * @param array $methods
      * @param array|bool $constructorArgs
-     * @return \Findologic\Plentymarkets\Product|MockObject
+     * @return Product|MockObject
      */
-    protected function getProductMock($methods = array(), $constructorArgs = false)
+    protected function getProductMock($methods = [], $constructorArgs = false)
     {
         // Add getters of config values to mock
         if (!in_array('getLanguageCode', $methods)) {
