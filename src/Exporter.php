@@ -465,7 +465,7 @@ class Exporter
                     continue;
                 }
 
-                if (isset($variation['images'])) {
+                if (isset($variation['images']) && $variation['images'] !== []) {
                     $variationImages = array_map(function ($variationImage) {
                         return $variationImage['image'];
                     }, $variation['images']);

@@ -354,11 +354,11 @@ class ExporterTest extends TestCase
     public function providerProcessProductDataProductDoNotHaveData()
     {
         return [
-            'Active product' => [
-                $this->getMockResponse('/pim/variations/one_variation.json')
-            ],
             'Inactive product' => [
                 $this->getMockResponse('/pim/variations/one_inactive_variation.json')
+            ],
+            'Active product' => [
+                $this->getMockResponse('/pim/variations/one_variation_without_sufficient_data.json')
             ]
         ];
     }
