@@ -465,12 +465,19 @@ class Exporter
                     continue;
                 }
 
+                $variationImages = [];
                 if (isset($variation['images']) && $variation['images'] !== []) {
                     $variationImages = array_map(function ($variationImage) {
                         return $variationImage['image'];
                     }, $variation['images']);
+                }
 
+                $images = $variationImages;
+                if (isset($variation['base']['images']) && $variation['base']['images'] !== []) {
                     $images = array_merge($variation['base']['images'], $variationImages);
+                }
+
+                if (!empty($images)) {
                     $product->processImages($images);
                 }
 

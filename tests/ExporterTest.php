@@ -306,9 +306,10 @@ class ExporterTest extends TestCase
             ->method('getProductVariations')
             ->willReturn($this->getMockResponse('/pim/variations/one_variation.json'));
 
-        $exporterMock = $this->getExporterMockBuilder(['client' => $clientMock]);
-        $exporterMock->setMethods(['createProductItem']);
-        $exporterMock = $exporterMock->getMock();
+        $builder = $this->getExporterMockBuilder(['client' => $clientMock]);
+        $builder->setMethods(['createProductItem']);
+        /** @var Exporter|MockObject $exporterMock */
+        $exporterMock = $builder->getMock();
 
         $vatMock = $this->getMockBuilder(Vat::class)
             ->disableOriginalConstructor()
