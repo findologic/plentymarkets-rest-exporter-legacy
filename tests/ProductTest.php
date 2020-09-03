@@ -1549,7 +1549,8 @@ class ProductTest extends TestCase
                             [
                                 'type' => 'marketplace'
                             ]
-                        ]
+                        ],
+                        'position' => 0
                     ],
                     [
                         'itemId' => '2',
@@ -1558,7 +1559,8 @@ class ProductTest extends TestCase
                             [
                                 'type' => 'marketplace'
                             ]
-                        ]
+                        ],
+                        'position' => 1
                     ]
                 ],
                 'firstPath'
@@ -1568,12 +1570,14 @@ class ProductTest extends TestCase
                     [
                         'itemId' => '1',
                         'urlMiddle' => 'firstPath',
-                        'availabilities' => []
+                        'availabilities' => [],
+                        'position' => 0
                     ],
                     [
                         'itemId' => '2',
                         'urlMiddle' => 'secondPath',
-                        'availabilities' => []
+                        'availabilities' => [],
+                        'position' => 1
                     ],
                     [
                         'itemId' => '3',
@@ -1582,7 +1586,8 @@ class ProductTest extends TestCase
                             [
                                 'type' => Product::AVAILABILITY_STORE
                             ]
-                        ]
+                        ],
+                        'position' => 2
                     ]
                 ],
                 'thirdPath'
