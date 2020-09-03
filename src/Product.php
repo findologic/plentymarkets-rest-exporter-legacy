@@ -664,7 +664,14 @@ class Product extends ParserAbstract
                 continue;
             }
 
+            // Ignore images without position, as these are usually internal or only visible on product detail
+            // pages.
+            if (!isset($image['position'])) {
+                continue;
+            }
+
             foreach ($imageAvailabilities as $imageAvailability) {
+
                 if ($imageAvailability['type'] === self::AVAILABILITY_STORE) {
                     return $image;
                 }

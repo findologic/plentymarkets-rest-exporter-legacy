@@ -422,7 +422,11 @@ class Exporter
                 $this->getRequiredVariationValues(),
                 $this->getStorePlentyId()
             );
-            $this->getLog()->info(sprintf('Page %d of %d variants pages have been fetched...', $page, $result['lastPageNumber']));
+            if ($result['lastPageNumber'] > 0) {
+                $this->getLog()->info(
+                    sprintf('Page %d of %d variants pages have been fetched...', $page, $result['lastPageNumber'])
+                );
+            }
 
             if (isset($result['entries'])) {
                 while (($variation = array_shift($result['entries']))) {
@@ -478,6 +482,10 @@ class Exporter
                 }
 
                 if (!empty($images)) {
+                    usort($images, function($a, $b) {
+                        return $a['position'] <=> $b['position'];
+                    });
+
                     $product->processImages($images);
                 }
 
