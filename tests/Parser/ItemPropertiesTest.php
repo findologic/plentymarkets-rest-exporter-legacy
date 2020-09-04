@@ -17,11 +17,11 @@ class ItemPropertiesTest extends TestCase
             'Properties without translations' => [
                 'data' => $this->getMockResponse('/item/properties/properties_without_translations.json'),
                 'expectedResult' => [
-                    '32' => [
+                    '30' => [
                         'backendName' => 'Test',
                         'propertyGroupId' => '12',
                         'propertyGroups' => [],
-                        'id' => '32',
+                        'id' => '30',
                         'isSearchable' => true,
                         'valueType' => 'text',
                         'selections' => [],

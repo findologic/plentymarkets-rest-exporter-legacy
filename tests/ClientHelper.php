@@ -5,7 +5,6 @@ namespace Findologic\Plentymarkets\Tests;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\Response;
-use http\Message\Body;
 use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionException;
 
