@@ -579,7 +579,7 @@ class Client
         ];
 
         if ($storePlentyId) {
-            $params['plentyId'] = $storePlentyId;
+            $params['clientId'] = $storePlentyId;
         }
 
         $response = $this->call('GET', $this->getEndpoint('pim/variations', $params));
