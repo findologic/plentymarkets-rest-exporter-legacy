@@ -421,7 +421,7 @@ class Product extends ParserAbstract
             return false;
         }
 
-        if ($this->getField('sort') === '') {
+        if ($variation['base']['isMain'] || $this->getField('sort') === '') {
             $this->setField('sort', $this->getFromArray($variation['base'], 'position'));
         }
 
@@ -506,47 +506,47 @@ class Product extends ParserAbstract
     }
 
     /**
-     * Process variation properties
-     * Some properties (empty type) have mixed up value for actual property name and value
+     * Process characteristics (aka. ItemProperties). Characteristics are assigned directly to items not to variations.
+     * Some characteristics (empty type) have mixed up value for actual characteristic name and value
      *
      * @param array $data
      * @return $this
      */
-    public function processVariationsProperties(array $data)
+    public function processCharacteristics(array $data)
     {
         if (!is_array($data) || empty($data)) {
             $this->handleEmptyData();
             return $this;
         }
 
-        // TODO: Add this once we know how. Data like isSearchable, propertyGroupId, backendName are missing.
-        return $this;
-
+        /** @var ItemProperties $properties */
+        $properties = $this->registry->get('ItemProperties');
         foreach ($data as $property) {
-            // Current API does not support isSearchable.
-//            if (isset($property['property']['isSearchable']) && !$property['property']['isSearchable']) {
-//                continue;
-//            }
+            $propertyData = $properties->getProperty($property['propertyId']);
+
+            if (empty($propertyData) || isset($propertyData['isSearchable']) && !$propertyData['isSearchable']) {
+                continue;
+            }
 
             if (
-                $property['valueType'] === 'empty' &&
-                (!isset($property['property']['propertyGroupId']) || empty($property['property']['propertyGroupId']))
+                $propertyData['valueType'] === 'empty' &&
+                (!isset($propertyData['propertyGroupId']) || empty($propertyData['propertyGroupId']))
             ) {
                 continue;
             }
 
-            $value = $this->getPropertyValue($property);
+            $value = $this->getPropertyValue($propertyData, $property);
 
             // If there is no valid value for the property, use its name as value and the group name as the
             // property name.
             // Properties of type "empty" are a special case since they never have a value of their own.
-            if ($property['property']['valueType'] === 'empty') {
-                $propertyName = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
+            if ($propertyData['valueType'] === 'empty') {
+                $propertyName = $this->getPropertyGroupForPropertyName($propertyData['propertyGroupId']);
             } elseif ($value === $this->getDefaultEmptyValue()) {
-                $propertyName = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
-                $value = $this->getPropertyName($property);
+                $propertyName = $this->getPropertyGroupForPropertyName($propertyData['propertyGroupId']);
+                $value = $this->getPropertyName($propertyData);
             } else {
-                $propertyName = $this->getPropertyName($property);
+                $propertyName = $this->getPropertyName($propertyData);
             }
 
             if ($propertyName != null && $value != "null" && $value != null && $value != $this->getDefaultEmptyValue()) {
@@ -561,7 +561,7 @@ class Product extends ParserAbstract
      * @param array $data
      * @return $this
      */
-    public function processVariationSpecificProperties($data)
+    public function processProperties($data)
     {
         if (!is_array($data) || empty($data)) {
             $this->handleEmptyData();
@@ -664,7 +664,14 @@ class Product extends ParserAbstract
                 continue;
             }
 
+            // Ignore images without position, as these are usually internal or only visible on product detail
+            // pages.
+            if (!isset($image['position'])) {
+                continue;
+            }
+
             foreach ($imageAvailabilities as $imageAvailability) {
+
                 if ($imageAvailability['type'] === self::AVAILABILITY_STORE) {
                     return $image;
                 }
@@ -710,11 +717,11 @@ class Product extends ParserAbstract
      */
     protected function getPropertyName(array $property)
     {
-        $name = $property['property']['backendName'];
+        $name = $property['backendName'];
 
         /** @var ItemProperties $properties */
         $properties = $this->registry->get('ItemProperties');
-        $propertyName = $properties->getPropertyName($property['property']['id']);
+        $propertyName = $properties->getPropertyName($property['id']);
 
         if ($propertyName && $propertyName != $this->getDefaultEmptyValue()) {
             $name = $propertyName;
@@ -728,22 +735,21 @@ class Product extends ParserAbstract
      * @param array $property
      * @return string
      */
-    protected function getPropertyValue(array $property)
+    protected function getPropertyValue(array $property, array $productProperty)
     {
-        $propertyType = $property['property']['valueType'];
+        $propertyType = $property['valueType'];
         $value = $this->getDefaultEmptyValue();
 
         switch ($propertyType) {
             case 'empty':
-                $value = $property['property']['backendName'];
-                if ($propertyName = $this->registry->get('ItemProperties')->getPropertyName($property['property']['id'])) {
+                $value = $property['backendName'];
+                if ($propertyName = $this->registry->get('ItemProperties')->getPropertyName($property['id'])) {
                     $value = $propertyName;
                 }
                 break;
             case 'text':
-                // For some specific shops the structure of text property is different and do not have 'names' field
-                if (isset($property['names'])) {
-                    foreach ($property['names'] as $name) {
+                if (isset($productProperty['valueTexts'])) {
+                    foreach ($productProperty['valueTexts'] as $name) {
                         if (strtoupper($name['lang']) == $this->getLanguageCode()) {
                             $value = $name['value'];
                             break;
@@ -752,7 +758,7 @@ class Product extends ParserAbstract
                 }
                 break;
             case 'selection':
-                foreach ($property['propertySelection'] as $selection) {
+                foreach ($productProperty['propertySelection'] as $selection) {
                     if (strtoupper($selection['lang']) != $this->getLanguageCode()) {
                         continue;
                     }
@@ -761,10 +767,10 @@ class Product extends ParserAbstract
                 }
                 break;
             case 'int':
-                $value = $property['valueInt'];
+                $value = $productProperty['valueInt'];
                 break;
             case 'float':
-                $value = $property['valueFloat'];
+                $value = $productProperty['valueFloat'];
                 break;
             default:
                 $value = $this->getDefaultEmptyValue();
@@ -793,6 +799,10 @@ class Product extends ParserAbstract
      */
     protected function shouldProcessVariation(array $variation)
     {
+        if (!$variation['base']['isActive']) {
+            return false;
+        }
+
         if (isset($variation['base']['automaticListVisibility']) && $variation['base']['automaticListVisibility'] < 1) {
             return false;
         }
@@ -853,7 +863,7 @@ class Product extends ParserAbstract
             $this->setField('ordernumber', array());
         }
 
-        if ($this->getField('variation_id') == $this->getDefaultEmptyValue()) {
+        if ($this->getField('variation_id') == $this->getDefaultEmptyValue() || $variation['base']['isMain']) {
             $this->setField('variation_id', $variation['id']);
         }
 

@@ -422,11 +422,15 @@ class Exporter
                 $this->getRequiredVariationValues(),
                 $this->getStorePlentyId()
             );
-            $this->getLog()->info(sprintf('Page %d of %d variants pages have been fetched...', $page, $result['lastPageNumber']));
+            if ($result['lastPageNumber'] > 0) {
+                $this->getLog()->info(
+                    sprintf('Page %d of %d variants pages have been fetched...', $page, $result['lastPageNumber'])
+                );
+            }
 
             if (isset($result['entries'])) {
                 while (($variation = array_shift($result['entries']))) {
-                    if (array_key_exists($variation['base']['itemId'], $variations)) {
+                    if (isset($variations[$variation['base']['itemId']])) {
                         $variations[$variation['base']['itemId']][] = $variation;
                     } else {
                         $variations[$variation['base']['itemId']] = array($variation);
@@ -450,6 +454,10 @@ class Exporter
         $this->trackSkippedProducts(array_diff($itemIds, $validItemIds));
 
         foreach ($validItemIds as $itemId) {
+            if (!isset($productsData[$itemId])) {
+                continue;
+            }
+
             $product = $this->createProductItem($productsData[$itemId]);
 
             unset($productsData[$itemId]);
@@ -461,21 +469,32 @@ class Exporter
                     continue;
                 }
 
-                if (isset($variation['images'])) {
+                $variationImages = [];
+                if (isset($variation['images']) && $variation['images'] !== []) {
                     $variationImages = array_map(function ($variationImage) {
                         return $variationImage['image'];
                     }, $variation['images']);
+                }
 
+                $images = $variationImages;
+                if (isset($variation['base']['images']) && $variation['base']['images'] !== []) {
                     $images = array_merge($variation['base']['images'], $variationImages);
+                }
+
+                if (!empty($images)) {
+                    usort($images, function($a, $b) {
+                        return $a['position'] <=> $b['position'];
+                    });
+
                     $product->processImages($images);
                 }
 
                 if (isset($variation['base']['characteristics'])) {
-                    $product->processVariationsProperties($variation['base']['characteristics']);
+                    $product->processCharacteristics($variation['base']['characteristics']);
                 }
 
                 if (isset($variation['properties'])) {
-                    $product->processVariationSpecificProperties($variation['properties']);
+                    $product->processProperties($variation['properties']);
                 }
 
                 unset($variation);

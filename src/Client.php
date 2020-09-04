@@ -483,7 +483,7 @@ class Client
      */
     public function getItemProperties()
     {
-        $response = $this->call('GET', $this->getEndpoint('items/properties', array('with' => 'names')));
+        $response = $this->call('GET', $this->getEndpoint('items/properties', array('with' => 'names', 'selections')));
 
         return $this->returnResult($response);
     }
@@ -579,7 +579,7 @@ class Client
         ];
 
         if ($storePlentyId) {
-            $params['plentyId'] = $storePlentyId;
+            $params['clientId'] = $storePlentyId;
         }
 
         $response = $this->call('GET', $this->getEndpoint('pim/variations', $params));
@@ -681,7 +681,6 @@ class Client
                     RequestOptions::FORM_PARAMS => $params,
                     RequestOptions::HTTP_ERRORS => false
                 ]);
-                $this->getLog()->info($request->getUri()->__toString());
 
                 if ($this->debug) {
                     $this->debug->debugCall($request, $response);
