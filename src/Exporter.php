@@ -414,6 +414,7 @@ class Exporter
         $variations = array();
         $itemIds = array_keys($productsData);
 
+        $this->getLog()->info('Getting all variants for products...');
         while ($continue) {
             $this->getClient()->setItemsPerPage(self::NUMBER_OF_ITEMS_PER_PAGE)->setPage($page);
             $result = $this->getClient()->getProductVariations(
@@ -421,13 +422,18 @@ class Exporter
                 $this->getRequiredVariationValues(),
                 $this->getStorePlentyId()
             );
+            if ($result['lastPageNumber'] > 0) {
+                $this->getLog()->info(
+                    sprintf('Page %d of %d variants pages have been fetched...', $page, $result['lastPageNumber'])
+                );
+            }
 
             if (isset($result['entries'])) {
                 while (($variation = array_shift($result['entries']))) {
-                    if (array_key_exists($variation['itemId'], $variations)) {
-                        $variations[$variation['itemId']][] = $variation;
+                    if (isset($variations[$variation['base']['itemId']])) {
+                        $variations[$variation['base']['itemId']][] = $variation;
                     } else {
-                        $variations[$variation['itemId']] = array($variation);
+                        $variations[$variation['base']['itemId']] = array($variation);
                     }
 
                     unset($variation);
@@ -448,6 +454,10 @@ class Exporter
         $this->trackSkippedProducts(array_diff($itemIds, $validItemIds));
 
         foreach ($validItemIds as $itemId) {
+            if (!isset($productsData[$itemId])) {
+                continue;
+            }
+
             $product = $this->createProductItem($productsData[$itemId]);
 
             unset($productsData[$itemId]);
@@ -459,16 +469,32 @@ class Exporter
                     continue;
                 }
 
-                if (isset($variation['itemImages'])) {
-                    $product->processImages($variation['itemImages']);
+                $variationImages = [];
+                if (isset($variation['images']) && $variation['images'] !== []) {
+                    $variationImages = array_map(function ($variationImage) {
+                        return $variationImage['image'];
+                    }, $variation['images']);
                 }
 
-                if (isset($variation['variationProperties'])) {
-                    $product->processVariationsProperties($variation['variationProperties']);
+                $images = $variationImages;
+                if (isset($variation['base']['images']) && $variation['base']['images'] !== []) {
+                    $images = array_merge($variation['base']['images'], $variationImages);
+                }
+
+                if (!empty($images)) {
+                    usort($images, function($a, $b) {
+                        return $a['position'] <=> $b['position'];
+                    });
+
+                    $product->processImages($images);
+                }
+
+                if (isset($variation['base']['characteristics'])) {
+                    $product->processCharacteristics($variation['base']['characteristics']);
                 }
 
                 if (isset($variation['properties'])) {
-                    $product->processVariationSpecificProperties($variation['properties']);
+                    $product->processProperties($variation['properties']);
                 }
 
                 unset($variation);
@@ -694,17 +720,17 @@ class Exporter
 
         $categories = $this->registry->get('categories');
         if ($categories && !empty($categories->getResults())) {
-            $variationValues[] = 'variationCategories';
+            $variationValues[] = 'categories';
         }
 
         $salesPrices = $this->registry->get('salesprices');
         if ($salesPrices && !empty($salesPrices->getResults())) {
-            $variationValues[] = 'variationSalesPrices';
+            $variationValues[] = 'salesPrices';
         }
 
         $attributes = $this->registry->get('attributes');
         if ($attributes && !empty($attributes->getResults())) {
-            $variationValues[] = 'variationAttributeValues';
+            $variationValues[] = 'attributeValues';
         }
 
         // itemProperties aka. Eigenschaften
@@ -717,22 +743,25 @@ class Exporter
             // If shop has no properties set don't request properties as it increases the export time without benefit.
             $allProperties = array_merge($itemProperties->getResults(), $properties->getResults());
             if (!empty($allProperties)) {
-                $variationValues[] = 'variationProperties';
+                $variationValues[] = 'properties.property';
             }
         }
 
         $units = $this->registry->get('units');
         if ($units && !empty($units->getResults())) {
-            $variationValues[] = 'units';
+            $variationValues[] = 'units.unit';
         }
 
         array_push(
             $variationValues,
-            'variationBarcodes',
-            'variationClients',
+            'barcodes',
+            'clients',
             'properties',
-            'itemImages',
-            'tags'
+            'images.image',
+            'tags.tag',
+            'base.item',
+            'base.characteristics',
+            'base.images'
         );
 
         return $variationValues;

@@ -11,4 +11,4 @@ install:
   - composer install
 
 script:
-  - composer run-tests
+  - composer test

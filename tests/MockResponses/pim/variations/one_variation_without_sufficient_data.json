@@ -1,0 +1,567 @@
+{
+  "page": 1,
+  "totalsCount": 1,
+  "isLastPage": true,
+  "entries": [
+    {
+      "categories": [
+        {
+          "categoryId": 1,
+          "position": 0,
+          "isNeckermannPrimary": false
+        }
+      ],
+      "barcodes": [],
+      "additionalSkus": null,
+      "attributeValues": [],
+      "bundleComponents": null,
+      "clients": [],
+      "defaultCategories": null,
+      "images": [],
+      "marketIdentNumbers": null,
+      "markets": null,
+      "salesPrices": [
+        {
+          "salesPriceId": 1,
+          "price": 499
+        }
+      ],
+      "skus": null,
+      "supplier": null,
+      "warehouses": null,
+      "properties": [
+        {
+          "propertyId": 11,
+          "values": [
+            {
+              "id": null,
+              "lang": "0",
+              "value": "100",
+              "description": null
+            }
+          ],
+          "property": {
+            "id": 11,
+            "cast": "float",
+            "typeIdentifier": "item",
+            "position": 7,
+            "createdAt": "2019-11-11 12:41:04",
+            "updatedAt": "2019-11-11 12:41:04",
+            "names": [
+              {
+                "id": 11,
+                "propertyId": 11,
+                "lang": "de",
+                "name": "Bereichsslider",
+                "description": "",
+                "createdAt": "2019-11-11 12:41:04",
+                "updatedAt": "2019-11-11 12:41:04"
+              }
+            ],
+            "selections": [],
+            "options": [
+              {
+                "id": 17,
+                "propertyId": 11,
+                "typeOptionIdentifier": "clients",
+                "createdAt": "2020-05-18 11:55:50",
+                "updatedAt": "2020-05-18 11:55:50",
+                "propertyOptionValues": [
+                  {
+                    "id": 17,
+                    "optionId": 17,
+                    "value": "34185",
+                    "createdAt": "2020-05-18 11:55:50",
+                    "updatedAt": "2020-05-18 11:55:50"
+                  }
+                ]
+              },
+              {
+                "id": 18,
+                "propertyId": 11,
+                "typeOptionIdentifier": "clients",
+                "createdAt": "2020-05-18 11:55:52",
+                "updatedAt": "2020-05-18 11:55:52",
+                "propertyOptionValues": [
+                  {
+                    "id": 18,
+                    "optionId": 18,
+                    "value": "34185",
+                    "createdAt": "2020-05-18 11:55:52",
+                    "updatedAt": "2020-05-18 11:55:52"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "propertyId": 12,
+          "values": [
+            {
+              "id": null,
+              "lang": "0",
+              "value": "7",
+              "description": null
+            },
+            {
+              "id": null,
+              "lang": "0",
+              "value": "8",
+              "description": null
+            }
+          ],
+          "property": {
+            "id": 12,
+            "cast": "multiSelection",
+            "typeIdentifier": "item",
+            "position": 3,
+            "createdAt": "2020-02-18 15:26:42",
+            "updatedAt": "2020-02-18 15:26:42",
+            "names": [
+              {
+                "id": 12,
+                "propertyId": 12,
+                "lang": "de",
+                "name": "Boom",
+                "description": "Einfach BOOM",
+                "createdAt": "2020-02-18 15:26:42",
+                "updatedAt": "2020-02-18 15:26:42"
+              }
+            ],
+            "selections": [
+              {
+                "id": 7,
+                "propertyId": 12,
+                "position": 0,
+                "createdAt": "2020-02-18 15:28:48",
+                "updatedAt": "2020-02-18 15:28:48",
+                "relation": {
+                  "id": 27,
+                  "propertyId": 12,
+                  "relationTypeIdentifier": null,
+                  "relationTargetId": null,
+                  "selectionRelationId": 7,
+                  "createdAt": "2020-02-18 15:28:48",
+                  "updatedAt": "2020-02-18 15:28:48",
+                  "relationValues": [
+                    {
+                      "id": 24,
+                      "propertyRelationId": 27,
+                      "lang": "DE",
+                      "value": "BAAM",
+                      "description": null,
+                      "createdAt": "2020-02-18 15:28:48",
+                      "updatedAt": "2020-02-18 15:28:48"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": 8,
+                "propertyId": 12,
+                "position": 0,
+                "createdAt": "2020-02-18 15:29:02",
+                "updatedAt": "2020-02-18 15:29:02",
+                "relation": {
+                  "id": 28,
+                  "propertyId": 12,
+                  "relationTypeIdentifier": null,
+                  "relationTargetId": null,
+                  "selectionRelationId": 8,
+                  "createdAt": "2020-02-18 15:29:02",
+                  "updatedAt": "2020-02-18 15:29:02",
+                  "relationValues": [
+                    {
+                      "id": 25,
+                      "propertyRelationId": 28,
+                      "lang": "DE",
+                      "value": "Jawoll!!!!!",
+                      "description": null,
+                      "createdAt": "2020-02-18 15:29:02",
+                      "updatedAt": "2020-02-18 15:29:02"
+                    }
+                  ]
+                }
+              }
+            ],
+            "options": [
+              {
+                "id": 1,
+                "propertyId": 12,
+                "typeOptionIdentifier": "clients",
+                "createdAt": "2020-02-18 15:29:22",
+                "updatedAt": "2020-02-18 15:29:22",
+                "propertyOptionValues": [
+                  {
+                    "id": 1,
+                    "optionId": 1,
+                    "value": "34185",
+                    "createdAt": "2020-02-18 15:29:22",
+                    "updatedAt": "2020-02-18 15:29:22"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "propertyId": 10,
+          "values": [
+            {
+              "id": null,
+              "lang": "0",
+              "value": "0",
+              "description": null
+            }
+          ],
+          "property": {
+            "id": 10,
+            "cast": "selection",
+            "typeIdentifier": "item",
+            "position": 0,
+            "createdAt": "2019-07-29 11:27:28",
+            "updatedAt": "2019-07-29 11:27:28",
+            "names": [
+              {
+                "id": 10,
+                "propertyId": 10,
+                "lang": "de",
+                "name": "Auswahl Eigenschaft",
+                "description": "",
+                "createdAt": "2019-07-29 11:27:28",
+                "updatedAt": "2019-07-29 11:27:28"
+              }
+            ],
+            "selections": [
+              {
+                "id": 5,
+                "propertyId": 10,
+                "position": 0,
+                "createdAt": "2019-07-29 11:27:56",
+                "updatedAt": "2019-07-29 11:27:56",
+                "relation": {
+                  "id": 17,
+                  "propertyId": 10,
+                  "relationTypeIdentifier": null,
+                  "relationTargetId": null,
+                  "selectionRelationId": 5,
+                  "createdAt": "2019-07-29 11:27:56",
+                  "updatedAt": "2019-07-29 11:27:56",
+                  "relationValues": [
+                    {
+                      "id": 15,
+                      "propertyRelationId": 17,
+                      "lang": "DE",
+                      "value": "Auswahl 1",
+                      "description": null,
+                      "createdAt": "2019-07-29 11:27:56",
+                      "updatedAt": "2019-07-29 11:27:56"
+                    }
+                  ]
+                }
+              },
+              {
+                "id": 6,
+                "propertyId": 10,
+                "position": 0,
+                "createdAt": "2019-07-29 11:28:05",
+                "updatedAt": "2019-07-29 11:28:05",
+                "relation": {
+                  "id": 18,
+                  "propertyId": 10,
+                  "relationTypeIdentifier": null,
+                  "relationTargetId": null,
+                  "selectionRelationId": 6,
+                  "createdAt": "2019-07-29 11:28:05",
+                  "updatedAt": "2019-07-29 11:28:05",
+                  "relationValues": [
+                    {
+                      "id": 16,
+                      "propertyRelationId": 18,
+                      "lang": "DE",
+                      "value": "Auswahl 2",
+                      "description": null,
+                      "createdAt": "2019-07-29 11:28:05",
+                      "updatedAt": "2019-07-29 11:28:05"
+                    }
+                  ]
+                }
+              }
+            ],
+            "options": [
+              {
+                "id": 11,
+                "propertyId": 10,
+                "typeOptionIdentifier": "clients",
+                "createdAt": "2020-05-06 12:39:26",
+                "updatedAt": "2020-05-06 12:39:26",
+                "propertyOptionValues": [
+                  {
+                    "id": 11,
+                    "optionId": 11,
+                    "value": "34185",
+                    "createdAt": "2020-05-06 12:39:26",
+                    "updatedAt": "2020-05-06 12:39:26"
+                  }
+                ]
+              },
+              {
+                "id": 12,
+                "propertyId": 10,
+                "typeOptionIdentifier": "clients",
+                "createdAt": "2020-05-06 12:39:43",
+                "updatedAt": "2020-05-06 12:39:43",
+                "propertyOptionValues": [
+                  {
+                    "id": 12,
+                    "optionId": 12,
+                    "value": "34185",
+                    "createdAt": "2020-05-06 12:39:43",
+                    "updatedAt": "2020-05-06 12:39:43"
+                  }
+                ]
+              },
+              {
+                "id": 13,
+                "propertyId": 10,
+                "typeOptionIdentifier": "clients",
+                "createdAt": "2020-05-06 12:39:44",
+                "updatedAt": "2020-05-06 12:39:44",
+                "propertyOptionValues": [
+                  {
+                    "id": 13,
+                    "optionId": 13,
+                    "value": "34185",
+                    "createdAt": "2020-05-06 12:39:44",
+                    "updatedAt": "2020-05-06 12:39:44"
+                  }
+                ]
+              },
+              {
+                "id": 14,
+                "propertyId": 10,
+                "typeOptionIdentifier": "clients",
+                "createdAt": "2020-05-06 12:39:45",
+                "updatedAt": "2020-05-06 12:39:45",
+                "propertyOptionValues": [
+                  {
+                    "id": 14,
+                    "optionId": 14,
+                    "value": "34185",
+                    "createdAt": "2020-05-06 12:39:45",
+                    "updatedAt": "2020-05-06 12:39:45"
+                  }
+                ]
+              },
+              {
+                "id": 15,
+                "propertyId": 10,
+                "typeOptionIdentifier": "clients",
+                "createdAt": "2020-05-06 12:42:00",
+                "updatedAt": "2020-05-06 12:42:00",
+                "propertyOptionValues": [
+                  {
+                    "id": 15,
+                    "optionId": 15,
+                    "value": "34185",
+                    "createdAt": "2020-05-06 12:42:00",
+                    "updatedAt": "2020-05-06 12:42:00"
+                  }
+                ]
+              },
+              {
+                "id": 16,
+                "propertyId": 10,
+                "typeOptionIdentifier": "units",
+                "createdAt": "2020-05-06 12:42:04",
+                "updatedAt": "2020-05-06 12:42:04",
+                "propertyOptionValues": [
+                  {
+                    "id": 16,
+                    "optionId": 16,
+                    "value": "C62",
+                    "createdAt": "2020-05-06 12:42:04",
+                    "updatedAt": "2020-05-06 12:42:04"
+                  }
+                ]
+              }
+            ]
+          }
+        },
+        {
+          "propertyId": 9,
+          "values": [
+            {
+              "id": null,
+              "lang": "0",
+              "value": "8",
+              "description": null
+            }
+          ],
+          "property": {
+            "id": 9,
+            "cast": "int",
+            "typeIdentifier": "item",
+            "position": 1,
+            "createdAt": "2019-07-16 11:19:41",
+            "updatedAt": "2019-07-16 11:19:41",
+            "names": [
+              {
+                "id": 9,
+                "propertyId": 9,
+                "lang": "de",
+                "name": "Hunde",
+                "description": "",
+                "createdAt": "2019-07-16 11:19:41",
+                "updatedAt": "2019-07-16 11:19:41"
+              }
+            ],
+            "selections": [],
+            "options": []
+          }
+        }
+      ],
+      "tags": [],
+      "comments": null,
+      "id": 1001,
+      "timestamps": null,
+      "unit": null,
+      "base": {
+        "isMain": false,
+        "mainVariationId": null,
+        "itemId": 103,
+        "position": 0,
+        "isActive": true,
+        "number": "S-000813-C",
+        "model": "",
+        "externalId": "",
+        "availability": 5,
+        "estimatedAvailableAt": null,
+        "purchasePrice": 0,
+        "movingAveragePrice": 0,
+        "priceCalculationId": null,
+        "picking": null,
+        "stockLimitation": 1,
+        "isVisibleIfNetStockIsPositive": true,
+        "isInvisibleIfNetStockIsNotPositive": true,
+        "isAvailableIfNetStockIsPositive": true,
+        "isUnavailableIfNetStockIsNotPositive": true,
+        "isVisibleInListIfNetStockIsPositive": false,
+        "isInvisibleInListIfNetStockIsNotPositive": false,
+        "mainWarehouseId": 1,
+        "maximumOrderQuantity": 0,
+        "minimumOrderQuantity": null,
+        "intervalOrderQuantity": null,
+        "availableUntil": null,
+        "releasedAt": null,
+        "name": "",
+        "weightG": 0,
+        "weightNetG": 0,
+        "widthMM": 0,
+        "lengthMM": 0,
+        "heightMM": 0,
+        "extraShippingCharge1": 0,
+        "extraShippingCharge2": 0,
+        "unitsContained": 1,
+        "palletTypeId": 24,
+        "packingUnits": 1,
+        "packingUnitTypeId": 0,
+        "transportationCosts": 0,
+        "storageCosts": 0,
+        "customs": 0,
+        "operatingCosts": 0,
+        "vatId": 0,
+        "bundleType": null,
+        "automaticClientVisibility": 1,
+        "automaticListVisibility": 3,
+        "isHiddenInCategoryList": false,
+        "defaultShippingCosts": null,
+        "mayShowUnitPrice": true,
+        "parentVariationId": null,
+        "parentVariationQuantity": null,
+        "singleItemCount": null,
+        "hasCalculatedBundleWeight": null,
+        "hasCalculatedBundleNetWeight": null,
+        "hasCalculatedBundlePurchasePrice": null,
+        "hasCalculatedBundleMovingAveragePrice": null,
+        "customsTariffNumber": "",
+        "categoriesInherited": false,
+        "referrerInherited": false,
+        "clientsInherited": false,
+        "salesPricesInherited": false,
+        "supplierInherited": false,
+        "warehousesInherited": false,
+        "propertiesInherited": false,
+        "tagsInherited": false,
+        "item": {
+          "id": 103,
+          "position": 0,
+          "add_cms_page": "0",
+          "condition": 0,
+          "free1": "",
+          "free2": "",
+          "free3": null,
+          "free4": null,
+          "free5": null,
+          "free6": null,
+          "free7": "0",
+          "free8": "0",
+          "free9": "0",
+          "free10": "0",
+          "free11": "0",
+          "free12": "0",
+          "free13": "0",
+          "free14": "0",
+          "free15": "0",
+          "free16": "0",
+          "free17": "0",
+          "free18": "0",
+          "free19": "0",
+          "free20": "0",
+          "gimahhot": "0",
+          "storeSpecial": 0,
+          "ownerId": null,
+          "manufacturerId": 1,
+          "producingCountryId": 1,
+          "revenueAccount": 0,
+          "couponRestriction": 0,
+          "conditionApi": 0,
+          "createdAt": "2014-12-24T00:00:00+01:00",
+          "updatedAt": "2020-08-21T12:27:25+02:00",
+          "isSubscribable": false,
+          "amazonFbaPlatform": 0,
+          "isShippableByAmazon": false,
+          "amazonProductType": 0,
+          "amazonFedas": "",
+          "ebayPresetId": null,
+          "ebayCategory": null,
+          "ebayCategory2": null,
+          "ebayStoreCategory": null,
+          "ebayStoreCategory2": null,
+          "rakutenCategoryId": 0,
+          "flagOne": 5,
+          "flagTwo": 2,
+          "ageRestriction": 0,
+          "feedback": 0,
+          "itemType": "default",
+          "stockType": 0,
+          "sitemapPublished": "0",
+          "isSerialNumber": false,
+          "isShippingPackage": false,
+          "maximumOrderQuantity": 0,
+          "variationCount": "2",
+          "customsTariffNumber": "",
+          "mainVariationId": 1001,
+          "inactive": true
+        },
+        "characteristics": [],
+        "images": []
+      }
+    }
+  ],
+  "lastPageNumber": 1,
+  "firstOnPage": 1,
+  "lastOnPage": 1,
+  "itemsPerPage": 100
+}

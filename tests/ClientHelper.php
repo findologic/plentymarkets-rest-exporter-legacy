@@ -5,7 +5,7 @@ namespace Findologic\Plentymarkets\Tests;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Psr7\Response;
-use http\Message\Body;
+use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionException;
 
 trait ClientHelper
@@ -13,6 +13,7 @@ trait ClientHelper
     /**
      * @param array|null $methods
      * @throws ReflectionException
+     * @return GuzzleClient|MockObject
      */
     public function getHttpClientMock($methods = null): GuzzleClient
     {

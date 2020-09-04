@@ -1,0 +1,34 @@
+{
+  "page": 1,
+  "totalsCount": 2,
+  "isLastPage": true,
+  "entries": [
+    {
+      "id": "30",
+      "backendName": "Test",
+      "propertyGroupId": "12",
+      "propertyGroups": [],
+      "isSearchable": true,
+      "valueType": "text"
+    },
+    {
+      "id": "32",
+      "backendName": "Test 2",
+      "propertyGroupId": "11",
+      "names": [
+        {
+          "lang": "EN",
+          "name": "Test 2 EN",
+          "description": "Test 2 Description"
+        }
+      ],
+      "isSearchable": true,
+      "valueType": "text",
+      "propertyGroups": []
+    }
+  ],
+  "lastPageNumber": 1,
+  "firstOnPage": 1,
+  "lastOnPage": 2,
+  "itemsPerPage": 100
+}

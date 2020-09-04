@@ -421,20 +421,20 @@ class Product extends ParserAbstract
             return false;
         }
 
-        if ($variation['isMain'] || $this->getField('sort') === '') {
-            $this->setField('sort', $this->getFromArray($variation, 'position'));
+        if ($variation['base']['isMain'] || $this->getField('sort') === '') {
+            $this->setField('sort', $this->getFromArray($variation['base'], 'position'));
         }
 
         $this->setField(
             'taxrate',
-            $this->getRegistry()->get('vat')->getVatRateByVatId($this->getFromArray($variation, 'vatId'))
+            $this->getRegistry()->get('vat')->getVatRateByVatId($this->getFromArray($variation['base'], 'vatId'))
         );
 
         $this->processVariationIdentifiers($variation)
-            ->processVariationCategories($this->getFromArray($variation, 'variationCategories'))
-            ->processVariationGroups($this->getFromArray($variation, 'variationClients'))
-            ->processVariationPrices($this->getFromArray($variation, 'variationSalesPrices'))
-            ->processVariationAttributes($this->getFromArray($variation, 'variationAttributeValues'))
+            ->processVariationCategories($this->getFromArray($variation, 'categories'))
+            ->processVariationGroups($this->getFromArray($variation, 'clients'))
+            ->processVariationPrices($this->getFromArray($variation, 'salesPrices'))
+            ->processVariationAttributes($this->getFromArray($variation, 'attributeValues'))
             ->processUnits($this->getFromArray($variation, 'unit'))
             ->processTags($this->getFromArray($variation, 'tags'));
 
@@ -506,43 +506,47 @@ class Product extends ParserAbstract
     }
 
     /**
-     * Process variation properties
-     * Some properties (empty type) have mixed up value for actual property name and value
+     * Process characteristics (aka. ItemProperties). Characteristics are assigned directly to items not to variations.
+     * Some characteristics (empty type) have mixed up value for actual characteristic name and value
      *
      * @param array $data
      * @return $this
      */
-    public function processVariationsProperties(array $data)
+    public function processCharacteristics(array $data)
     {
         if (!is_array($data) || empty($data)) {
             $this->handleEmptyData();
             return $this;
         }
 
+        /** @var ItemProperties $properties */
+        $properties = $this->registry->get('ItemProperties');
         foreach ($data as $property) {
-            if (isset($property['property']['isSearchable']) && !$property['property']['isSearchable']) {
+            $propertyData = $properties->getProperty($property['propertyId']);
+
+            if (empty($propertyData) || isset($propertyData['isSearchable']) && !$propertyData['isSearchable']) {
                 continue;
             }
 
             if (
-                $property['property']['valueType'] === 'empty' &&
-                (!isset($property['property']['propertyGroupId']) || empty($property['property']['propertyGroupId']))
+                $propertyData['valueType'] === 'empty' &&
+                (!isset($propertyData['propertyGroupId']) || empty($propertyData['propertyGroupId']))
             ) {
                 continue;
             }
 
-            $value = $this->getPropertyValue($property);
+            $value = $this->getPropertyValue($propertyData, $property);
 
             // If there is no valid value for the property, use its name as value and the group name as the
             // property name.
             // Properties of type "empty" are a special case since they never have a value of their own.
-            if ($property['property']['valueType'] === 'empty') {
-                $propertyName = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
+            if ($propertyData['valueType'] === 'empty') {
+                $propertyName = $this->getPropertyGroupForPropertyName($propertyData['propertyGroupId']);
             } elseif ($value === $this->getDefaultEmptyValue()) {
-                $propertyName = $this->getPropertyGroupForPropertyName($property['property']['propertyGroupId']);
-                $value = $this->getPropertyName($property);
+                $propertyName = $this->getPropertyGroupForPropertyName($propertyData['propertyGroupId']);
+                $value = $this->getPropertyName($propertyData);
             } else {
-                $propertyName = $this->getPropertyName($property);
+                $propertyName = $this->getPropertyName($propertyData);
             }
 
             if ($propertyName != null && $value != "null" && $value != null && $value != $this->getDefaultEmptyValue()) {
@@ -557,7 +561,7 @@ class Product extends ParserAbstract
      * @param array $data
      * @return $this
      */
-    public function processVariationSpecificProperties($data)
+    public function processProperties($data)
     {
         if (!is_array($data) || empty($data)) {
             $this->handleEmptyData();
@@ -573,32 +577,32 @@ class Product extends ParserAbstract
         }
 
         foreach ($data as $property) {
-            if ($property['relationTypeIdentifier'] != ItemProperties::PROPERTY_TYPE_ITEM) {
+            if ($property['property']['typeIdentifier'] != ItemProperties::PROPERTY_TYPE_ITEM) {
                 continue;
             }
 
             $propertyName = $properties->getPropertyName($property['propertyId']);
             $value = null;
 
-            if ($property['propertyRelation']['cast'] == 'empty') {
+            if ($property['property']['cast'] == 'empty') {
                 $value = $propertyName;
                 $propertyName = $properties->getPropertyGroupName($property['propertyId']);
-            } else if ($property['propertyRelation']['cast'] == 'shortText' || $property['propertyRelation']['cast'] == 'longText') {
-                foreach ($property['relationValues'] as $relationValue) {
+            } else if ($property['property']['cast'] == 'shortText' || $property['property']['cast'] == 'longText') {
+                foreach ($property['values'] as $relationValue) {
                     if (strtoupper($relationValue['lang']) != strtoupper($this->getLanguageCode())) {
                         continue;
                     }
 
                     $value = $relationValue['value'];
                 }
-            } else if ($property['propertyRelation']['cast'] == 'selection') {
-                $value = $properties->getPropertySelectionValue($property['propertyId'], $property['relationValues'][0]['value']);
-            } else if ($property['propertyRelation']['cast'] == 'multiSelection') {
+            } else if ($property['property']['cast'] == 'selection') {
+                $value = $properties->getPropertySelectionValue($property['propertyId'], $property['values'][0]['value']);
+            } else if ($property['property']['cast'] == 'multiSelection') {
                 /** @var PropertySelections $propertySelections */
                 $propertySelections = $this->registry->get('PropertySelections');
-                $value = $propertySelections->getPropertySelectionValue($property['propertyId'], $property['relationValues']);
+                $value = $propertySelections->getPropertySelectionValue($property['propertyId'], $property['values']);
             } else {
-                $value = $property['relationValues'][0]['value'] ?? null;
+                $value = $property['values'][0]['value'] ?? null;
             }
 
             if ($this->isPropertyEmpty($propertyName, $value)) {
@@ -660,7 +664,14 @@ class Product extends ParserAbstract
                 continue;
             }
 
+            // Ignore images without position, as these are usually internal or only visible on product detail
+            // pages.
+            if (!isset($image['position'])) {
+                continue;
+            }
+
             foreach ($imageAvailabilities as $imageAvailability) {
+
                 if ($imageAvailability['type'] === self::AVAILABILITY_STORE) {
                     return $image;
                 }
@@ -706,11 +717,11 @@ class Product extends ParserAbstract
      */
     protected function getPropertyName(array $property)
     {
-        $name = $property['property']['backendName'];
+        $name = $property['backendName'];
 
         /** @var ItemProperties $properties */
         $properties = $this->registry->get('ItemProperties');
-        $propertyName = $properties->getPropertyName($property['property']['id']);
+        $propertyName = $properties->getPropertyName($property['id']);
 
         if ($propertyName && $propertyName != $this->getDefaultEmptyValue()) {
             $name = $propertyName;
@@ -724,22 +735,21 @@ class Product extends ParserAbstract
      * @param array $property
      * @return string
      */
-    protected function getPropertyValue(array $property)
+    protected function getPropertyValue(array $property, array $productProperty)
     {
-        $propertyType = $property['property']['valueType'];
+        $propertyType = $property['valueType'];
         $value = $this->getDefaultEmptyValue();
 
         switch ($propertyType) {
             case 'empty':
-                $value = $property['property']['backendName'];
-                if ($propertyName = $this->registry->get('ItemProperties')->getPropertyName($property['property']['id'])) {
+                $value = $property['backendName'];
+                if ($propertyName = $this->registry->get('ItemProperties')->getPropertyName($property['id'])) {
                     $value = $propertyName;
                 }
                 break;
             case 'text':
-                // For some specific shops the structure of text property is different and do not have 'names' field
-                if (isset($property['names'])) {
-                    foreach ($property['names'] as $name) {
+                if (isset($productProperty['valueTexts'])) {
+                    foreach ($productProperty['valueTexts'] as $name) {
                         if (strtoupper($name['lang']) == $this->getLanguageCode()) {
                             $value = $name['value'];
                             break;
@@ -748,7 +758,7 @@ class Product extends ParserAbstract
                 }
                 break;
             case 'selection':
-                foreach ($property['propertySelection'] as $selection) {
+                foreach ($productProperty['propertySelection'] as $selection) {
                     if (strtoupper($selection['lang']) != $this->getLanguageCode()) {
                         continue;
                     }
@@ -757,10 +767,10 @@ class Product extends ParserAbstract
                 }
                 break;
             case 'int':
-                $value = $property['valueInt'];
+                $value = $productProperty['valueInt'];
                 break;
             case 'float':
-                $value = $property['valueFloat'];
+                $value = $productProperty['valueFloat'];
                 break;
             default:
                 $value = $this->getDefaultEmptyValue();
@@ -789,19 +799,19 @@ class Product extends ParserAbstract
      */
     protected function shouldProcessVariation(array $variation)
     {
-        if ($variation['isActive'] === false) {
+        if (!$variation['base']['isActive']) {
             return false;
         }
 
-        if (isset($variation['automaticListVisibility']) && $variation['automaticListVisibility'] < 1) {
+        if (isset($variation['base']['automaticListVisibility']) && $variation['base']['automaticListVisibility'] < 1) {
             return false;
         }
 
-        if (isset($variation['availableUntil']) && !$this->isDateStillAvailable($variation['availableUntil'])) {
+        if (isset($variation['base']['availableUntil']) && !$this->isDateStillAvailable($variation['base']['availableUntil'])) {
             return false;
         }
 
-        if (!$this->isProductAvailable($variation['availability'])) {
+        if (!$this->isProductAvailable($variation['base']['availability'])) {
             return false;
         }
 
@@ -853,16 +863,18 @@ class Product extends ParserAbstract
             $this->setField('ordernumber', array());
         }
 
-        if ($this->getField('variation_id') == $this->getDefaultEmptyValue() || $variation['isMain']) {
+        if ($this->getField('variation_id') == $this->getDefaultEmptyValue() || $variation['base']['isMain']) {
             $this->setField('variation_id', $variation['id']);
         }
 
         foreach ($identificators as $identificator) {
-            $this->addVariationIdentifier($this->getFromArray($variation, $identificator));
+            $data = $identificator === 'id' ? $variation : $variation['base'];
+
+            $this->addVariationIdentifier($this->getFromArray($data, $identificator));
         }
 
-        if (isset($variation['variationBarcodes'])) {
-            $this->processVariationsBarcodes($variation['variationBarcodes']);
+        if (isset($variation['barcodes'])) {
+            $this->processVariationsBarcodes($variation['barcodes']);
         }
 
         return $this;
@@ -1071,10 +1083,6 @@ class Product extends ParserAbstract
         }
 
         foreach ($data as $tag) {
-            if ($tag['tagType'] !== 'variation') {
-                continue;
-            }
-
             $this->setAttributeField('cat_id', $tag['tagId']);
 
             $correctTagName = $tag['tag']['tagName'];

@@ -2,50 +2,68 @@
 
 namespace Findologic\PlentymarketsTest\Parser;
 
+use Findologic\Plentymarkets\Tests\MockResponseHelper;
 use PHPUnit\Framework\TestCase;
 
 class ItemPropertiesTest extends TestCase
 {
+    use MockResponseHelper;
+
     protected $defaultEmptyValue = '';
 
     public function providerParse()
     {
-        return array(
-            'Properties with no translations' => array(
-                array(
-                    'entries' => array(
-                        array('id' => '32', 'backendName' => 'Test', 'propertyGroupId' => '12'),
-                    )
-                ),
-                array(
-                    '32' => array('backendName' => 'Test', 'propertyGroupId' => '12', 'propertyGroups' => array())
-                )
-            ),
-            'Properties with translations' => array(
-                array(
-                    'entries' => array(
-                        array('id' => '30', 'backendName' => 'Test', 'propertyGroupId' => '12', 'propertyGroups' => array()),
-                        array('id' => '32', 'backendName' => 'Test 2', 'propertyGroupId' => '11', 'names' => array(
-                                array(
-                                    'lang' => 'EN',
-                                    'name' => 'Test 2 EN',
-                                    'description' => 'Test 2 Description'
-                                ),
-                            ),
-                            'propertyGroups' => array()
-                        )
-                    )
-                ),
-                array(
-                    '30' => array('backendName' => 'Test', 'propertyGroupId' => '12', 'propertyGroups' => array()),
-                    '32' => array('backendName' => 'Test 2', 'propertyGroupId' => '11', 'names' => array(
-                            'EN' => array('name' => 'Test 2 EN', 'description' => 'Test 2 Description')
-                        ),
-                        'propertyGroups' => array()
-                    )
-                )
-            )
-        );
+        return [
+            'Properties without translations' => [
+                'data' => $this->getMockResponse('/item/properties/properties_without_translations.json'),
+                'expectedResult' => [
+                    '30' => [
+                        'backendName' => 'Test',
+                        'propertyGroupId' => '12',
+                        'propertyGroups' => [],
+                        'id' => '30',
+                        'isSearchable' => true,
+                        'valueType' => 'text',
+                        'selections' => [],
+                        'valueInt' => null,
+                        'valueFloat' => null
+                    ]
+                ]
+            ],
+            'Properties with translations' => [
+                'data' => $this->getMockResponse('/item/properties/properties_with_translations.json'),
+                'expectedResult' => [
+                    '30' => [
+                        'backendName' => 'Test',
+                        'propertyGroupId' => '12',
+                        'propertyGroups' => [],
+                        'id' => '30',
+                        'isSearchable' => true,
+                        'valueType' => 'text',
+                        'selections' => [],
+                        'valueInt' => null,
+                        'valueFloat' => null,
+                    ],
+                    '32' => [
+                        'backendName' => 'Test 2',
+                        'propertyGroupId' => '11',
+                        'names' => [
+                            'EN' => [
+                                'name' => 'Test 2 EN',
+                                'description' => 'Test 2 Description'
+                            ]
+                        ],
+                        'propertyGroups' => [],
+                        'id' => '32',
+                        'isSearchable' => true,
+                        'valueType' => 'text',
+                        'selections' => [],
+                        'valueInt' => null,
+                        'valueFloat' => null
+                    ]
+                ]
+            ]
+        ];
     }
 
     /**

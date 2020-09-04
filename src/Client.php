@@ -483,7 +483,7 @@ class Client
      */
     public function getItemProperties()
     {
-        $response = $this->call('GET', $this->getEndpoint('items/properties', array('with' => 'names')));
+        $response = $this->call('GET', $this->getEndpoint('items/properties', array('with' => 'names', 'selections')));
 
         return $this->returnResult($response);
     }
@@ -573,14 +573,16 @@ class Client
         $params = [
             'with' => $with,
             'isActive' => true,
-            'itemId' => $productIds
+            'isSalable' => true,
+            'itemIds' => $productIds,
+            'sortBy' => 'itemId_asc',
         ];
 
         if ($storePlentyId) {
-            $params['plentyId'] = $storePlentyId;
+            $params['clientId'] = $storePlentyId;
         }
 
-        $response = $this->call('GET', $this->getEndpoint('items/variations', $params));
+        $response = $this->call('GET', $this->getEndpoint('pim/variations', $params));
 
         return $this->returnResult($response);
     }
