@@ -573,7 +573,6 @@ class Client
         $params = [
             'with' => $with,
             'isActive' => true,
-            'isSalable' => true,
             'itemIds' => $productIds,
             'sortBy' => 'itemId_asc',
         ];
