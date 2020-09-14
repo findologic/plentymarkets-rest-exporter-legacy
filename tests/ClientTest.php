@@ -656,7 +656,6 @@ class ClientTest extends TestCase
                 'with' => $expectedWith,
                 'isActive' => true,
                 'itemIds' => ['1'],
-                'isSalable' => true,
                 'sortBy' => 'itemId_asc',
             ]
         );
