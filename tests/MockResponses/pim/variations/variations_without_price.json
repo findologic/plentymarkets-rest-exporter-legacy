@@ -444,7 +444,7 @@
         "isMain": true,
         "mainVariationId": null,
         "itemId": "Test Id",
-        "position": 1,
+        "position": 0,
         "isActive": true,
         "number": "Test Number",
         "model": "Test Model",
