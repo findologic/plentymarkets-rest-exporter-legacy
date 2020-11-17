@@ -1706,7 +1706,7 @@ class ProductTest extends TestCase
      *
      * @return Registry|MockObject
      */
-    protected function getRegistryMock(array $methods = []): Registry
+    protected function getRegistryMock(array $methods = null): Registry
     {
         $mock = $this->getMockBuilder('\Findologic\Plentymarkets\Registry')
             ->disableOriginalConstructor()
