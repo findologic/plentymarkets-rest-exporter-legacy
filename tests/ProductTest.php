@@ -1658,6 +1658,22 @@ class ProductTest extends TestCase
         $this->assertSame($expectedResult, $productMock->getField('image'));
     }
 
+    public function testSalesFrequencyIsProperlyExported(): void
+    {
+        $registryMock = $this->getRegistryMock(['get', 'getVatRateByVatId']);
+        $registryMock->expects($this->any())->method('get')->willReturnSelf();
+        $registryMock->expects($this->any())->method('getVatRateByVatId')->willReturn(1);
+
+        $productMock = $this->getProductMock(['getExportSalesFrequency', 'getRegistry']);
+        $productMock->expects($this->once())->method('getExportSalesFrequency')->willReturn(true);
+        $productMock->expects($this->any())->method('getRegistry')->willReturn($registryMock);
+
+        $response = $this->getMockResponse('/pim/variations/variation_with_position_as_sales_frequency.json');
+        $productMock->processVariation($response['entries'][0]);
+
+        $this->assertSame(1337, $productMock->getField('sales_frequency'));
+    }
+
     /**
      * @param array $methods
      * @param array|bool $constructorArgs
@@ -1690,11 +1706,11 @@ class ProductTest extends TestCase
      *
      * @return Registry|MockObject
      */
-    protected function getRegistryMock(): Registry
+    protected function getRegistryMock(array $methods = []): Registry
     {
         $mock = $this->getMockBuilder('\Findologic\Plentymarkets\Registry')
             ->disableOriginalConstructor()
-            ->setMethods(null)
+            ->setMethods($methods)
             ->getMock();
 
         return $mock;

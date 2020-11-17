@@ -447,8 +447,8 @@ class Product extends ParserAbstract
             ->processUnits($this->getFromArray($variation, 'unit'))
             ->processTags($this->getFromArray($variation, 'tags'));
 
-        if ($this->getExportSalesFrequency() && isset($variation['salesRank']) && $this->getField('sales_frequency') < $variation['salesRank']) {
-            $this->setField('sales_frequency', $variation['salesRank']);
+        if ($this->getExportSalesFrequency() && isset($variation['base']['position']) && $this->getField('sales_frequency') < $variation['base']['position']) {
+            $this->setField('sales_frequency', $variation['base']['position']);
         }
 
         return true;
