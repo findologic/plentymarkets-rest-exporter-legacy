@@ -339,11 +339,12 @@ class Product extends ParserAbstract
      * Plentymarkets do not return full URL so it should be formatted by given information
      *
      * @param string $path
+     * @param int $mainVariationId
      * @return string
      */
-    public function getProductFullUrl($path)
+    public function getProductFullUrl($path, $mainVariationId)
     {
-        if (!is_string($path) || $path == '') {
+        if (!is_string($path) || $path == '' || !$mainVariationId) {
             $this->handleEmptyData();
             return $this->getDefaultEmptyValue();
         }
@@ -358,7 +359,15 @@ class Product extends ParserAbstract
         $path = '/' . ltrim($path, '/');
         $path = rtrim($path, '/');
 
-        return $this->protocol . $this->getStoreUrl() . $prefix . $path . '/' . 'a-' . $this->getItemId();
+        return sprintf(
+            '%s%s%s%s_%s_%s',
+            $this->protocol,
+            $this->getStoreUrl(),
+            $prefix,
+            $path,
+            $this->getItemId(),
+            $mainVariationId
+        );
     }
 
     /**
@@ -438,8 +447,8 @@ class Product extends ParserAbstract
             ->processUnits($this->getFromArray($variation, 'unit'))
             ->processTags($this->getFromArray($variation, 'tags'));
 
-        if ($this->getExportSalesFrequency() && isset($variation['salesRank']) && $this->getField('sales_frequency') < $variation['salesRank']) {
-            $this->setField('sales_frequency', $variation['salesRank']);
+        if ($this->getExportSalesFrequency() && isset($variation['base']['position']) && $this->getField('sales_frequency') < $variation['base']['position']) {
+            $this->setField('sales_frequency', $variation['base']['position']);
         }
 
         return true;
@@ -1029,7 +1038,10 @@ class Product extends ParserAbstract
             $this->setField('name', $this->getFromArray($texts, 'name' . $this->productNameFieldId))
                 ->setField('summary', $this->getFromArray($texts, 'shortDescription'))
                 ->setField('description', $this->getFromArray($texts, 'description'))
-                ->setField('url', $this->getProductFullUrl($this->getFromArray($texts, 'urlPath')))
+                ->setField('url', $this->getProductFullUrl(
+                    $this->getFromArray($texts, 'urlPath'),
+                    $this->getFromArray($data, 'mainVariationId')
+                ))
                 ->setField('keywords', $this->getFromArray($texts, 'keywords'));
         }
 
