@@ -1684,7 +1684,7 @@ class ProductTest extends TestCase
         $productMock = $this->getProductMock(['getExportSalesFrequency', 'getRegistry', 'getStoreUrl', 'getItemId']);
         $productMock->expects($this->once())->method('getExportSalesFrequency')->willReturn(true);
         $productMock->expects($this->any())->method('getRegistry')->willReturn($registryMock);
-        $productMock->expects($this->any())->method('getStoreUrl')->willReturn('www.blub.io/');
+        $productMock->expects($this->any())->method('getStoreUrl')->willReturn('www.blub.io');
         $productMock->expects($this->any())->method('getItemId')->willReturn(69);
         $productMock->setPath('/wohnzimmer/buro');
 
@@ -1695,7 +1695,7 @@ class ProductTest extends TestCase
 
         $productMock->processVariation($response['entries'][1]);
 
-        $this->assertSame('http://www.blub.io//wohnzimmer/buro_69_1074', $productMock->getField('url'));
+        $this->assertSame('http://www.blub.io/wohnzimmer/buro_69_1074', $productMock->getField('url'));
     }
 
     /**
