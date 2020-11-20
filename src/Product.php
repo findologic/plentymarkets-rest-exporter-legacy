@@ -1055,7 +1055,7 @@ class Product extends ParserAbstract
                 ->setField('description', $this->getFromArray($texts, 'description'))
                 ->setField('keywords', $this->getFromArray($texts, 'keywords'));
 
-            $this->path = $this->buildProductPath($this->getFromArray($texts, 'urlPath'));
+            $this->path = $this->setPath($this->getFromArray($texts, 'urlPath'));
         }
 
         return $this;

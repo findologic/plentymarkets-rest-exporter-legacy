@@ -1675,7 +1675,7 @@ class ProductTest extends TestCase
         $this->assertSame(1337, $productMock->getField('sales_frequency'));
     }
 
-    public function testUrlIsBuiltFromFirstVariationIfMainVariationIsInactive(): void
+    public function IsBuiltFromFirstActiveVariation(): void
     {
         $registryMock = $this->getRegistryMock(['get', 'getVatRateByVatId']);
         $registryMock->expects($this->any())->method('get')->willReturnSelf();
