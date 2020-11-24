@@ -56,7 +56,7 @@ class ClientTest extends TestCase
     {
         $logMock = $this->getMockBuilder(Logger::class)
             ->disableOriginalConstructor()
-            ->setMethods(['warning', 'info', 'alert'])
+            ->onlyMethods(['warning', 'info', 'alert'])
             ->getMock();
 
         $configMock = $this->getMockBuilder(PlentyConfig::class)
@@ -81,7 +81,7 @@ class ClientTest extends TestCase
 
         $clientMock = $this->getMockBuilder(Client::class)
             ->setConstructorArgs([$configMock, $logMock, $logMock, $httpClientMock])
-            ->setMethods(['getUrl'])
+            ->onlyMethods(['getUrl'])
             ->getMock();
 
         $refreshBody = '{"accessToken":"TEST_TOKEN","tokenType":"Bearer","expiresIn":86400,"refreshToken":"REFERSH_TOKEN"}';
@@ -92,9 +92,13 @@ class ClientTest extends TestCase
 
         $webstoresAuthorizedResponse = $this->buildResponseMock('{"test": "success"}', 200);
 
-        $httpClientMock->expects($this->at(0))->method('send')->willReturn($webstoresUnauthorizedResponse);
-        $httpClientMock->expects($this->at(1))->method('send')->willReturn($refreshResponse);
-        $httpClientMock->expects($this->at(2))->method('send')->willReturn($webstoresAuthorizedResponse);
+        $httpClientMock->expects($this->exactly(3))
+            ->method('send')
+            ->willReturnOnConsecutiveCalls(
+                $webstoresUnauthorizedResponse,
+                $refreshResponse,
+                $webstoresAuthorizedResponse
+            );
 
         $clientMock->getWebstores();
 
@@ -176,12 +180,12 @@ class ClientTest extends TestCase
 
         $logMock = $this->getMockBuilder(Logger::class)
             ->disableOriginalConstructor()
-            ->setMethods(['warning', 'info', 'alert'])
+            ->onlyMethods(['warning', 'info', 'alert'])
             ->getMock();
 
         $configMock = $this->getMockBuilder(PlentyConfig::class)
             ->disableOriginalConstructor()
-            ->setMethods(
+            ->onlyMethods(
                 [
                     'getDomain',
                     'getUsername',
@@ -201,10 +205,12 @@ class ClientTest extends TestCase
         $maxRetries = Client::RETRY_COUNT;
         // Fail for four out of five times, so we can succeed on the final attempt.
         for ($i = 0; $i < $maxRetries - 1; $i++) {
-            $httpClientMock->expects($this->at($i))->method('send')->will($this->returnValue($failedResponse));
+            $httpClientMock->expects($this->exactly($maxRetries))
+                ->method('send')
+                ->will($this->returnValue($failedResponse));
         }
 
-        $httpClientMock->expects($this->at(($maxRetries - 1)))->method('send')->willReturn($successResponse);
+        $httpClientMock->expects($this->exactly($maxRetries))->method('send')->willReturn($successResponse);
 
         /** @var Client|MockObject $clientMock */
         $clientMock = $this->getMockBuilder(Client::class)
@@ -283,10 +289,10 @@ class ClientTest extends TestCase
     {
         $clientMock = $this->getClientMock(['handleException', 'getAccessToken', 'login']);
         // Set return value to false so method would call login() which sets the token
-        $clientMock->expects($this->at(0))->method('getAccessToken')->will($this->returnValue(false));
+        $clientMock->expects($this->exactly(2))->method('getAccessToken')->will($this->returnValue(false));
         $clientMock->expects($this->once())->method('login');
         // Token was set by login() method
-        $clientMock->expects($this->at(1))->method('getAccessToken')->will($this->returnValue('TEST_TOKEN'));
+        $clientMock->expects($this->exactly(2))->method('getAccessToken')->will($this->returnValue('TEST_TOKEN'));
 
         // To test protected method create reflection class
         $reflection = new ReflectionClass(get_class($clientMock));
