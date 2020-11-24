@@ -631,7 +631,7 @@ class ProductTest extends TestCase
      */
     public function testProcessVariation(array $data, $expectedAttributes, $expectedIdentifiers, array $expectedFields)
     {
-        $attributesMock = $this->getMockBuilder('Findologic\Plentymarkets\Parser\Attributes')
+        $attributesMock = $this->getMockBuilder(Attributes::class)
             ->disableOriginalConstructor()
             ->setMethods(array('attributeValueExists', 'getAttributeName', 'getAttributeValueName'))
             ->getMock();
@@ -640,14 +640,14 @@ class ProductTest extends TestCase
         $attributesMock->expects($this->any())->method('getAttributeName')->willReturn('Test');
         $attributesMock->expects($this->any())->method('getAttributeValueName')->willReturn('Test');
 
-        $vatMock = $this->getMockBuilder('Findologic\Plentymarkets\Parser\Vat')
+        $vatMock = $this->getMockBuilder(Vat::class)
             ->disableOriginalConstructor()
             ->setMethods(array('getVatRateByVatId'))
             ->getMock();
 
         $vatMock->expects($this->any())->method('getVatRateByVatId')->willReturn('19.00');
 
-        $unitsMock = $this->getMockBuilder('Findologic\Plentymarkets\Parser\Units')
+        $unitsMock = $this->getMockBuilder(Units::class)
             ->disableOriginalConstructor()
             ->setMethods(array('getUnitValue'))
             ->getMock();
@@ -780,20 +780,24 @@ class ProductTest extends TestCase
      */
     public function testProcessVariationCategories($data, $categories , $expectedResult)
     {
-        $categoriesMock = $this->getMockBuilder('Findologic\Plentymarkets\Parser\Categories')
+        $categoriesMock = $this->getMockBuilder(Categories::class)
             ->disableOriginalConstructor()
             ->setMethods(array('getCategoryFullNamePath', 'getCategoryFullPath'))
             ->getMock();
 
         if ($categories) {
             // Mock return method for testing product with multiple categories
-            $i = 0;
-            foreach ($categories as $category) {
-                $categoriesMock->expects($this->at($i))->method('getCategoryFullNamePath')->will($this->returnValue($category['fullNamePath']));
-                $i++;
-                $categoriesMock->expects($this->at($i))->method('getCategoryFullPath')->will($this->returnValue($category['urlKey']));
-                $i++;
-            }
+            $categoriesMock->expects($this->exactly(count($categories)))
+                ->method('getCategoryFullNamePath')
+                ->willReturnOnConsecutiveCalls(
+                    ...array_map(static function ($category) { return $category['fullNamePath']; }, $categories)
+                );
+
+            $categoriesMock->expects($this->exactly(count($categories)))
+                ->method('getCategoryFullPath')
+                ->willReturnOnConsecutiveCalls(
+                    ...array_map(static function ($category) { return $category['urlKey']; }, $categories)
+                );
         }
 
         $registry = $this->getRegistryMock();
@@ -836,11 +840,9 @@ class ProductTest extends TestCase
 
         if ($stores) {
             // Mock return method for testing product with multiple stores
-            $i = 0;
-            foreach ($stores as $store) {
-                $storesMock->expects($this->at($i))->method('getStoreInternalIdByIdentifier')->will($this->returnValue($store));
-                $i++;
-            }
+            $storesMock->expects($this->exactly(count($stores)))
+                ->method('getStoreInternalIdByIdentifier')
+                ->willReturnOnConsecutiveCalls(...$stores);
         }
 
         $registry = $this->getRegistryMock();
