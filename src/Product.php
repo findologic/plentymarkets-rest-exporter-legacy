@@ -106,9 +106,6 @@ class Product extends ParserAbstract
      */
     protected $availableProductNameFieldIdValues = array(1, 2, 3);
 
-    /** @var string */
-    protected $path = '';
-
     /**
      * @param int $productNameFieldId
      * @return $this
@@ -301,18 +298,6 @@ class Product extends ParserAbstract
         return $this;
     }
 
-    public function getPath(): string
-    {
-        return $this->path;
-    }
-
-    public function setPath(string $path): self
-    {
-        $this->path = $this->buildProductPath($path);
-
-        return $this;
-    }
-
     /**
      * Set $attribute values
      * If such $value for attribute already exist it will be ignored to avoid multiple same values
@@ -353,12 +338,13 @@ class Product extends ParserAbstract
     /**
      * Plentymarkets do not return full URL so it should be formatted by given information
      *
-     * @param int $variationId
+     * @param string $path
+     * @param int $mainVariationId
      * @return string
      */
-    public function getProductFullUrl($variationId)
+    public function getProductFullUrl($path, $mainVariationId)
     {
-        if (!$variationId) {
+        if (!is_string($path) || $path == '' || !$mainVariationId) {
             $this->handleEmptyData();
             return $this->getDefaultEmptyValue();
         }
@@ -369,14 +355,18 @@ class Product extends ParserAbstract
             $prefix .= '/' . $this->getProductUrlPrefix();
         }
 
+        // Using trim just in case if path could be passed with and without forward slash
+        $path = '/' . ltrim($path, '/');
+        $path = rtrim($path, '/');
+
         return sprintf(
             '%s%s%s%s_%s_%s',
             $this->protocol,
             $this->getStoreUrl(),
             $prefix,
-            $this->path,
+            $path,
             $this->getItemId(),
-            $variationId
+            $mainVariationId
         );
     }
 
@@ -438,11 +428,6 @@ class Product extends ParserAbstract
     {
         if (!$this->shouldProcessVariation($variation)) {
             return false;
-        }
-
-        $isMainVariation = $variation['base']['isMain'] ?? false;
-        if ($this->getField('url') === '' || $isMainVariation) {
-            $this->setField('url', $this->getProductFullUrl($variation['id']));
         }
 
         if ($variation['base']['isMain'] || $this->getField('sort') === '') {
@@ -1053,9 +1038,11 @@ class Product extends ParserAbstract
             $this->setField('name', $this->getFromArray($texts, 'name' . $this->productNameFieldId))
                 ->setField('summary', $this->getFromArray($texts, 'shortDescription'))
                 ->setField('description', $this->getFromArray($texts, 'description'))
+                ->setField('url', $this->getProductFullUrl(
+                    $this->getFromArray($texts, 'urlPath'),
+                    $this->getFromArray($data, 'mainVariationId')
+                ))
                 ->setField('keywords', $this->getFromArray($texts, 'keywords'));
-
-            $this->setPath($this->getFromArray($texts, 'urlPath'));
         }
 
         return $this;
@@ -1128,13 +1115,5 @@ class Product extends ParserAbstract
         $this->setField('keywords', implode(',', $keywordsArray));
 
         return $this;
-    }
-
-    private function buildProductPath(string $path): string
-    {
-        // Using trim just in case if path could be passed with and without forward slash
-        $path = '/' . ltrim($path, '/');
-
-        return rtrim($path, '/');
     }
 }
