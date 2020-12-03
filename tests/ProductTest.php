@@ -161,9 +161,9 @@ class ProductTest extends TestCase
     {
         return array(
             // Trim path
-            array('test.com', '/test/', 1 , 'http://test.com/test_1_1000'),
+            array('test.com', '/test/', 1 , 'http://test.com/test/a-1'),
             // No trim
-            array('test.com', 'test', 1, 'http://test.com/test_1_1000'),
+            array('test.com', 'test', 1, 'http://test.com/test/a-1'),
         );
     }
 
@@ -176,7 +176,7 @@ class ProductTest extends TestCase
         $productMock->expects($this->once())->method('getStoreUrl')->willReturn($storeUrl);
         $productMock->expects($this->once())->method('getItemId')->willReturn($productId);
 
-        $this->assertSame($expectedResult, $productMock->getProductFullUrl($path, 1000));
+        $this->assertSame($expectedResult, $productMock->getProductFullUrl($path));
     }
 
     /**

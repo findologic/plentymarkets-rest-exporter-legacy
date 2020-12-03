@@ -339,12 +339,11 @@ class Product extends ParserAbstract
      * Plentymarkets do not return full URL so it should be formatted by given information
      *
      * @param string $path
-     * @param int $mainVariationId
      * @return string
      */
-    public function getProductFullUrl($path, $mainVariationId)
+    public function getProductFullUrl($path)
     {
-        if (!is_string($path) || $path == '' || !$mainVariationId) {
+        if (!is_string($path) || $path == '') {
             $this->handleEmptyData();
             return $this->getDefaultEmptyValue();
         }
@@ -359,15 +358,7 @@ class Product extends ParserAbstract
         $path = '/' . ltrim($path, '/');
         $path = rtrim($path, '/');
 
-        return sprintf(
-            '%s%s%s%s_%s_%s',
-            $this->protocol,
-            $this->getStoreUrl(),
-            $prefix,
-            $path,
-            $this->getItemId(),
-            $mainVariationId
-        );
+        return $this->protocol . $this->getStoreUrl() . $prefix . $path . '/' . 'a-' . $this->getItemId();
     }
 
     /**
@@ -1038,10 +1029,7 @@ class Product extends ParserAbstract
             $this->setField('name', $this->getFromArray($texts, 'name' . $this->productNameFieldId))
                 ->setField('summary', $this->getFromArray($texts, 'shortDescription'))
                 ->setField('description', $this->getFromArray($texts, 'description'))
-                ->setField('url', $this->getProductFullUrl(
-                    $this->getFromArray($texts, 'urlPath'),
-                    $this->getFromArray($data, 'mainVariationId')
-                ))
+                ->setField('url', $this->getProductFullUrl($this->getFromArray($texts, 'urlPath')))
                 ->setField('keywords', $this->getFromArray($texts, 'keywords'));
         }
 
