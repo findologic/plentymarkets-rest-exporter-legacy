@@ -1,7 +1,7 @@
 language: php
 
 php:
-  - 7.2
+  - 7.3
 
 cache:
   directories:
@@ -9,6 +9,9 @@ cache:
 
 install:
   - composer install
+
+before_script:
+  - phpenv config-rm xdebug.ini
 
 script:
   - composer test
