@@ -9,7 +9,8 @@
   "require": {
     "php": ">=7.3",
     "guzzlehttp/guzzle": "^6.3|^7.1",
-    "vasily-kartashov/log4php": "4.1.0"
+    "vasily-kartashov/log4php": "4.1.0",
+    "guzzlehttp/promises": "^1.4"
   },
   "require-dev": {
     "mikey179/vfsstream": "^1.6",
@@ -34,6 +35,6 @@
     }
   ],
   "scripts": {
-    "test": "phpunit --configuration phpunit.xml"
+    "test": "XDEBUG_MODE=coverage phpunit --configuration phpunit.xml"
   }
 }
