@@ -10,8 +10,5 @@ cache:
 install:
   - composer install
 
-before_script:
-  - phpenv config-rm xdebug.ini
-
 script:
   - composer test
