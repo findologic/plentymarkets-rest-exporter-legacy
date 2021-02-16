@@ -16,5 +16,5 @@ In order to start an export:
 a tag for this repository.
 1. Ensure that the **build passed successfully** and bump the version of the REST exporter in
 the importer by running `composer require findologic/plentymarkets-rest-export:^1.35`.
-   * Ensure that you specify `^` and **only** two versions e.g. `^1.35` or `^2.12`.
+   * Ensure that you specify `^` and **only** major and minor version e.g. `^1.35` or `^2.12`.
 1. From here on follow the usual importer deployment procedure.
