@@ -577,7 +577,7 @@ class Product extends ParserAbstract
         }
 
         foreach ($data as $property) {
-            if ($property['property']['typeIdentifier'] != ItemProperties::PROPERTY_TYPE_ITEM) {
+            if ($property['property']['type'] != ItemProperties::PROPERTY_TYPE_ITEM) {
                 continue;
             }
 
@@ -587,7 +587,7 @@ class Product extends ParserAbstract
             if ($property['property']['cast'] == 'empty') {
                 $value = $propertyName;
                 $propertyName = $properties->getPropertyGroupName($property['propertyId']);
-            } else if ($property['property']['cast'] == 'shortText' || $property['property']['cast'] == 'longText') {
+            } else if ($property['property']['cast'] == 'text' || $property['property']['cast'] == 'html') {
                 foreach ($property['values'] as $relationValue) {
                     if (strtoupper($relationValue['lang']) != strtoupper($this->getLanguageCode())) {
                         continue;
@@ -596,7 +596,9 @@ class Product extends ParserAbstract
                     $value = $relationValue['value'];
                 }
             } else if ($property['property']['cast'] == 'selection') {
-                $value = $properties->getPropertySelectionValue($property['propertyId'], $property['values'][0]['value']);
+                if (isset($property['values'][0])) {
+                    $value = $properties->getPropertySelectionValue($property['propertyId'], $property['values'][0]['value']);
+                }
             } else if ($property['property']['cast'] == 'multiSelection') {
                 /** @var PropertySelections $propertySelections */
                 $propertySelections = $this->registry->get('PropertySelections');
