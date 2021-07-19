@@ -1188,7 +1188,7 @@ class ProductTest extends TestCase
                     [
                         'property' => [
                             'id' => '1',
-                            'typeIdentifier' => 'item',
+                            'type' => 'item',
                             'cast' => 'empty'
                         ],
                         'propertyId' => '1',
@@ -1214,8 +1214,8 @@ class ProductTest extends TestCase
                     [
                         'property' => [
                             'id' => '1',
-                            'typeIdentifier' => 'item',
-                            'cast' => 'shortText',
+                            'type' => 'item',
+                            'cast' => 'text',
                         ],
                         'propertyId' => '1',
                         'values' => [
@@ -1238,7 +1238,7 @@ class ProductTest extends TestCase
                     [
                         'property' => [
                             'id' => '1',
-                            'typeIdentifier' => 'item',
+                            'type' => 'item',
                             'cast' => 'int'
                         ],
                         'propertyId' => '1',
@@ -1266,7 +1266,7 @@ class ProductTest extends TestCase
                     [
                         'property' => [
                             'id' => '1',
-                            'typeIdentifier' => 'item',
+                            'type' => 'item',
                             'cast' => 'selection',
                         ],
                         'propertyId' => '1',
@@ -1326,7 +1326,7 @@ class ProductTest extends TestCase
                     [
                         'property' => [
                             'id' => '10',
-                            'typeIdentifier' => 'item',
+                            'type' => 'item',
                             'cast' => 'multiSelection'
                         ],
                         'propertyId' => '10',
@@ -1361,7 +1361,7 @@ class ProductTest extends TestCase
                     [
                         'property' => [
                             'id' => '10',
-                            'typeIdentifier' => 'item',
+                            'type' => 'item',
                             'cast' => 'multiSelection'
                         ],
                         'propertyId' => '10',
@@ -1397,7 +1397,7 @@ class ProductTest extends TestCase
                     [
                         'property' => [
                             'id' => '10',
-                            'typeIdentifier' => 'item',
+                            'type' => 'item',
                             'cast' => 'multiSelection'
                         ],
                         'propertyId' => '10',
@@ -1430,7 +1430,7 @@ class ProductTest extends TestCase
                     [
                         'property' => [
                             'id' => '10',
-                            'typeIdentifier' => 'item',
+                            'type' => 'item',
                             'cast' => 'multiSelection'
                         ],
                         'propertyId' => '10',
