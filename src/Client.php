@@ -117,18 +117,13 @@ class Client
     protected $lastTimeout = false;
 
     /**
-     * @param PlentyConfig $config
+     * @param \PlentyConfig $config
      * @param Logger $log
      * @param Logger $customerLog
      * @param GuzzleClient $client
      * @param bool $debug
      */
-    public function __construct(
-        PlentyConfig $config,
-        Logger $log,
-        Logger $customerLog,
-        GuzzleClient $client = null,
-        Debugger $debugger = null)
+    public function __construct($config, Logger $log, Logger $customerLog, GuzzleClient $client = null, Debugger $debugger = null)
     {
         $this->url = Url::getHost($config->getDomain()) . '/rest/';
         $this->log = $log;
