@@ -596,13 +596,15 @@ class Product extends ParserAbstract
                     $value = $relationValue['value'];
                 }
             } else if ($property['property']['cast'] == 'selection') {
-                if (isset($property['values'][0])) {
+                if (isset($property['propertyId']) && isset($property['values']) && isset($property['values'][0])) {
                     $value = $properties->getPropertySelectionValue($property['propertyId'], $property['values'][0]['value']);
                 }
             } else if ($property['property']['cast'] == 'multiSelection') {
-                /** @var PropertySelections $propertySelections */
-                $propertySelections = $this->registry->get('PropertySelections');
-                $value = $propertySelections->getPropertySelectionValue($property['propertyId'], $property['values']);
+                if (isset($property['propertyId']) && isset($property['values'])) {
+                    /** @var PropertySelections $propertySelections */
+                    $propertySelections = $this->registry->get('PropertySelections');
+                    $value = $propertySelections->getPropertySelectionValue($property['propertyId'], $property['values']);
+                }
             } else {
                 $value = $property['values'][0]['value'] ?? null;
             }
