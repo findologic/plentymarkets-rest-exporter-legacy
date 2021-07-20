@@ -14,6 +14,7 @@ use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\RequestOptions;
 use Log4Php\Logger;
 use GuzzleHttp\Client as GuzzleClient;
+use PlentyConfig;
 
 class Client
 {
@@ -69,9 +70,9 @@ class Client
     protected $loginFlag = false;
 
     /**
-     * @var bool|\Findologic\Plentymarkets\Debugger
+     * @var ?Debugger
      */
-    protected $debug = false;
+    protected $debugger;
 
     /**
      * Connection to API protocol (some websites could use http other https)
@@ -97,7 +98,7 @@ class Client
     protected $page = false;
 
     /**
-     * @var \PlentyConfig
+     * @var PlentyConfig
      */
     protected $config;
 
@@ -116,19 +117,24 @@ class Client
     protected $lastTimeout = false;
 
     /**
-     * @param \PlentyConfig $config Plentymarkets Config object.
+     * @param PlentyConfig $config
      * @param Logger $log
      * @param Logger $customerLog
      * @param GuzzleClient $client
      * @param bool $debug
      */
-    public function __construct($config, Logger $log, Logger $customerLog, GuzzleClient $client = null, $debug = false)
+    public function __construct(
+        PlentyConfig $config,
+        Logger $log,
+        Logger $customerLog,
+        GuzzleClient $client = null,
+        Debugger $debugger = null)
     {
         $this->url = Url::getHost($config->getDomain()) . '/rest/';
         $this->log = $log;
         $this->customerLog = $customerLog;
         $this->client = $client ?? new GuzzleClient();
-        $this->debug = $debug;
+        $this->debugger = $debugger;
         $this->config = $config;
     }
 
@@ -681,8 +687,8 @@ class Client
                     RequestOptions::HTTP_ERRORS => false
                 ]);
 
-                if ($this->debug) {
-                    $this->debug->debugCall($request, $response);
+                if ($this->debugger) {
+                    $this->debugger->debugCall($request, $response);
                 }
 
                 $this->isResponseValid($request, $response);
@@ -711,8 +717,8 @@ class Client
 
         $end = microtime(true);
 
-        if ($this->debug) {
-            $this->debug->logCallTiming($uri, $begin, $end);
+        if ($this->debugger) {
+            $this->debugger->logCallTiming($uri, $begin, $end);
         }
 
         return $response;
