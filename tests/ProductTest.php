@@ -161,9 +161,9 @@ class ProductTest extends TestCase
     {
         return array(
             // Trim path
-            array('test.com', '/test/', 1 , 'http://test.com/test_1_1000'),
+            array('test.com', '/test/', 1 , 'http://test.com/test/a-1'),
             // No trim
-            array('test.com', 'test', 1, 'http://test.com/test_1_1000'),
+            array('test.com', 'test', 1, 'http://test.com/test/a-1'),
         );
     }
 
@@ -176,8 +176,7 @@ class ProductTest extends TestCase
         $productMock->expects($this->once())->method('getStoreUrl')->willReturn($storeUrl);
         $productMock->expects($this->once())->method('getItemId')->willReturn($productId);
 
-        $productMock->setPath($path);
-        $this->assertSame($expectedResult, $productMock->getProductFullUrl(1000));
+        $this->assertSame($expectedResult, $productMock->getProductFullUrl($path));
     }
 
     /**
@@ -1189,7 +1188,7 @@ class ProductTest extends TestCase
                     [
                         'property' => [
                             'id' => '1',
-                            'typeIdentifier' => 'item',
+                            'type' => 'item',
                             'cast' => 'empty'
                         ],
                         'propertyId' => '1',
@@ -1215,8 +1214,8 @@ class ProductTest extends TestCase
                     [
                         'property' => [
                             'id' => '1',
-                            'typeIdentifier' => 'item',
-                            'cast' => 'shortText',
+                            'type' => 'item',
+                            'cast' => 'text',
                         ],
                         'propertyId' => '1',
                         'values' => [
@@ -1239,7 +1238,7 @@ class ProductTest extends TestCase
                     [
                         'property' => [
                             'id' => '1',
-                            'typeIdentifier' => 'item',
+                            'type' => 'item',
                             'cast' => 'int'
                         ],
                         'propertyId' => '1',
@@ -1267,7 +1266,7 @@ class ProductTest extends TestCase
                     [
                         'property' => [
                             'id' => '1',
-                            'typeIdentifier' => 'item',
+                            'type' => 'item',
                             'cast' => 'selection',
                         ],
                         'propertyId' => '1',
@@ -1327,7 +1326,7 @@ class ProductTest extends TestCase
                     [
                         'property' => [
                             'id' => '10',
-                            'typeIdentifier' => 'item',
+                            'type' => 'item',
                             'cast' => 'multiSelection'
                         ],
                         'propertyId' => '10',
@@ -1362,7 +1361,7 @@ class ProductTest extends TestCase
                     [
                         'property' => [
                             'id' => '10',
-                            'typeIdentifier' => 'item',
+                            'type' => 'item',
                             'cast' => 'multiSelection'
                         ],
                         'propertyId' => '10',
@@ -1398,7 +1397,7 @@ class ProductTest extends TestCase
                     [
                         'property' => [
                             'id' => '10',
-                            'typeIdentifier' => 'item',
+                            'type' => 'item',
                             'cast' => 'multiSelection'
                         ],
                         'propertyId' => '10',
@@ -1431,7 +1430,7 @@ class ProductTest extends TestCase
                     [
                         'property' => [
                             'id' => '10',
-                            'typeIdentifier' => 'item',
+                            'type' => 'item',
                             'cast' => 'multiSelection'
                         ],
                         'propertyId' => '10',
@@ -1673,29 +1672,6 @@ class ProductTest extends TestCase
         $productMock->processVariation($response['entries'][0]);
 
         $this->assertSame(1337, $productMock->getField('sales_frequency'));
-    }
-
-    public function testUrlIsBuiltFromFirstActiveVariationIfMainVariationIsInactive(): void
-    {
-        $registryMock = $this->getRegistryMock(['get', 'getVatRateByVatId']);
-        $registryMock->expects($this->any())->method('get')->willReturnSelf();
-        $registryMock->expects($this->any())->method('getVatRateByVatId')->willReturn(1);
-
-        $productMock = $this->getProductMock(['getExportSalesFrequency', 'getRegistry', 'getStoreUrl', 'getItemId']);
-        $productMock->expects($this->once())->method('getExportSalesFrequency')->willReturn(true);
-        $productMock->expects($this->any())->method('getRegistry')->willReturn($registryMock);
-        $productMock->expects($this->any())->method('getStoreUrl')->willReturn('www.blub.io');
-        $productMock->expects($this->any())->method('getItemId')->willReturn(69);
-        $productMock->setPath('/wohnzimmer/buro');
-
-        $response = $this->getMockResponse('/pim/variations/main_variation_inactive_other_is_active.json');
-        $productMock->processVariation($response['entries'][0]);
-
-        $this->assertEmpty($productMock->getField('url'));
-
-        $productMock->processVariation($response['entries'][1]);
-
-        $this->assertSame('http://www.blub.io/wohnzimmer/buro_69_1074', $productMock->getField('url'));
     }
 
     /**
