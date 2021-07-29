@@ -1277,6 +1277,34 @@ class ProductTest extends TestCase
                 ],
                 'expectedResult' => ['Test Property' => ['Selecttion Value']],
             ],
+            'Attribute value that exceeds the attribute character limit must be skipped' => [
+                'registryData' => [
+                    '1' => [
+                        'names' => [
+                            'EN' => 'Test Property'
+                        ]
+                    ]
+                ],
+                'data' => [
+                    [
+                        'property' => [
+                            'id' => '1',
+                            'type' => 'item',
+                            'cast' => 'text',
+                        ],
+                        'propertyId' => '1',
+                        'values' => [
+                            ['lang' => 'DE', 'value' => 'Test DE'],
+                            [
+                                'lang' => 'EN',
+                                // Exceed character limit by one character.
+                                'value' => str_repeat('.', 16383 + 1)
+                            ],
+                        ]
+                    ]
+                ],
+                'expectedResult' => '',
+            ],
         ];
     }
 
