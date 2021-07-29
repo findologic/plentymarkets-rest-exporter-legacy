@@ -308,6 +308,10 @@ class Product extends ParserAbstract
      */
     public function setAttributeField($name, $value)
     {
+        if ($this->exceedsAllowedAttributeCharacterLimit($value)) {
+            return $this;
+        }
+
         if (!$this->fields['attributes']) {
             $this->fields['attributes'] = array();
         }
@@ -320,6 +324,11 @@ class Product extends ParserAbstract
         $this->fields['attributes'][$name][] = $value;
 
         return $this;
+    }
+
+    private function exceedsAllowedAttributeCharacterLimit(string $value): bool
+    {
+        return (strlen($value) > 16383);
     }
 
     /**
