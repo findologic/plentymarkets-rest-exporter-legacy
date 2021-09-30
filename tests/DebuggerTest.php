@@ -9,7 +9,7 @@ use Findologic\Plentymarkets\Exception\InternalException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\Psr7\Stream;
-use Log4Php\Logger;
+use Monolog\Logger;
 use Net_URL2;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;

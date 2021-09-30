@@ -2,12 +2,12 @@
 
 namespace Findologic\Plentymarkets;
 
-use \Findologic\Plentymarkets\Exception\InternalException;
-use GuzzleHttp\Psr7\Response;
+use Findologic\Plentymarkets\Exception\InternalException;
 use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 use HTTP_Request2_Exception;
 use HTTP_Request2_Response;
-use Log4Php\Logger;
+use Monolog\Logger;
 
 class Debugger
 {

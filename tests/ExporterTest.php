@@ -17,7 +17,7 @@ use Findologic\Plentymarkets\Tests\ClientHelper;
 use Findologic\Plentymarkets\Tests\MockResponseHelper;
 use Findologic\Plentymarkets\Wrapper\Csv;
 use Findologic\Plentymarkets\Wrapper\WrapperInterface;
-use Log4Php\Logger;
+use Monolog\Logger;
 use PHPUnit\Framework\MockObject\MockBuilder;
 use PHPUnit\Framework\MockObject\MockObject;
 use PHPUnit\Framework\TestCase;

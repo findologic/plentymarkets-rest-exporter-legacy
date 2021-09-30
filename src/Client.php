@@ -12,8 +12,8 @@ use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\RequestOptions;
-use Log4Php\Logger;
 use GuzzleHttp\Client as GuzzleClient;
+use Monolog\Logger;
 use PlentyConfig;
 
 class Client

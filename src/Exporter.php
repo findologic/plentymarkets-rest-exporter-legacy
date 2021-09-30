@@ -8,7 +8,7 @@ use Findologic\Plentymarkets\Exception\ThrottlingException;
 use Findologic\Plentymarkets\Parser\ParserFactory;
 use Findologic\Plentymarkets\Parser\Attributes;
 use Findologic\Plentymarkets\Wrapper\WrapperInterface;
-use Log4Php\Logger;
+use Monolog\Logger;
 
 class Exporter
 {
@@ -116,8 +116,8 @@ class Exporter
     /**
      * @param \Findologic\Plentymarkets\Client $client
      * @param \Findologic\Plentymarkets\Wrapper\WrapperInterface $wrapper
-     * @param \Logger $log
-     * @param \Logger $customerLog
+     * @param Logger $log
+     * @param Logger $customerLog
      * @param \Findologic\Plentymarkets\Registry $registry
      */
     public function __construct(Client $client, WrapperInterface $wrapper, Logger $log, Logger $customerLog, Registry $registry)
@@ -325,7 +325,7 @@ class Exporter
                         $products[$product['id']] = $product;
                     } else {
                         $this->trackSkippedProducts($product['id']);
-                        $this->getLog()->trace('Product was skipped as it has no id.');
+                        $this->getLog()->debug('Product was skipped as it has no id.');
                     }
 
                     unset($product);

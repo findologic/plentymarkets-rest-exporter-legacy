@@ -2,7 +2,8 @@
 
 namespace Findologic\Plentymarkets;
 
-use Log4Php\Logger;
+
+use Monolog\Logger;
 
 /**
  * A container for holding objects (parsers with parsed data, loggers and etc.)
