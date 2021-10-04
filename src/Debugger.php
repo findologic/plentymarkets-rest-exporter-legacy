@@ -2,12 +2,12 @@
 
 namespace Findologic\Plentymarkets;
 
-use \Findologic\Plentymarkets\Exception\InternalException;
-use GuzzleHttp\Psr7\Response;
+use Findologic\Plentymarkets\Exception\InternalException;
 use GuzzleHttp\Psr7\Request;
+use GuzzleHttp\Psr7\Response;
 use HTTP_Request2_Exception;
 use HTTP_Request2_Response;
-use Log4Php\Logger;
+use Psr\Log\LoggerInterface;
 
 class Debugger
 {
@@ -34,7 +34,7 @@ class Debugger
     protected $pathsToDebug = array();
 
     /**
-     * @var Logger $log
+     * @var LoggerInterface $log
      */
     protected $log;
 
@@ -44,11 +44,11 @@ class Debugger
     protected $timing = array();
 
     /**
-     * @param Logger $log
+     * @param LoggerInterface $log
      * @param string|bool $directory
      * @param array $pathsToDebug
      */
-    public function __construct(Logger $log, $directory = false, array $pathsToDebug = array())
+    public function __construct(LoggerInterface $log, $directory = false, array $pathsToDebug = array())
     {
         $this->log = $log;
 

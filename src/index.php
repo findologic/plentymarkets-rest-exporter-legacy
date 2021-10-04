@@ -5,15 +5,22 @@ ini_set('max_execution_time', 300);
 require_once '../vendor/autoload.php';
 require_once 'PlentyConfig.php';
 
+use Findologic\Plentymarkets\Client;
 use Findologic\Plentymarkets\Debugger;
-use Log4Php\Logger;
-use Log4Php\Configurators\LoggerConfigurationAdapterXML;
+use Findologic\Plentymarkets\Exporter;
+use Findologic\Plentymarkets\Registry;
+use Findologic\Plentymarkets\Wrapper\Csv;
+use Monolog\Handler\StreamHandler;
+use Monolog\Logger;
 
-$configurationAdapter = new LoggerConfigurationAdapterXML();
-Logger::configure($configurationAdapter->convert('Logger/import.xml'));
+function configureLogger(Logger $logger): Logger
+{
+    $logger->pushHandler(new StreamHandler('logs/import.log', Logger::DEBUG));
+    return $logger;
+}
 
-$log = Logger::getLogger('import.php');
-$customerLogger = Logger::getLogger('import.php');
+$log = configureLogger(new Logger('import.php'));
+$customerLogger = configureLogger(new Logger('import.php'));
 $debug = new Debugger($log);
 
 $log->info('Initialising the plugin with DEBUG mode ON.');
@@ -29,11 +36,11 @@ $config->setUsername('FINDOLOGIC API USER')
     ->setRrpId(2) // price id for 'instead' field
     ->setLanguage('DE'); // Language code for texts
 
-$registry = new \Findologic\Plentymarkets\Registry($log, $customerLogger);
+$registry = new Registry($log, $customerLogger);
 $guzzleClient = new \GuzzleHttp\Client();
-$client = new \Findologic\Plentymarkets\Client($config, $log, $customerLogger, $guzzleClient, $debug);
-$wrapper = new \Findologic\Plentymarkets\Wrapper\Csv();
-$exporter = new \Findologic\Plentymarkets\Exporter($client, $wrapper, $log, $customerLogger, $registry);
+$client = new Client($config, $log, $customerLogger, $guzzleClient, $debug);
+$wrapper = new Csv();
+$exporter = new Exporter($client, $wrapper, $log, $customerLogger, $registry);
 $exporter->init();
 
 echo $exporter->getProducts();

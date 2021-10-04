@@ -3,18 +3,18 @@
 namespace Findologic\Plentymarkets;
 
 use Exception;
+use Findologic\Plentymarkets\Exception\AuthorizationException;
 use Findologic\Plentymarkets\Exception\CriticalException;
 use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Exception\ThrottlingException;
-use Findologic\Plentymarkets\Exception\AuthorizationException;
 use Findologic\Plentymarkets\Helper\Url;
+use GuzzleHttp\Client as GuzzleClient;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Psr7\Request;
 use GuzzleHttp\Psr7\Response;
 use GuzzleHttp\RequestOptions;
-use Log4Php\Logger;
-use GuzzleHttp\Client as GuzzleClient;
 use PlentyConfig;
+use Psr\Log\LoggerInterface;
 
 class Client
 {
@@ -48,12 +48,12 @@ class Client
     protected $refreshToken;
 
     /**
-     * @var Logger
+     * @var LoggerInterface
      */
     protected $log;
 
     /**
-     * @var Logger
+     * @var LoggerInterface
      */
     protected $customerLog;
 
@@ -117,13 +117,15 @@ class Client
     protected $lastTimeout = false;
 
     /**
-     * @param \PlentyConfig $config
-     * @param Logger $log
-     * @param Logger $customerLog
+     * @param  PlentyConfig  $config
+     * @param LoggerInterface $log
+     * @param LoggerInterface $customerLog
      * @param GuzzleClient $client
      * @param bool $debug
      */
-    public function __construct($config, Logger $log, Logger $customerLog, GuzzleClient $client = null, Debugger $debugger = null)
+    public function __construct($config, LoggerInterface $log, LoggerInterface $customerLog, GuzzleClient $client = null,
+        Debugger
+    $debugger = null)
     {
         $this->url = Url::getHost($config->getDomain()) . '/rest/';
         $this->log = $log;
@@ -197,7 +199,7 @@ class Client
 
     /**
      * @codeCoverageIgnore
-     * @return Logger
+     * @return LoggerInterface
      */
     public function getLog()
     {
@@ -206,7 +208,7 @@ class Client
 
     /**
      * @codeCoverageIgnore
-     * @return Logger
+     * @return LoggerInterface
      */
     public function getCustomerLog()
     {
