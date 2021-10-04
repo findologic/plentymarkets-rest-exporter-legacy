@@ -3,7 +3,7 @@
 namespace Findologic\Plentymarkets;
 
 
-use Monolog\Logger;
+use Psr\Log\LoggerInterface;
 
 /**
  * A container for holding objects (parsers with parsed data, loggers and etc.)
@@ -17,10 +17,10 @@ class Registry
      * Require log class for constructor to make sure it exists at all times.
      *
      * @codeCoverageIgnore
-     * @param Logger $logger
-     * @param Logger $customerLogger
+     * @param LoggerInterface $logger
+     * @param LoggerInterface $customerLogger
      */
-    public function __construct(Logger $logger, Logger $customerLogger)
+    public function __construct(LoggerInterface $logger, LoggerInterface $customerLogger)
     {
         $this->set('log', $logger);
         $this->set('customerLogger', $customerLogger);

@@ -10,7 +10,8 @@
     "php": ">=7.3",
     "guzzlehttp/guzzle": "^6.3|^7.1",
     "guzzlehttp/promises": "^1.4",
-    "monolog/monolog": "^2.3"
+    "monolog/monolog": "^2.3",
+    "psr/log": "^1.1"
   },
   "require-dev": {
     "mikey179/vfsstream": "^1.6",

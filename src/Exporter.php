@@ -2,40 +2,43 @@
 
 namespace Findologic\Plentymarkets;
 
+use Exception;
 use Findologic\Plentymarkets\Data\Countries;
 use Findologic\Plentymarkets\Exception\CustomerException;
 use Findologic\Plentymarkets\Exception\ThrottlingException;
-use Findologic\Plentymarkets\Parser\ParserFactory;
 use Findologic\Plentymarkets\Parser\Attributes;
+use Findologic\Plentymarkets\Parser\ParserFactory;
+use Findologic\Plentymarkets\Parser\Stores;
 use Findologic\Plentymarkets\Wrapper\WrapperInterface;
-use Monolog\Logger;
+use PlentyConfig;
+use Psr\Log\LoggerInterface;
 
 class Exporter
 {
     const NUMBER_OF_ITEMS_PER_PAGE = 100;
 
     /**
-     * @var \Findologic\Plentymarkets\Client $client
+     * @var Client $client
      */
     protected $client;
 
     /**
-     * @var \Findologic\Plentymarkets\Wrapper\WrapperInterface
+     * @var WrapperInterface
      */
     protected $wrapper;
 
     /**
-     * @var Logger
+     * @var LoggerInterface
      */
     protected $log;
 
     /**
-     * @var Logger
+     * @var LoggerInterface
      */
     protected $customerLog;
 
     /**
-     * @var \Findologic\Plentymarkets\Registry
+     * @var Registry
      */
     protected $registry;
 
@@ -109,18 +112,18 @@ class Exporter
     protected $storesConfiguration = array();
 
     /**
-     * @var \PlentyConfig
+     * @var PlentyConfig
      */
     protected $config;
 
     /**
-     * @param \Findologic\Plentymarkets\Client $client
-     * @param \Findologic\Plentymarkets\Wrapper\WrapperInterface $wrapper
-     * @param Logger $log
-     * @param Logger $customerLog
-     * @param \Findologic\Plentymarkets\Registry $registry
+     * @param  Client  $client
+     * @param  WrapperInterface  $wrapper
+     * @param LoggerInterface $log
+     * @param LoggerInterface $customerLog
+     * @param  Registry  $registry
      */
-    public function __construct(Client $client, WrapperInterface $wrapper, Logger $log, Logger $customerLog, Registry $registry)
+    public function __construct(Client $client, WrapperInterface $wrapper, LoggerInterface $log, LoggerInterface $customerLog, Registry $registry)
     {
         $this->client = $client;
         $this->wrapper = $wrapper;
@@ -171,7 +174,7 @@ class Exporter
     }
 
     /**
-     * @return Logger
+     * @return LoggerInterface
      */
     public function getLog()
     {
@@ -179,7 +182,7 @@ class Exporter
     }
 
     /**
-     * @return Logger
+     * @return LoggerInterface
      */
     public function getCustomerLog()
     {
@@ -195,7 +198,7 @@ class Exporter
     }
 
     /**
-     * @return \PlentyConfig
+     * @return PlentyConfig
      */
     public function getConfig()
     {
@@ -294,7 +297,7 @@ class Exporter
      * @return mixed
      * @throws CustomerException
      * @throws ThrottlingException
-     * @throws \Exception
+     * @throws Exception
      */
     public function getProducts($itemsPerPage = null, $page = 1)
     {
@@ -601,7 +604,7 @@ class Exporter
      */
     protected function initLanguageUrlPrefix()
     {
-        /** @var \Findologic\Plentymarkets\Parser\Stores $stores */
+        /** @var Stores $stores */
         $stores = $this->getRegistry()->get('Stores');
 
         $configurationLanguage = strtolower($this->getConfig()->getLanguage());
