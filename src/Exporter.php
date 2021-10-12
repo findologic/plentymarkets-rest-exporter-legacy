@@ -519,7 +519,7 @@ class Exporter
 
     public function getWebStoreHost(): string
     {
-        $rawUri = null;
+        $rawUri = '';
         foreach ($this->getStoresConfiguration() as $store) {
             if ($store['id'] !== $this->getConfig()->getMultishopId()) {
                 continue;
