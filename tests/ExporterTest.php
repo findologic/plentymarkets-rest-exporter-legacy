@@ -532,6 +532,58 @@ class ExporterTest extends TestCase
         $this->assertEquals($expectedValue, $exporterMock->getStoreConfigValue($storeId, $configField));
     }
 
+    public function testProductUrlHostIsBasedOnWebStoreDomain(): void
+    {
+        $expectedDomainHost = 'www.subdomain.findologic.plentytestshop.io';
+
+        /** @var Client|MockObject $clientMock */
+        $clientMock = $this->getMockBuilder(Client::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        /** @var PlentyConfig|MockObject $configMock */
+        $configMock = $this->getMockBuilder(PlentyConfig::class)
+            ->disableOriginalConstructor()
+            ->setMethods(['getMultishopId'])
+            ->getMock();
+
+        $configMock->expects($this->once())->method('getMultishopId')->willReturn(1);
+
+        $clientMock->expects($this->once())
+            ->method('getConfig')
+            ->willReturn($configMock);
+
+        /** @var Csv|MockObject $wrapperMock */
+        $wrapperMock = $this->getMockBuilder(Csv::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        /** @var Logger|MockObject $loggerMock */
+        $loggerMock = $this->getMockBuilder(Logger::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        /** @var Registry|MockObject $registryMock */
+        $registryMock = $this->getMockBuilder(Registry::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $exporter = new Exporter($clientMock, $wrapperMock, $loggerMock, $loggerMock, $registryMock);
+        $exporter->setStoresConfiguration([
+            [
+                'id' => 1,
+                'configuration' => [
+                    'domain' => 'http://' . $expectedDomainHost,
+                    'domainSsl' => 'https://' . $expectedDomainHost
+                ]
+            ]
+        ]);
+
+        $actualDomainHost = $exporter->getWebStoreHost();
+
+        $this->assertSame($expectedDomainHost, $actualDomainHost);
+    }
+
     /* ------ helper functions ------ */
 
     /**
