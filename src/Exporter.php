@@ -8,6 +8,7 @@ use Findologic\Plentymarkets\Exception\ThrottlingException;
 use Findologic\Plentymarkets\Parser\ParserFactory;
 use Findologic\Plentymarkets\Parser\Attributes;
 use Findologic\Plentymarkets\Wrapper\WrapperInterface;
+use GuzzleHttp\Psr7\Uri;
 use Log4Php\Logger;
 
 class Exporter
@@ -388,7 +389,7 @@ class Exporter
         $product = new Product($this->getRegistry());
         $product->setStorePlentyId($this->getStorePlentyId())
             ->setProtocol($this->getClient()->getProtocol())
-            ->setStoreUrl($this->getConfig()->getDomain())
+            ->setStoreUrl($this->getWebStoreHost())
             ->setLanguageCode($this->getConfig()->getLanguage())
             ->setAvailabilityIds($this->getConfig()->getAvailabilityId())
             ->setPriceId($this->getPriceId())
@@ -514,6 +515,22 @@ class Exporter
         unset($variations);
 
         return $this;
+    }
+
+    public function getWebStoreHost(): string
+    {
+        $rawUri = '';
+        foreach ($this->getStoresConfiguration() as $store) {
+            if ($store['id'] !== $this->getConfig()->getMultishopId()) {
+                continue;
+            }
+
+            $rawUri = $store['configuration']['domainSsl'];
+        }
+
+        $uri = new Uri($rawUri);
+
+        return $uri->getHost();
     }
 
     /**
