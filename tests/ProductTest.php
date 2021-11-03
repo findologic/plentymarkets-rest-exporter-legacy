@@ -1702,6 +1702,14 @@ class ProductTest extends TestCase
         $this->assertSame(1337, $productMock->getField('sales_frequency'));
     }
 
+    public function testNullableAttributeNameOrValuesAreAutomaticallySkipped(): void
+    {
+        $productWrapper = new Product($this->getRegistryMock());
+        $productWrapper->setAttributeField(null, null);
+
+        $this->assertEmpty($productWrapper->getField('attribute'));
+    }
+
     /**
      * @param array $methods
      * @param array|bool $constructorArgs

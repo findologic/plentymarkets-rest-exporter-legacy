@@ -308,6 +308,10 @@ class Product extends ParserAbstract
      */
     public function setAttributeField($name, $value)
     {
+        if ($name === null || $value === null) {
+            return $this;
+        }
+
         if ($this->exceedsAllowedAttributeCharacterLimit($value)) {
             return $this;
         }
